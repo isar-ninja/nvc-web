@@ -454,9 +454,9 @@ export default function Home() {
                   </div>
                 </div>
                 <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
-                  "NVC-Bot has completely transformed how our teams communicate.
-                  Conflicts are resolved faster, and people feel more heard and
-                  understood."
+                  {`"NVC-Bot has completely transformed how our teams communicate.
+                 Conflicts are resolved faster, and people feel more heard and
+                 understood."`}
                 </blockquote>
               </div>
               <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
@@ -551,9 +551,9 @@ export default function Home() {
                   How long does it take to set up?
                 </h3>
                 <p className="mt-2 text-gray-700 dark:text-gray-300">
-                  Most teams are up and running with NVC-Bot in less than 5
-                  minutes. Just add the bot to your Slack workspace and you're
-                  ready to go.
+                  {`Most teams are up and running with NVC-Bot in less than 5
+                 minutes. Just add the bot to your Slack workspace and you're
+                 ready to go.`}
                 </p>
               </div>
               <div className="rounded-lg border p-4">
@@ -562,9 +562,9 @@ export default function Home() {
                   English?
                 </h3>
                 <p className="mt-2 text-gray-700 dark:text-gray-300">
-                  Currently, NVC-Bot supports English, Spanish, French, German,
-                  and Japanese. We're adding more languages regularly based on
-                  customer demand.
+                  {` Currently, NVC-Bot supports English, Spanish, French, German,
+                 and Japanese. We're adding more languages regularly based on
+                 customer demand.`}
                 </p>
               </div>
             </div>
@@ -580,11 +580,11 @@ export default function Home() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                  Ready to Transform Your Team's Communication?
+                  {`Ready to Transform Your Team's Communication?`}
                 </h2>
                 <p className="max-w-[900px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Get started with NVC-Bot today and see the difference in your
-                  team's communication
+                  {`Get started with NVC-Bot today and see the difference in your
+                 team's communication`}
                 </p>
               </div>
               <div className="mx-auto w-full max-w-sm space-y-2">
@@ -618,7 +618,7 @@ export default function Home() {
                   Get in Touch
                 </h2>
                 <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                  Have questions or need more information? We're here to help.
+                  {`Have questions or need more information? We're here to help.`}
                 </p>
               </div>
             </div>
