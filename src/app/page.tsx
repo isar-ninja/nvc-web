@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, MessageSquareText, Shield, Zap } from "lucide-react";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -63,17 +64,24 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Link href="https://slack.com/oauth/v2/authorize?client_id=8590616549954.8574976266663&scope=channels:read,commands,channels:history,groups:history,mpim:history,im:history&user_scope=">
-                    <Button size="lg" className="w-full min-[400px]:w-auto">
+                  <Button
+                    asChild={true}
+                    size="lg"
+                    className="w-full min-[400px]:w-auto"
+                  >
+                    <Link
+                      target="_blank"
+                      href="https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install"
+                    >
                       Try NVC-Bot Free
-                      <img
+                      <Image
                         alt="Add to Slack"
                         height="20"
                         width="20"
-                        src="slack-icon.png"
+                        src="/slack-icon.png"
                       />
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                   <Link href="#demo">
                     <Button
                       size="lg"
@@ -87,8 +95,10 @@ export default function Home() {
               </div>
               <div className="flex justify-center">
                 <div className="relative w-full max-w-[500px] aspect-video rounded-xl overflow-hidden border shadow-lg">
-                  <img
-                    src="https://kzmjph0iozma3tygpba2.lite.vusercontent.net/placeholder.svg?height=400&width=600"
+                  <Image
+                    src="https://kzmjph0iozma3tygpba2.lite.vusercontent.net/placeholder.svg"
+                    width={600}
+                    height={400}
                     alt="NVC-Bot in action showing message transformation"
                     className="object-cover w-full h-full"
                   />
@@ -173,10 +183,10 @@ export default function Home() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
                     2
                   </div>
-                  <h3 className="text-xl font-bold">Tag the Bot</h3>
+                  <h3 className="text-xl font-bold">Call the Bot</h3>
                   <p className="text-center text-gray-500 dark:text-gray-400">
-                    Mention @NVC-Bot in any conversation where you need
-                    translation
+                    {`Type "/nvc your message" in any conversation where you need
+                      translation`}
                   </p>
                 </div>
                 <div className="flex flex-col items-center space-y-3 rounded-lg border p-6 shadow-sm">
@@ -193,8 +203,10 @@ export default function Home() {
                 </div>
               </div>
               <div className="relative mt-8 rounded-xl overflow-hidden border shadow-lg">
-                <img
-                  src="https://kzmjph0iozma3tygpba2.lite.vusercontent.net/placeholder.svg?height=400&width=1000"
+                <Image
+                  src="https://kzmjph0iozma3tygpba2.lite.vusercontent.net/placeholder.svg"
+                  width={1000}
+                  height={400}
                   alt="Step-by-step demonstration of NVC-Bot in action"
                   className="object-cover w-full h-full"
                 />
@@ -441,33 +453,15 @@ export default function Home() {
             <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-12">
               <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
                 <div className="flex items-center gap-4">
-                  <img
-                    src="/placeholder.svg?height=60&width=60"
-                    alt="Sarah Johnson"
-                    className="rounded-full h-12 w-12 object-cover"
-                  />
-                  <div>
-                    <h4 className="font-semibold">Sarah Johnson</h4>
-                    <p className="text-sm text-gray-500">
-                      HR Director, TechCorp
-                    </p>
-                  </div>
-                </div>
-                <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
-                  {`"NVC-Bot has completely transformed how our teams communicate.
-                 Conflicts are resolved faster, and people feel more heard and
-                 understood."`}
-                </blockquote>
-              </div>
-              <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
-                <div className="flex items-center gap-4">
-                  <img
-                    src="/placeholder.svg?height=60&width=60"
+                  <Image
+                    src="/testimonials/man-1.png"
+                    width={60}
+                    height={60}
                     alt="Michael Chen"
                     className="rounded-full h-12 w-12 object-cover"
                   />
                   <div>
-                    <h4 className="font-semibold">Michael Chen</h4>
+                    <h4 className="font-semibold">Michael Lütkenhorst</h4>
                     <p className="text-sm text-gray-500">
                       Engineering Lead, StartupX
                     </p>
@@ -481,13 +475,37 @@ export default function Home() {
               </div>
               <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
                 <div className="flex items-center gap-4">
-                  <img
-                    src="/placeholder.svg?height=60&width=60"
-                    alt="Priya Patel"
+                  <Image
+                    src="/testimonials/woman-1.png"
+                    width={60}
+                    height={60}
+                    alt="Sarah Johnson"
                     className="rounded-full h-12 w-12 object-cover"
                   />
                   <div>
-                    <h4 className="font-semibold">Priya Patel</h4>
+                    <h4 className="font-semibold">Sarah Jung</h4>
+                    <p className="text-sm text-gray-500">
+                      HR Director, TechCorp
+                    </p>
+                  </div>
+                </div>
+                <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
+                  {`"NVC-Bot has completely transformed how our teams communicate.
+                 Conflicts are resolved faster, and people feel more heard and
+                 understood."`}
+                </blockquote>
+              </div>
+              <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
+                <div className="flex items-center gap-4">
+                  <Image
+                    src="/testimonials/man-2.png"
+                    width={60}
+                    height={60}
+                    alt="Hermann Sorglos"
+                    className="rounded-full h-12 w-12 object-cover"
+                  />
+                  <div>
+                    <h4 className="font-semibold">Martin Zoller</h4>
                     <p className="text-sm text-gray-500">
                       Team Lead, Global Solutions
                     </p>
