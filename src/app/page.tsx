@@ -8,7 +8,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       {/* Header */}
       <header className="border-b px-8">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl">
             <MessageSquareText className="h-6 w-6 text-primary" />
             <span>NVC-Bot</span>
@@ -49,7 +49,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-20 md:py-28">
+        <section className="py-20 md:py-28 flex justify-center">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="flex flex-col justify-center space-y-4">
@@ -109,7 +109,7 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section id="features" className="py-16 bg-gray-50 dark:bg-gray-900 flex justify-center">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -155,7 +155,7 @@ export default function Home() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-16">
+        <section id="how-it-works" className="py-16 flex justify-center">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -216,7 +216,7 @@ export default function Home() {
         </section>
 
         {/* Demo Section */}
-        <section id="demo" className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section id="demo" className="flex justify-center py-16 bg-gray-50 dark:bg-gray-900">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -308,7 +308,7 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-16">
+        <section id="pricing" className="flex justify-center py-16">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -438,7 +438,7 @@ export default function Home() {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section className="flex justify-center py-16 bg-gray-50 dark:bg-gray-900">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -521,7 +521,7 @@ export default function Home() {
         </section>
 
         {/* FAQ Section */}
-        <section id="faq" className="py-16">
+        <section id="faq" className="flex justify-center py-16">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -592,7 +592,7 @@ export default function Home() {
         {/* CTA Section */}
         <section
           id="signup"
-          className="py-16 bg-primary text-primary-foreground"
+          className="flex justify-center py-16 bg-primary text-primary-foreground"
         >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -628,7 +628,7 @@ export default function Home() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-16">
+        <section id="contact" className="flex justify-center py-16">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -731,7 +731,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-6 md:py-0 px-8">
+      <footer className="flex justify-center border-t py-6 md:py-0 px-8">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <div className="flex items-center gap-2 font-bold">
             <MessageSquareText className="h-5 w-5 text-primary" />
