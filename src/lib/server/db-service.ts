@@ -1,6 +1,6 @@
 import "server-only";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { User, Workspace } from "@/lib/shared/models";
+import { Plan, User, Workspace } from "@/lib/shared/models";
 import { adminDb } from "./firebase-admin";
 
 // User Functions
@@ -103,6 +103,25 @@ export async function createWorkspace(
     ...newWorkspace,
     createdAt: new Date(),
   };
+}
+
+export async function getPlan(planId: string) {
+  try {
+    const planRef = adminDb.collection("plans").doc(planId);
+    const planDoc = await planRef.get();
+
+    if (!planDoc.exists) {
+      return null;
+    }
+
+    return {
+      id: planDoc.id,
+      ...planDoc.data(),
+    } as Plan;
+  } catch (error) {
+    console.error(`Error getting plan ${planId}:`, error);
+    throw error;
+  }
 }
 
 // Helper function to safely convert Firestore timestamps to Date objects

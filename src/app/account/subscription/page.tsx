@@ -1,46 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Plan } from "@/lib/shared/models";
 import { getAvailablePlans } from "@/lib/client/db-service";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Check,
-  AlertCircle,
+  CheckCircle,
+  MessageSquareText,
   ArrowRight,
-  RefreshCw,
+  Shield,
+  Zap,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
+import { Plan } from "@/lib/shared/models";
 
 export default function SubscriptionPage() {
-  const { userData, firebaseUser, refreshUserData } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
-  const [processingSubscription, setProcessingSubscription] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
+  const { userData, firebaseUser, refreshUserData } = useAuth();
 
   useEffect(() => {
-    // Load available plans
-    const loadPlans = async () => {
+    const fetchPlans = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         const availablePlans = await getAvailablePlans();
         setPlans(availablePlans);
 
@@ -50,43 +42,31 @@ export default function SubscriptionPage() {
           setBillingCycle(userData.subscription.billingCycle);
         }
       } catch (err) {
-        console.error("Error loading plans:", err);
+        console.error("Error fetching plans:", err);
         setError("Failed to load subscription plans. Please try again.");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    loadPlans();
+    fetchPlans();
   }, [userData]);
 
-  // Calculate savings percentage
-  const getSavingsPercentage = (plan: Plan) => {
-    const monthly = plan.pricing.monthly * 12;
-    const yearly = plan.pricing.yearly;
-    return Math.round(((monthly - yearly) / monthly) * 100);
-  };
-
-  // Format price
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-    }).format(price);
+  const handlePlanSelect = (planId: string) => {
+    setSelectedPlanId(planId);
   };
 
   const handleSubscribe = async () => {
-    if (!firebaseUser || !userData) return;
+    if (!selectedPlanId || !firebaseUser || !userData) return;
 
     try {
-      setProcessingSubscription(true);
-      setError(null);
+      setIsProcessing(true);
+      setError("");
 
-      // Get the idToken for authentication
+      // Get the ID token for auth
       const idToken = await firebaseUser.getIdToken();
 
-      // Call the API to create or update the subscription
+      // Call the API to update subscription
       const response = await fetch(`/api/user/subscription`, {
         method: "PUT",
         headers: {
@@ -95,7 +75,7 @@ export default function SubscriptionPage() {
         },
         body: JSON.stringify({
           planId: selectedPlanId,
-          billingCycle,
+          billingCycle: billingCycle,
         }),
       });
 
@@ -106,15 +86,15 @@ export default function SubscriptionPage() {
 
       const data = await response.json();
 
-      // Handle redirect to LemonSqueezy checkout if needed
+      // If there's a checkout URL, redirect to LemonSqueezy checkout
       if (data.checkoutUrl) {
-        // Redirect to LemonSqueezy checkout
         window.location.href = data.checkoutUrl;
-      } else {
-        // If no redirect needed (e.g., downgrading to free plan)
-        await refreshUserData();
-        router.push("/dashboard");
+        return;
       }
+
+      // Otherwise refresh user data and redirect to dashboard
+      await refreshUserData();
+      router.push("/dashboard");
     } catch (err) {
       console.error("Error updating subscription:", err);
       setError(
@@ -123,8 +103,25 @@ export default function SubscriptionPage() {
           : "Failed to update subscription. Please try again.",
       );
     } finally {
-      setProcessingSubscription(false);
+      setIsProcessing(false);
     }
+  };
+
+  // Function to format price with dollar sign
+  const formatPrice = (price: number | string) => {
+    return typeof price === "number" ? `$${price}` : price;
+  };
+
+  // Function to calculate savings percentage
+  const getSavingsPercentage = (plan: Plan) => {
+    const monthly = plan.pricing.monthly * 12;
+    const yearly = plan.pricing.yearly;
+    return Math.round(((monthly - yearly) / monthly) * 100);
+  };
+
+  // Function to get the monthly equivalent of yearly pricing
+  const getMonthlyEquivalent = (yearlyPrice: number) => {
+    return (yearlyPrice / 12).toFixed(0);
   };
 
   // Calculate if plan is an upgrade or downgrade
@@ -140,214 +137,252 @@ export default function SubscriptionPage() {
     );
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <RefreshCw className="h-6 w-6 animate-spin text-primary" />
-        <span className="ml-2">Loading subscription plans...</span>
+        <div className="text-center">
+          <MessageSquareText className="h-10 w-10 text-primary mx-auto animate-pulse" />
+          <p className="mt-4">Loading subscription information...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="mb-6">{error}</p>
+          <Button onClick={() => router.push("/dashboard")}>
+            Back to Dashboard
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container max-w-6xl py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Subscription Plans</h1>
-        <p className="text-gray-500">
-          Choose the plan that works best for you and your team
-        </p>
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-1 p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold mb-2">
+              Choose Your Subscription Plan
+            </h1>
+            <p className="text-gray-500">
+              Select the plan that best fits your needs
+            </p>
 
-        {userData?.subscription.status !== "canceled" && (
-          <div className="mt-4 p-4 border rounded-lg bg-gray-50">
-            <h2 className="font-semibold mb-1">Current Subscription</h2>
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div>
-                <Badge
-                  variant={
-                    userData?.subscription.status === "active"
-                      ? "success"
-                      : "outline"
-                  }
-                >
-                  {userData?.subscription.status}
-                </Badge>
-                <span className="ml-2 font-medium capitalize">
-                  {userData?.subscription.planId} Plan
-                </span>
-                <span className="ml-2 text-gray-500 text-sm">
-                  ({userData?.subscription.billingCycle})
-                </span>
-              </div>
-              {userData?.subscription.status === "active" &&
-                userData?.subscription.currentPeriodEnd && (
-                  <div className="text-sm text-gray-500">
-                    Next billing date:{" "}
-                    {new Date(
-                      userData?.subscription.currentPeriodEnd as Date,
-                    ).toLocaleDateString()}
+            {userData?.subscription &&
+              userData.subscription.status !== "canceled" && (
+                <div className="mt-6 p-4 border rounded-lg bg-gray-50 max-w-lg mx-auto">
+                  <h2 className="font-semibold mb-1">Current Subscription</h2>
+                  <div className="flex items-center justify-center gap-2 flex-wrap">
+                    <Badge
+                      variant={
+                        userData.subscription.status === "active"
+                          ? "success"
+                          : "outline"
+                      }
+                    >
+                      {userData.subscription.status}
+                    </Badge>
+                    <span className="font-medium capitalize">
+                      {userData.subscription.planId} Plan
+                    </span>
+                    <span className="text-gray-500 text-sm">
+                      ({userData.subscription.billingCycle})
+                    </span>
+
+                    {userData.subscription.status === "active" &&
+                      userData.subscription.currentPeriodEnd && (
+                        <div className="text-sm text-gray-500 mt-1 w-full">
+                          Next billing date:{" "}
+                          {new Date(
+                            userData.subscription.currentPeriodEnd as Date,
+                          ).toLocaleDateString()}
+                        </div>
+                      )}
                   </div>
-                )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
-          <div className="flex gap-2 items-center">
-            <AlertCircle className="h-5 w-5" />
-            <span>{error}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Billing cycle toggle */}
-      <div className="mb-8">
-        <RadioGroup
-          className="flex gap-4 justify-center p-2 bg-gray-50 rounded-full w-fit mx-auto"
-          value={billingCycle}
-          onValueChange={(value) =>
-            setBillingCycle(value as "monthly" | "yearly")
-          }
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="monthly" id="monthly" />
-            <Label htmlFor="monthly" className="cursor-pointer">
-              Monthly
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="yearly" id="yearly" />
-            <Label htmlFor="yearly" className="cursor-pointer">
-              Yearly
-              <Badge
-                variant="outline"
-                className="ml-2 bg-green-50 text-green-600 border-green-200"
-              >
-                Save up to 25%
-              </Badge>
-            </Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      {/* Plan selection */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {plans.map((plan) => {
-          const isCurrentPlan = userData?.subscription.planId === plan.id;
-          const price =
-            billingCycle === "monthly"
-              ? plan.pricing.monthly
-              : plan.pricing.yearly;
-          // const isUpgrade = isPlanUpgrade(plan.id);
-          const savingsPercentage = getSavingsPercentage(plan);
-
-          return (
-            <Card
-              key={plan.id}
-              className={`relative ${selectedPlanId === plan.id ? "border-2 border-primary" : ""} ${isCurrentPlan ? "bg-gray-50" : ""}`}
-            >
-              {isCurrentPlan && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
-                  Current Plan
                 </div>
               )}
-              <CardHeader>
-                <CardTitle>{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6">
-                  <div className="flex items-baseline">
-                    <span className="text-3xl font-bold">
-                      {formatPrice(price)}
-                    </span>
-                    <span className="text-gray-500 ml-1">
-                      /{billingCycle === "monthly" ? "month" : "year"}
-                    </span>
-                  </div>
 
-                  {billingCycle === "yearly" && savingsPercentage > 0 && (
-                    <div className="text-green-600 text-sm mt-1">
-                      Save {savingsPercentage}% with annual billing
+            {/* Billing cycle toggle */}
+            <div className="mt-8">
+              <RadioGroup
+                className="flex gap-4 justify-center p-2 bg-gray-50 rounded-full w-fit mx-auto"
+                value={billingCycle}
+                onValueChange={(value) =>
+                  setBillingCycle(value as "monthly" | "yearly")
+                }
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="monthly" id="monthly" />
+                  <Label htmlFor="monthly" className="cursor-pointer">
+                    Monthly
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yearly" id="yearly" />
+                  <Label htmlFor="yearly" className="cursor-pointer">
+                    Yearly
+                    <Badge
+                      variant="outline"
+                      className="ml-2 bg-green-50 text-green-600 border-green-200"
+                    >
+                      Save up to 25%
+                    </Badge>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {plans.map((plan) => {
+              const isCurrentPlan = userData?.subscription.planId === plan.id;
+              const price =
+                billingCycle === "monthly"
+                  ? plan.pricing.monthly
+                  : plan.pricing.yearly;
+              const savingsPercentage = getSavingsPercentage(plan);
+
+              return (
+                <div
+                  key={plan.id}
+                  className={`rounded-lg border p-6 shadow-sm transition-all relative ${
+                    isCurrentPlan ? "border-primary bg-primary/5" : ""
+                  } ${
+                    selectedPlanId === plan.id
+                      ? "border-primary ring-2 ring-primary"
+                      : "hover:shadow-md"
+                  }`}
+                >
+                  {isCurrentPlan && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
+                      Current Plan
                     </div>
                   )}
-                </div>
 
-                <div className="space-y-2">
-                  <p className="font-medium mb-2">Features:</p>
-                  <ul className="space-y-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      {plan.id === "premium" && (
+                        <Zap className="h-5 w-5 text-amber-500" />
+                      )}
+                      {plan.id === "enterprise" && (
+                        <Shield className="h-5 w-5 text-indigo-500" />
+                      )}
+                      <h3 className="text-2xl font-bold">{plan.name}</h3>
+                    </div>
+                    <p className="text-gray-500">{plan.description}</p>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="flex items-baseline">
+                      <span className="text-3xl font-bold">
+                        {formatPrice(price)}
+                      </span>
+                      <span className="ml-1 text-xl font-normal text-gray-500">
+                        /{billingCycle === "monthly" ? "month" : "year"}
+                      </span>
+                    </div>
+
+                    {billingCycle === "yearly" && savingsPercentage > 0 && (
+                      <div className="text-green-600 text-sm mt-1">
+                        Save {savingsPercentage}% with annual billing
+                      </div>
+                    )}
+
+                    {billingCycle === "yearly" && typeof price === "number" && (
+                      <div className="text-sm text-gray-500 mt-1">
+                        ${getMonthlyEquivalent(price)}/mo equivalent
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-6 space-y-3">
+                    <div className="flex justify-between items-center text-sm">
+                      <span>Max Workspaces</span>
+                      <span className="font-medium">
+                        {plan.limits.maxWorkspaces}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span>Translations / Month</span>
+                      <span className="font-medium">
+                        {plan.limits.maxTranslationsPerMonth === null
+                          ? "Unlimited"
+                          : plan.limits.maxTranslationsPerMonth.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="my-6 border-t border-gray-100"></div>
+
+                  <ul className="space-y-3">
                     {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                      <li key={index} className="flex items-start gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
 
-                <div className="mt-6 space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span>Max Workspaces</span>
-                    <span className="font-medium">
-                      {plan.limits.maxWorkspaces}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span>Translations / Month</span>
-                    <span className="font-medium">
-                      {plan.limits.maxTranslationsPerMonth === null
-                        ? "Unlimited"
-                        : plan.limits.maxTranslationsPerMonth.toLocaleString()}
-                    </span>
+                  <div className="mt-6">
+                    <Button
+                      variant={
+                        selectedPlanId === plan.id ? "default" : "outline"
+                      }
+                      className="w-full"
+                      onClick={() => handlePlanSelect(plan.id)}
+                      disabled={isProcessing}
+                    >
+                      {selectedPlanId === plan.id ? "Selected" : "Select Plan"}
+                    </Button>
                   </div>
                 </div>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  className="w-full"
-                  variant={isCurrentPlan ? "outline" : "default"}
-                  onClick={() => setSelectedPlanId(plan.id)}
-                  disabled={processingSubscription}
-                >
-                  {isCurrentPlan ? "Current Plan" : "Select Plan"}
-                </Button>
-              </CardFooter>
-            </Card>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
 
-      {selectedPlanId && (
-        <div className="mt-8 flex justify-center">
-          <Button
-            size="lg"
-            onClick={handleSubscribe}
-            disabled={
-              processingSubscription ||
-              (userData?.subscription.planId === selectedPlanId &&
-                userData?.subscription.billingCycle === billingCycle)
-            }
-          >
-            {processingSubscription ? (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : userData?.subscription.planId === selectedPlanId &&
-              userData?.subscription.billingCycle === billingCycle ? (
-              "Current Plan"
-            ) : isPlanUpgrade(selectedPlanId) ? (
-              <>
-                Upgrade Subscription
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            ) : (
-              "Update Subscription"
-            )}
-          </Button>
+          <div className="mt-12 text-center">
+            <Button
+              size="lg"
+              onClick={handleSubscribe}
+              disabled={
+                isProcessing ||
+                !selectedPlanId ||
+                (userData?.subscription.planId === selectedPlanId &&
+                  userData?.subscription.billingCycle === billingCycle)
+              }
+            >
+              {isProcessing ? (
+                <>
+                  <MessageSquareText className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : userData?.subscription.planId === selectedPlanId &&
+                userData?.subscription.billingCycle === billingCycle ? (
+                "Current Plan"
+              ) : isPlanUpgrade(selectedPlanId) ? (
+                <>
+                  Upgrade Subscription
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              ) : (
+                "Update Subscription"
+              )}
+            </Button>
+
+            <p className="mt-4 text-sm text-gray-500">
+              {selectedPlanId === "enterprise"
+                ? "Our sales team will contact you to discuss custom pricing and features."
+                : "You can change or cancel your subscription at any time."}
+            </p>
+          </div>
         </div>
-      )}
+      </main>
     </div>
   );
 }

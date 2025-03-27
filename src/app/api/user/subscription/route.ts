@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth } from "@/lib/server/firebase-admin";
-import { getUser, updateUser } from "@/lib/server/db-service";
+import { getUser, updateUser, getPlan } from "@/lib/server/db-service";
+// import {
+//   createLemonSqueezyCheckout,
+//   getLemonSqueezyVariantId,
+// } from "@/lib/server/payment-service";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -23,8 +27,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Parse request body
-    const { planId, billingCycle, maxTranslationsPerMonth, maxWorkspaces } =
-      await req.json();
+    const { planId, billingCycle } = await req.json();
 
     if (!planId) {
       return NextResponse.json(
@@ -40,42 +43,145 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Update the user's subscription
-    // In a real app, you would integrate with Stripe here
-    const updateData: Record<string, any> = {};
+    // Check if the plan exists in the database (except "free" which is a special case)
+    if (planId !== "free") {
+      const plan = await getPlan(planId);
+      if (!plan) {
+        return NextResponse.json(
+          { error: "Selected plan does not exist" },
+          { status: 400 },
+        );
+      }
+    }
 
-    // Use dot notation for nested fields to avoid TypeScript issues
-    updateData["subscription.planId"] = planId;
-    updateData["subscription.status"] =
-      planId === "free" ? "active" : "trialing";
-    updateData["subscription.currentPeriodEnd"] = new Date(
-      Date.now() + 14 * 24 * 60 * 60 * 1000,
-    ); // 14 days trial
-    updateData["subscription.billingCycle"] = billingCycle;
+    // For the free plan, we update the subscription directly without payment
+    if (planId === "free") {
+      // Set limits based on the free plan
+      const maxTranslationsPerMonth = 100;
+      const maxWorkspaces = 1;
 
-    // Update limits if provided
-    if (maxTranslationsPerMonth !== undefined) {
+      // Update the user's subscription
+      const updateData: Record<string, any> = {};
+
+      updateData["subscription.planId"] = "free";
+      updateData["subscription.status"] = "active";
+      updateData["subscription.billingCycle"] = billingCycle;
       updateData["subscription.maxTranslationsPerMonth"] =
         maxTranslationsPerMonth;
-    }
-
-    if (maxWorkspaces !== undefined) {
       updateData["subscription.maxWorkspaces"] = maxWorkspaces;
+
+      // If they're coming from a paid plan, set cancelAtPeriodEnd to true
+      if (
+        user.subscription.planId !== "free" &&
+        user.subscription.status === "active"
+      ) {
+        updateData["subscription.cancelAtPeriodEnd"] = true;
+      } else {
+        // Otherwise, update currentPeriodEnd to 14 days from now for new free trials
+        updateData["subscription.currentPeriodEnd"] = new Date(
+          Date.now() + 14 * 24 * 60 * 60 * 1000,
+        );
+        updateData["subscription.cancelAtPeriodEnd"] = false;
+      }
+
+      // Update the user
+      await updateUser(uid, updateData);
+
+      // Get the updated user data
+      const updatedUser = await getUser(uid);
+
+      return NextResponse.json({
+        success: true,
+        user: {
+          uid: updatedUser?.uid,
+          email: updatedUser?.email,
+          subscription: updatedUser?.subscription,
+        },
+      });
     }
 
-    // Update the user
-    await updateUser(uid, updateData);
+    // For paid plans, create a LemonSqueezy checkout
+    try {
+      // Fetch the plan to get the actual limits
+      const plan = await getPlan(planId);
 
-    // Get the updated user data
-    const updatedUser = await getUser(uid);
+      // Get the variant ID for the selected plan and billing cycle
+      // const variantId = getLemonSqueezyVariantId(planId, billingCycle);
+      // if (!variantId) {
+      //   return NextResponse.json(
+      //     { error: "Invalid plan or billing cycle" },
+      //     { status: 400 },
+      //   );
+      // }
 
-    return NextResponse.json({
-      user: {
-        uid: updatedUser?.uid,
-        email: updatedUser?.email,
-        subscription: updatedUser?.subscription,
-      },
-    });
+      // Create checkout
+      const isUpgrade =
+        user.subscription.planId !== "free" &&
+        user.subscription.status === "active";
+      // const checkoutData = await createLemonSqueezyCheckout({
+      //   variantId,
+      //   customerEmail: user.email,
+      //   customerName: user.displayName || user.email,
+      //   userId: uid,
+      //   checkoutOptions: {
+      //     // Pre-fill customer information
+      //     email: user.email,
+      //     name: user.displayName || undefined,
+      //     // Custom data to identify the user in webhooks
+      //     custom: {
+      //       user_id: uid,
+      //       plan_id: planId,
+      //       billing_cycle: billingCycle,
+      //     },
+      //   },
+      // });
+
+      return NextResponse.json({
+        success: true,
+        checkoutUrl: "/dashboard",
+      });
+    } catch (error) {
+      console.error("Error creating LemonSqueezy checkout:", error);
+
+      // If LemonSqueezy integration is not set up or fails, fallback to standard plan update
+      // This would just be a simple direct update for testing purposes
+
+      // Fetch the plan to get the actual limits
+      const plan = await getPlan(planId);
+
+      // Use the plan limits from the database
+      const maxTranslationsPerMonth = plan!.limits.maxTranslationsPerMonth;
+      const maxWorkspaces = plan!.limits.maxWorkspaces;
+
+      // Update the user's subscription
+      const updateData: Record<string, any> = {};
+
+      updateData["subscription.planId"] = planId;
+      updateData["subscription.status"] = "active"; // Set as active for testing
+      updateData["subscription.currentPeriodEnd"] = new Date(
+        Date.now() + 30 * 24 * 60 * 60 * 1000,
+      ); // 30 days
+      updateData["subscription.billingCycle"] = billingCycle;
+      updateData["subscription.maxTranslationsPerMonth"] =
+        maxTranslationsPerMonth;
+      updateData["subscription.maxWorkspaces"] = maxWorkspaces;
+      updateData["subscription.cancelAtPeriodEnd"] = false;
+
+      // Update the user
+      await updateUser(uid, updateData);
+
+      // Get the updated user data
+      const updatedUser = await getUser(uid);
+
+      return NextResponse.json({
+        success: true,
+        user: {
+          uid: updatedUser?.uid,
+          email: updatedUser?.email,
+          subscription: updatedUser?.subscription,
+        },
+      });
+    }
   } catch (error) {
     console.error("Error updating user subscription:", error);
     return NextResponse.json(

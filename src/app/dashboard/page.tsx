@@ -11,16 +11,18 @@ import {
   ExternalLink,
   MessageSquareText,
   RefreshCw,
+  PieChart,
 } from "lucide-react";
 import { Workspace } from "@/lib/shared/models";
 import Image from "next/image";
+import { getCurrentMonthKey } from "@/lib/client/db-service";
 
 export default function Dashboard() {
   const { userData, workspaces, defaultWorkspace } = useAuth();
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
     null,
   );
-
+  // console.log("Dashboard userData", userData);
   useEffect(() => {
     // Set the active workspace to the default one
     if (defaultWorkspace) {
@@ -44,13 +46,41 @@ export default function Dashboard() {
     return planId.charAt(0).toUpperCase() + planId.slice(1);
   };
 
-  // Format the translations display
-  const formatTranslationsDisplay = () => {
-    const used = userData.usage.totalTranslations;
+  // Format the translations display for global user usage
+  const formatGlobalTranslationsDisplay = () => {
+    // Get current month's usage from the user
+    const monthKey = getCurrentMonthKey();
+    const used = userData.usage?.totalTranslations?.[monthKey] || 0;
     const max = userData.subscription.maxTranslationsPerMonth;
 
-    return max === null ? `${used} / Unlimited` : `${used} / ${max}`;
+    // Format the display
+    return max === null || max === undefined
+      ? `${used.toLocaleString()} / Unlimited`
+      : `${used.toLocaleString()} / ${max.toLocaleString()}`;
   };
+
+  // Format the translations display for specific workspace
+  const formatWorkspaceTranslationsDisplay = (workspace: Workspace | null) => {
+    if (!workspace) return "0";
+
+    // Get current month's usage from the workspace
+    const monthKey = getCurrentMonthKey();
+    const used = workspace.usage?.translations?.[monthKey] || 0;
+
+    return used.toLocaleString();
+  };
+
+  // Calculate percentage of used translations
+  const calculateUsagePercentage = () => {
+    const monthKey = getCurrentMonthKey();
+    const used = userData.usage?.totalTranslations?.[monthKey] || 0;
+    const max = userData.subscription.maxTranslationsPerMonth;
+
+    if (!max || max === 0) return 0;
+    return Math.min(100, Math.round((used / max) * 100));
+  };
+
+  const usagePercentage = calculateUsagePercentage();
 
   return (
     <div className="p-8">
@@ -96,8 +126,14 @@ export default function Dashboard() {
                       }`}
                     >
                       <div className="font-medium">{workspace.name}</div>
-                      <div className="text-xs mt-1 opacity-80">
-                        {getSubscriptionLabel()}
+                      <div className="flex justify-between items-center text-xs mt-1">
+                        <span className="opacity-80">
+                          {getSubscriptionLabel()}
+                        </span>
+                        <span className="text-gray-500">
+                          {formatWorkspaceTranslationsDisplay(workspace)}{" "}
+                          translations
+                        </span>
                       </div>
                     </button>
                   ))}
@@ -147,9 +183,7 @@ export default function Dashboard() {
                             Settings
                           </Button>
                         </Link>
-                        <Link
-                          href={`/workspace/${activeWorkspace.id}/subscribe`}
-                        >
+                        <Link href="/account/subscription">
                           <Button size="sm">
                             {userData.subscription.planId === "free"
                               ? "Upgrade"
@@ -166,17 +200,25 @@ export default function Dashboard() {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm text-gray-500">
-                            Translations Used
+                            Global Translations
                           </p>
                           <h3 className="text-2xl font-bold mt-1">
-                            {formatTranslationsDisplay()}
+                            {formatGlobalTranslationsDisplay()}
                           </h3>
-                          <p className="text-xs text-gray-500 mt-1">
-                            This month
-                          </p>
+                          <div className="mt-2">
+                            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                              <div
+                                className="bg-primary h-2.5 rounded-full"
+                                style={{ width: `${usagePercentage}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Using {usagePercentage}% of your monthly quota
+                            </p>
+                          </div>
                         </div>
                         <div className="bg-primary/10 p-2 rounded-full">
-                          <MessageSquareText className="h-5 w-5 text-primary" />
+                          <PieChart className="h-5 w-5 text-primary" />
                         </div>
                       </div>
                     </div>
@@ -184,20 +226,72 @@ export default function Dashboard() {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm text-gray-500">
-                            Billing Status
+                            Workspace Translations
                           </p>
-                          <h3 className="text-2xl font-bold mt-1 capitalize">
-                            {userData.subscription.status}
+                          <h3 className="text-2xl font-bold mt-1">
+                            {formatWorkspaceTranslationsDisplay(
+                              activeWorkspace,
+                            )}
                           </h3>
+                          <p className="text-xs text-gray-500 mt-1">
+                            This month in "{activeWorkspace.name}"
+                          </p>
                         </div>
                         <div className="bg-primary/10 p-2 rounded-full">
-                          <BarChart className="h-5 w-5 text-primary" />
+                          <MessageSquareText className="h-5 w-5 text-primary" />
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Rest of the component remains unchanged */}
+                  {/* Billing Status Card */}
+                  <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm text-gray-500">Billing Status</p>
+                        <h3 className="text-2xl font-bold mt-1 capitalize">
+                          {userData.subscription.status}
+                        </h3>
+                        <p className="text-sm mt-1">
+                          {userData.subscription.status === "active" &&
+                            "Your subscription is active"}
+                          {userData.subscription.status === "trialing" &&
+                            "Your trial is active"}
+                          {userData.subscription.status === "canceled" &&
+                            "Your subscription will end soon"}
+                          {userData.subscription.status === "past_due" &&
+                            "Payment is past due"}
+                        </p>
+                        <div className="mt-3">
+                          <Link href="/account/subscription">
+                            <Button variant="outline" size="sm">
+                              <BarChart className="h-4 w-4 mr-2" />
+                              Manage Subscription
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">Current Plan</p>
+                        <p className="font-bold mt-1 capitalize">
+                          {userData.subscription.planId}
+                        </p>
+                        <p className="text-sm mt-1">
+                          {userData.subscription.billingCycle} billing
+                        </p>
+                        {userData.subscription.currentPeriodEnd && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Renews on{" "}
+                            {new Date(
+                              userData.subscription.currentPeriodEnd as Date,
+                            ).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Slack Integration */}
                   <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800">
                     <h3 className="text-lg font-semibold mb-4">

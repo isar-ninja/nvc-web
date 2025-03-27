@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { MessageSquareText } from "lucide-react";
+import { MessageSquareText, AlertCircle, ArrowUp } from "lucide-react";
 import { canUserCreateMoreWorkspaces } from "@/lib/client/db-service";
 
 export default function NewWorkspace() {
   const [workspaceName, setWorkspaceName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [maxWorkspacesError, setMaxWorkspacesError] = useState(false);
   const { firebaseUser, userData, refreshUserData } = useAuth();
   const router = useRouter();
 
@@ -21,11 +22,13 @@ export default function NewWorkspace() {
 
     if (!workspaceName.trim()) {
       setError("Workspace name is required");
+      setMaxWorkspacesError(false);
       return;
     }
 
     if (!firebaseUser || !userData) {
       setError("You must be logged in to create a workspace");
+      setMaxWorkspacesError(false);
       return;
     }
 
@@ -36,11 +39,13 @@ export default function NewWorkspace() {
         setError(
           "You've reached the maximum number of workspaces for your subscription plan. Please upgrade to create more workspaces.",
         );
+        setMaxWorkspacesError(true);
         return;
       }
 
       setIsLoading(true);
       setError("");
+      setMaxWorkspacesError(false);
 
       const idToken = await firebaseUser.getIdToken();
 
@@ -66,13 +71,23 @@ export default function NewWorkspace() {
       router.push("/dashboard");
 
       // Optionally show a success toast/notification here
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error creating workspace:", err);
       setError(
         err instanceof Error
           ? err.message
           : "Failed to create workspace. Please try again.",
       );
+      // Check if the error is about workspace limits
+      if (
+        (err instanceof Error &&
+          err.message.includes("maximum number of workspaces")) ||
+        err.message.includes("workspace limit")
+      ) {
+        setMaxWorkspacesError(true);
+      } else {
+        setMaxWorkspacesError(false);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +95,7 @@ export default function NewWorkspace() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-2">
         <div className="flex flex-col items-center text-center">
           <div className="flex items-center gap-2 font-bold text-xl">
             <MessageSquareText className="h-6 w-6 text-primary" />
@@ -93,9 +108,22 @@ export default function NewWorkspace() {
         </div>
 
         {error && (
-          <div className="rounded-md bg-red-50 p-4 text-sm text-red-500">
-            {error}
+          <div className="rounded-md bg-red-50 p-4 text-sm text-red-500 space-y-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
           </div>
+        )}
+        {maxWorkspacesError && (
+          <Button
+            variant="outline"
+            className="w-full bg-white hover:bg-blue-50 border-blue-200 text-gray-800"
+            onClick={() => router.push("/account/subscription")}
+          >
+            <ArrowUp className="h-4 w-4 mr-2" />
+            Upgrade Your Plan
+          </Button>
         )}
 
         {userData && userData.subscription.planId !== "free" && (
@@ -135,19 +163,21 @@ export default function NewWorkspace() {
             {isLoading ? "Creating..." : "Create Workspace"}
           </Button>
 
-          {userData && userData.subscription.planId === "free" && (
-            <div className="text-center mt-4">
-              <p className="text-sm text-gray-500 mb-2">
-                Want to create more workspaces?
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => router.push("/account/subscription")}
-              >
-                Upgrade Your Plan
-              </Button>
-            </div>
-          )}
+          {userData &&
+            userData.subscription.planId === "free" &&
+            !maxWorkspacesError && (
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-500 mb-2">
+                  Want to create more workspaces?
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/account/subscription")}
+                >
+                  Upgrade Your Plan
+                </Button>
+              </div>
+            )}
         </form>
       </div>
     </div>
