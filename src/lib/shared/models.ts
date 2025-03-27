@@ -29,6 +29,18 @@ export interface Workspace {
   };
 }
 
+export interface Subscription {
+  planId: string;
+  status: Status;
+  currentPeriodEnd: Date | number | FieldValue;
+  billingCycle: "monthly" | "yearly";
+  cancelAtPeriodEnd: boolean;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  maxTranslationsPerMonth: number;
+  maxWorkspaces: number;
+}
+
 export interface User {
   uid: string;
   email: string;
@@ -37,20 +49,8 @@ export interface User {
   workspaces: string[]; // Workspace IDs
   defaultWorkspace?: string;
   createdAt: Date | number | FieldValue;
-  subscription: {
-    planId: string;
-    status: Status;
-    currentPeriodEnd: Date | number | FieldValue;
-    billingCycle: "monthly" | "yearly";
-    cancelAtPeriodEnd: boolean;
-    stripeCustomerId?: string;
-    stripeSubscriptionId?: string;
-    // New fields for global limits
-    maxTranslationsPerMonth: number;
-    maxWorkspaces: number;
-  };
+  subscription: Subscription;
   usage: {
-    // Global usage tracking across all workspaces by month
     totalTranslations: Record<string, number>;
   };
 }

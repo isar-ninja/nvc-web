@@ -4,6 +4,7 @@ import { Plan, User, Workspace } from "@/lib/shared/models";
 import { adminDb } from "./firebase-admin";
 
 // User Functions
+
 export async function getUser(uid: string): Promise<User | null> {
   try {
     const userRef = adminDb.collection("users").doc(uid);
@@ -31,6 +32,28 @@ export async function getUser(uid: string): Promise<User | null> {
     } as User;
   } catch (error) {
     console.error(`Error getting user ${uid}:`, error);
+    throw error;
+  }
+}
+
+export async function createServerUser(userData: Omit<User, "createdAt">): Promise<User> {
+  try {
+    const userRef = adminDb.collection("users").doc(userData.uid);
+
+    const newUser: User = {
+      ...userData,
+      createdAt: FieldValue.serverTimestamp(),
+    };
+
+    await userRef.set(newUser);
+
+    // Convert the server timestamp to Date for the return value
+    return {
+      ...newUser,
+      createdAt: new Date(),
+    };
+  } catch (error) {
+    console.error(`Error creating user ${userData.uid}:`, error);
     throw error;
   }
 }

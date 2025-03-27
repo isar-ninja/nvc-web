@@ -20,7 +20,6 @@ import { auth } from "@/lib/client/firebase";
 import { usePathname, useRouter } from "next/navigation";
 import { User, Workspace } from "@/lib/shared/models";
 import {
-  createUser,
   getUser,
   getUserWorkspaces,
 } from "@/lib/client/db-service";
@@ -65,23 +64,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Get user data from Firestore
       let userRecord = await getUser(fbUser.uid);
 
-      // If user doesn't exist in Firestore yet, create them
-      if (!userRecord) {
-        userRecord = await createUser(fbUser.uid, {
-          email: fbUser.email || "",
-          displayName: fbUser.displayName || "",
-          photoURL: fbUser.photoURL || "",
-        });
-      }
+      if (userRecord) {
+        setUserData(userRecord);
+      } else {
+        // User doesn't exist, create via server API
+        // Get the ID token for authentication
+        const idToken = await fbUser.getIdToken();
 
-      setUserData(userRecord);
+        // Call the server-side API to create the user
+        const response = await fetch("/api/auth/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create user data");
+        }
+
+        const data = await response.json();
+        userRecord = data.user;
+
+        setUserData(userRecord);
+      }
 
       // Fetch user workspaces
       const userWorkspaces = await getUserWorkspaces(fbUser.uid);
       setWorkspaces(userWorkspaces);
 
       // Set default workspace
-      if (userRecord.defaultWorkspace) {
+      if (userRecord?.defaultWorkspace) {
         const defaultWs = userWorkspaces.find(
           (ws) => ws.id === userRecord?.defaultWorkspace,
         );

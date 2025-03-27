@@ -103,7 +103,7 @@ export async function PUT(req: NextRequest) {
     // For paid plans, create a LemonSqueezy checkout
     try {
       // Fetch the plan to get the actual limits
-      const plan = await getPlan(planId);
+      // const plan = await getPlan(planId);
 
       // Get the variant ID for the selected plan and billing cycle
       // const variantId = getLemonSqueezyVariantId(planId, billingCycle);
@@ -115,9 +115,10 @@ export async function PUT(req: NextRequest) {
       // }
 
       // Create checkout
-      const isUpgrade =
-        user.subscription.planId !== "free" &&
-        user.subscription.status === "active";
+      // const isUpgrade =
+      //   user.subscription.planId !== "free" &&
+      //   user.subscription.status === "active";
+
       // const checkoutData = await createLemonSqueezyCheckout({
       //   variantId,
       //   customerEmail: user.email,

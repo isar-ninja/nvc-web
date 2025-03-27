@@ -1,7 +1,6 @@
 import {
   collection,
   doc,
-  setDoc,
   getDoc,
   getDocs,
   query,
@@ -10,7 +9,6 @@ import {
   Timestamp,
   QueryDocumentSnapshot,
   SnapshotOptions,
-  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { User, Workspace, Plan } from "@/lib/shared/models";
@@ -89,32 +87,6 @@ const workspaceConverter = {
     } as Workspace;
   },
 };
-
-// User Functions
-export async function createUser(uid: string, userData: Partial<User>) {
-  const userRef = doc(db, "users", uid).withConverter(userConverter);
-  const newUser: User = {
-    uid,
-    email: userData.email || "",
-    displayName: userData.displayName || "",
-    photoURL: userData.photoURL || "",
-    workspaces: [],
-    createdAt: serverTimestamp(),
-    subscription: {
-      planId: "free",
-      status: "trialing",
-      currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-      billingCycle: "monthly",
-      cancelAtPeriodEnd: false,
-      maxTranslationsPerMonth: 100,
-      maxWorkspaces: 1,
-    },
-    usage: { totalTranslations: {} },
-  };
-
-  await setDoc(userRef, newUser);
-  return newUser;
-}
 
 export async function getUser(uid: string) {
   const userRef = doc(db, "users", uid).withConverter(userConverter);
