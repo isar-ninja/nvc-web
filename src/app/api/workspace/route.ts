@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth } from "@/lib/server/firebase-admin";
-import { createWorkspace } from "@/lib/server/db-service";
+import { createWorkspace, getUser, updateUser } from "@/lib/server/db-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,6 +26,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get the user to check subscription limits
+    const user = await getUser(uid);
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if user has reached their workspace limit
+    if (user.workspaces.length >= (user.subscription?.maxWorkspaces || 1)) {
+      return NextResponse.json(
+        { error: "Workspace limit reached for your current subscription plan" },
+        { status: 403 }
+      );
+    }
+
     // Create the workspace with server-side logic
     const newWorkspace = await createWorkspace({
       name: name.trim(),
@@ -36,17 +53,17 @@ export async function POST(req: NextRequest) {
           responseStyle: "neutral",
         },
       },
-      subscription: {
-        planId: "free",
-        status: "trialing",
-        currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days trial
-        cancelAtPeriodEnd: false,
-        billingCycle: "monthly",
-      },
       usage: {
         translations: {},
       },
     });
+
+    // If this is the user's first workspace, set it as default
+    if (!user.workspaces.length) {
+      await updateUser(uid, {
+        defaultWorkspace: newWorkspace.id,
+      });
+    }
 
     return NextResponse.json({ workspace: newWorkspace });
   } catch (error) {

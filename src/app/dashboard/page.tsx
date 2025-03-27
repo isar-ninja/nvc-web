@@ -13,7 +13,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { Workspace } from "@/lib/shared/models";
-import { getTranslationsThisMonth } from "@/lib/client/db-service"; // Import the function
 import Image from "next/image";
 
 export default function Dashboard() {
@@ -35,8 +34,8 @@ export default function Dashboard() {
     return null; // Will be handled by AuthContext
   }
 
-  const getSubscriptionLabel = (workspace: Workspace) => {
-    const { planId, status } = workspace.subscription;
+  const getSubscriptionLabel = () => {
+    const { planId, status } = userData.subscription;
 
     if (status === "trialing") {
       return `${planId.charAt(0).toUpperCase() + planId.slice(1)} (Trial)`;
@@ -45,50 +44,25 @@ export default function Dashboard() {
     return planId.charAt(0).toUpperCase() + planId.slice(1);
   };
 
-  // Get maximum translations based on plan
-  const getMaxTranslations = (workspace: Workspace): number => {
-    const planId = workspace.subscription.planId;
-
-    switch (planId) {
-      case "starter":
-        return 100;
-      case "professional":
-        return 1000;
-      case "enterprise":
-        return Infinity;
-      default:
-        return 100; // Default to starter limit
-    }
-  };
-
   // Format the translations display
-  const formatTranslationsDisplay = (workspace: Workspace) => {
-    if (!workspace) return "0 / 0";
+  const formatTranslationsDisplay = () => {
+    const used = userData.usage.totalTranslations;
+    const max = userData.subscription.maxTranslationsPerMonth;
 
-    const used = getTranslationsThisMonth(workspace);
-    const max = getMaxTranslations(workspace);
-
-    return max === Infinity ? `${used} / Unlimited` : `${used} / ${max}`;
+    return max === null ? `${used} / Unlimited` : `${used} / ${max}`;
   };
-  const canCreate =
-    activeWorkspace?.subscription.status !== "trialing" &&
-    activeWorkspace?.subscription.status !== "unpaid";
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <h1 className="text-3xl font-bold mb-4 md:mb-0">Dashboard</h1>
-          {canCreate && (
-            <Button
-              asChild
-              disabled={activeWorkspace?.subscription.status === "trialing"}
-            >
-              <Link href="/workspace/new">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Workspace
-              </Link>
-            </Button>
-          )}
+          <Button asChild>
+            <Link href="/workspace/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Workspace
+            </Link>
+          </Button>
         </div>
 
         {workspaces.length === 0 ? (
@@ -123,21 +97,19 @@ export default function Dashboard() {
                     >
                       <div className="font-medium">{workspace.name}</div>
                       <div className="text-xs mt-1 opacity-80">
-                        {getSubscriptionLabel(workspace)}
+                        {getSubscriptionLabel()}
                       </div>
                     </button>
                   ))}
                 </div>
-                {canCreate && (
-                  <div className="mt-4 pt-4 border-t">
-                    <Link href="/workspace/new">
-                      <Button variant="outline" size="sm" className="w-full">
-                        <Plus className="h-4 w-4 mr-2" />
-                        New Workspace
-                      </Button>
-                    </Link>
-                  </div>
-                )}
+                <div className="mt-4 pt-4 border-t">
+                  <Link href="/workspace/new">
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Workspace
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -154,14 +126,13 @@ export default function Dashboard() {
                         </h2>
                         <div className="flex items-center mt-2">
                           <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">
-                            {getSubscriptionLabel(activeWorkspace)}
+                            {getSubscriptionLabel()}
                           </span>
-                          {activeWorkspace.subscription.status ===
-                            "trialing" && (
+                          {userData.subscription.status === "trialing" && (
                             <span className="text-xs text-gray-500 ml-2">
                               Trial ends on{" "}
                               {new Date(
-                                activeWorkspace.subscription.currentPeriodEnd,
+                                userData.subscription.currentPeriodEnd as Date,
                               ).toLocaleDateString()}
                             </span>
                           )}
@@ -180,7 +151,7 @@ export default function Dashboard() {
                           href={`/workspace/${activeWorkspace.id}/subscribe`}
                         >
                           <Button size="sm">
-                            {activeWorkspace.subscription.planId === "free"
+                            {userData.subscription.planId === "free"
                               ? "Upgrade"
                               : "Manage Subscription"}
                           </Button>
@@ -198,7 +169,7 @@ export default function Dashboard() {
                             Translations Used
                           </p>
                           <h3 className="text-2xl font-bold mt-1">
-                            {formatTranslationsDisplay(activeWorkspace)}
+                            {formatTranslationsDisplay()}
                           </h3>
                           <p className="text-xs text-gray-500 mt-1">
                             This month
@@ -216,7 +187,7 @@ export default function Dashboard() {
                             Billing Status
                           </p>
                           <h3 className="text-2xl font-bold mt-1 capitalize">
-                            {activeWorkspace.subscription.status}
+                            {userData.subscription.status}
                           </h3>
                         </div>
                         <div className="bg-primary/10 p-2 rounded-full">

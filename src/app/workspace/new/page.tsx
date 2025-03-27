@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MessageSquareText } from "lucide-react";
+import { canUserCreateMoreWorkspaces } from "@/lib/client/db-service";
 
 export default function NewWorkspace() {
   const [workspaceName, setWorkspaceName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { firebaseUser, refreshUserData } = useAuth();
+  const { firebaseUser, userData, refreshUserData } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,12 +24,21 @@ export default function NewWorkspace() {
       return;
     }
 
-    if (!firebaseUser) {
+    if (!firebaseUser || !userData) {
       setError("You must be logged in to create a workspace");
       return;
     }
 
     try {
+      // Check if user can create more workspaces based on their subscription
+      const canCreateMore = await canUserCreateMoreWorkspaces(userData);
+      if (!canCreateMore) {
+        setError(
+          "You've reached the maximum number of workspaces for your subscription plan. Please upgrade to create more workspaces.",
+        );
+        return;
+      }
+
       setIsLoading(true);
       setError("");
 
@@ -49,14 +59,20 @@ export default function NewWorkspace() {
         throw new Error(errorData.error || "Failed to create workspace");
       }
 
-      const { workspace } = await response.json();
+      // const { workspace } = await response.json();
       await refreshUserData();
 
-      // Redirect to the subscription selection page
-      router.push(`/workspace/${workspace.id}/subscribe`);
+      // Redirect to the dashboard instead of subscription page
+      router.push("/dashboard");
+
+      // Optionally show a success toast/notification here
     } catch (err) {
       console.error("Error creating workspace:", err);
-      setError("Failed to create workspace. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create workspace. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -82,6 +98,22 @@ export default function NewWorkspace() {
           </div>
         )}
 
+        {userData && userData.subscription.planId !== "free" && (
+          <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-600">
+            <p className="font-medium">
+              Current Plan: {userData.subscription.planId}
+            </p>
+            <p>
+              You can create up to {userData.subscription.maxWorkspaces}{" "}
+              workspaces.
+            </p>
+            <p>
+              Workspaces used: {userData.workspaces.length} /{" "}
+              {userData.subscription.maxWorkspaces}
+            </p>
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
@@ -102,6 +134,20 @@ export default function NewWorkspace() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Creating..." : "Create Workspace"}
           </Button>
+
+          {userData && userData.subscription.planId === "free" && (
+            <div className="text-center mt-4">
+              <p className="text-sm text-gray-500 mb-2">
+                Want to create more workspaces?
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => router.push("/account/subscription")}
+              >
+                Upgrade Your Plan
+              </Button>
+            </div>
+          )}
         </form>
       </div>
     </div>

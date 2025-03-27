@@ -3,6 +3,72 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { User, Workspace } from "@/lib/shared/models";
 import { adminDb } from "./firebase-admin";
 
+// User Functions
+export async function getUser(uid: string): Promise<User | null> {
+  try {
+    const userRef = adminDb.collection("users").doc(uid);
+    const doc = await userRef.get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    const data = doc.data() as any;
+    return {
+      ...data,
+      uid: doc.id,
+      createdAt: convertTimestampToDate(data.createdAt),
+      subscription: data.subscription || {
+        planId: "free",
+        status: "trialing",
+        currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        cancelAtPeriodEnd: false,
+        billingCycle: "monthly",
+        maxTranslationsPerMonth: 100,
+        maxWorkspaces: 1,
+      },
+      usage: data.usage || { totalTranslations: {} },
+    } as User;
+  } catch (error) {
+    console.error(`Error getting user ${uid}:`, error);
+    throw error;
+  }
+}
+
+export async function updateUser(
+  uid: string,
+  data: Partial<User>,
+): Promise<void> {
+  try {
+    const userRef = adminDb.collection("users").doc(uid);
+
+    // Create a copy of data for processing
+    const processedData: any = { ...data };
+
+    // Handle timestamp conversions
+    if (data.createdAt instanceof Date) {
+      processedData.createdAt = Timestamp.fromDate(data.createdAt);
+    }
+
+    // Handle subscription date conversions if they exist
+    if (data.subscription?.currentPeriodEnd instanceof Date) {
+      // Create a new subscription object to avoid modifying the original
+      processedData.subscription = {
+        ...(data.subscription || {}),
+      };
+
+      // Convert the Date to Timestamp
+      processedData.subscription.currentPeriodEnd = Timestamp.fromDate(
+        data.subscription.currentPeriodEnd,
+      );
+    }
+
+    await userRef.update(processedData);
+  } catch (error) {
+    console.error(`Error updating user ${uid}:`, error);
+    throw error;
+  }
+}
 // Workspace Functions
 export async function createWorkspace(
   workspaceData: Omit<Workspace, "id" | "createdAt">,
@@ -79,12 +145,6 @@ export async function getWorkspace(id: string): Promise<Workspace | null> {
       ...data,
       id: doc.id,
       createdAt: convertTimestampToDate(data.createdAt),
-      subscription: {
-        ...data.subscription,
-        currentPeriodEnd: convertTimestampToDate(
-          data.subscription.currentPeriodEnd,
-        ),
-      },
       usage: data.usage || { translations: {} },
     } as Workspace;
   } catch (error) {
@@ -107,61 +167,9 @@ export async function updateWorkspace(
       processedData.createdAt = Timestamp.fromDate(data.createdAt);
     }
 
-    // Handle subscription updates more carefully
-    if (data.subscription) {
-      // Create a new subscription object to avoid mutating the original
-      processedData.subscription = { ...data.subscription };
-
-      // Convert Date to Timestamp if present
-      if (data.subscription.currentPeriodEnd instanceof Date) {
-        processedData.subscription = { ...data.subscription };
-        // Convert Date to Timestamp if present
-        if (data.subscription.currentPeriodEnd instanceof Date) {
-          // Use as any to bypass the type checking for Firestore operations
-          (processedData.subscription.currentPeriodEnd as any) =
-            Timestamp.fromDate(data.subscription.currentPeriodEnd);
-        }
-      }
-    }
-
     await workspaceRef.update(processedData);
   } catch (error) {
     console.error(`Error updating workspace ${id}:`, error);
-    throw error;
-  }
-}
-
-export async function getWorkspaceBySlackTeamId(
-  slackTeamId: string,
-): Promise<Workspace | null> {
-  try {
-    const querySnapshot = await adminDb
-      .collection("workspaces")
-      .where("settings.slackTeamId", "==", slackTeamId)
-      .limit(1)
-      .get();
-
-    if (querySnapshot.empty) {
-      return null;
-    }
-
-    const doc = querySnapshot.docs[0];
-    const data = doc.data() as any;
-
-    return {
-      ...data,
-      id: doc.id,
-      createdAt: convertTimestampToDate(data.createdAt),
-      subscription: {
-        ...data.subscription,
-        currentPeriodEnd: convertTimestampToDate(
-          data.subscription.currentPeriodEnd,
-        ),
-      },
-      usage: data.usage || { translations: {} },
-    } as Workspace;
-  } catch (error) {
-    console.error("Error getting workspace by Slack team ID:", error);
     throw error;
   }
 }

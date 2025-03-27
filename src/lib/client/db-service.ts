@@ -17,26 +17,50 @@ import { User, Workspace, Plan } from "@/lib/shared/models";
 
 // FireStore Converters
 const userConverter = {
-  toFirestore: (user: User) => ({
-    ...user,
-    createdAt:
-      user.createdAt instanceof Date
-        ? Timestamp.fromDate(user.createdAt)
-        : user.createdAt,
-  }),
+  toFirestore: (user: User) => {
+    const userData = { ...user };
+
+    // Convert createdAt Date to Timestamp if needed
+    if (userData.createdAt instanceof Date) {
+      userData.createdAt = Timestamp.fromDate(userData.createdAt);
+    }
+
+    // Convert subscription.currentPeriodEnd Date to Timestamp if needed
+    if (userData.subscription?.currentPeriodEnd instanceof Date) {
+      userData.subscription = {
+        ...userData.subscription,
+        currentPeriodEnd: Timestamp.fromDate(
+          userData.subscription.currentPeriodEnd,
+        ),
+      };
+    }
+
+    return userData;
+  },
   fromFirestore: (
     snapshot: QueryDocumentSnapshot,
     options: SnapshotOptions,
   ): User => {
-    const data = snapshot.data(options);
-    return {
+    const data = snapshot.data(options) as User;
+
+    // Initialize the user object with default values for new fields
+    const user: User = {
       ...data,
       uid: snapshot.id,
       createdAt:
         data.createdAt instanceof Timestamp
           ? data.createdAt.toDate()
           : data.createdAt,
-    } as User;
+      usage: data.usage || { totalTranslations: {} },
+    };
+
+    // Convert subscription.currentPeriodEnd Timestamp to Date if needed
+    if (data.subscription?.currentPeriodEnd instanceof Timestamp) {
+      user.subscription.currentPeriodEnd =
+        data.subscription.currentPeriodEnd.toDate();
+    }
+
+    return user;
   },
 };
 
@@ -47,13 +71,6 @@ const workspaceConverter = {
       workspace.createdAt instanceof Date
         ? Timestamp.fromDate(workspace.createdAt)
         : workspace.createdAt,
-    subscription: {
-      ...workspace.subscription,
-      currentPeriodEnd:
-        workspace.subscription.currentPeriodEnd instanceof Date
-          ? Timestamp.fromDate(workspace.subscription.currentPeriodEnd)
-          : workspace.subscription.currentPeriodEnd,
-    },
   }),
   fromFirestore: (
     snapshot: QueryDocumentSnapshot,
@@ -67,13 +84,6 @@ const workspaceConverter = {
         data.createdAt instanceof Timestamp
           ? data.createdAt.toDate()
           : data.createdAt,
-      subscription: {
-        ...data.subscription,
-        currentPeriodEnd:
-          data.subscription.currentPeriodEnd instanceof Timestamp
-            ? data.subscription.currentPeriodEnd.toDate()
-            : data.subscription.currentPeriodEnd,
-      },
       // Ensure usage exists with translations object
       usage: data.usage || { translations: {} },
     } as Workspace;
@@ -90,6 +100,16 @@ export async function createUser(uid: string, userData: Partial<User>) {
     photoURL: userData.photoURL || "",
     workspaces: [],
     createdAt: serverTimestamp(),
+    subscription: {
+      planId: "free",
+      status: "trialing",
+      currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      billingCycle: "monthly",
+      cancelAtPeriodEnd: false,
+      maxTranslationsPerMonth: 100,
+      maxWorkspaces: 1,
+    },
+    usage: { totalTranslations: {} },
   };
 
   await setDoc(userRef, newUser);
@@ -99,7 +119,6 @@ export async function createUser(uid: string, userData: Partial<User>) {
 export async function getUser(uid: string) {
   const userRef = doc(db, "users", uid).withConverter(userConverter);
   const userSnap = await getDoc(userRef);
-
   if (userSnap.exists()) {
     return userSnap.data();
   }
@@ -155,6 +174,25 @@ export function getCurrentMonthKey(): string {
 export function getTranslationsThisMonth(workspace: Workspace): number {
   const monthKey = getCurrentMonthKey();
   return workspace.usage?.translations?.[monthKey] || 0;
+}
+
+export function getUserTranslationsThisMonth(user: User): number {
+  const monthKey = getCurrentMonthKey();
+  return user.usage?.totalTranslations?.[monthKey] || 0;
+}
+
+export function getRemainingTranslations(user: User): number {
+  const translationsThisMonth = getUserTranslationsThisMonth(user);
+  const maxTranslations = user.subscription?.maxTranslationsPerMonth || 100;
+  return Math.max(0, maxTranslations - translationsThisMonth);
+}
+
+export async function canUserCreateMoreWorkspaces(
+  user: User,
+): Promise<boolean> {
+  return (
+    (user.workspaces?.length || 0) < (user.subscription?.maxWorkspaces || 1)
+  );
 }
 
 export async function getWorkspaceBySlackTeamId(
