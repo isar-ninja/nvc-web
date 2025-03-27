@@ -48,7 +48,9 @@ const PROTECTED_ROUTES = ["/dashboard", "/workspace", "/profile", "/settings"];
 const AUTH_ROUTES = ["/login", "/register"];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<
+    (FirebaseUser & AccessToken) | null
+  >(null);
   const [userData, setUserData] = useState<User | null>(null);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [defaultWorkspace, setDefaultWorkspace] = useState<Workspace | null>(
@@ -105,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(
       auth,
       async (fbUser: FirebaseUser | null) => {
-        setFirebaseUser(fbUser);
+        setFirebaseUser(fbUser as FirebaseUser & AccessToken);
         if (fbUser) {
           await fetchUserData(fbUser);
         } else {

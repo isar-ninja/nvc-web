@@ -8,8 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 
 export function Header() {
-  const { firebaseUser, userData, workspaces, defaultWorkspace, logout } =
-    useAuth();
+  const { firebaseUser, workspaces, defaultWorkspace, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -25,7 +24,6 @@ export function Header() {
   const isDashboard =
     pathname.startsWith("/dashboard") || pathname.startsWith("/workspace");
   const isWorkspacesEmpty = workspaces.length === 0;
-
   return (
     <header className="border-b px-4 md:px-8">
       <div className="flex h-16 items-center justify-between">

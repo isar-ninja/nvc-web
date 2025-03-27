@@ -10,13 +10,14 @@ import {
   BarChart,
   ExternalLink,
   MessageSquareText,
+  RefreshCw,
 } from "lucide-react";
 import { Workspace } from "@/lib/shared/models";
 import { getTranslationsThisMonth } from "@/lib/client/db-service"; // Import the function
 import Image from "next/image";
 
 export default function Dashboard() {
-  const { userData, workspaces, defaultWorkspace, firebaseUser } = useAuth();
+  const { userData, workspaces, defaultWorkspace } = useAuth();
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
     null,
   );
@@ -60,32 +61,6 @@ export default function Dashboard() {
     }
   };
 
-  async function createWorkSpace() {
-    try {
-      const response = await fetch("/api/workspaces", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${firebaseUser?.accessToken}`,
-        },
-        body: JSON.stringify({
-          name: "New Workspace",
-          description: "New Workspace Description",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create workspace");
-      }
-
-      const workspace = await response.json();
-      console.log("workspace created", workspace);
-      // setActiveWorkspace(workspace);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   // Format the translations display
   const formatTranslationsDisplay = (workspace: Workspace) => {
     if (!workspace) return "0 / 0";
@@ -95,16 +70,25 @@ export default function Dashboard() {
 
     return max === Infinity ? `${used} / Unlimited` : `${used} / ${max}`;
   };
-
+  const canCreate =
+    activeWorkspace?.subscription.status !== "trialing" &&
+    activeWorkspace?.subscription.status !== "unpaid";
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <h1 className="text-3xl font-bold mb-4 md:mb-0">Dashboard</h1>
-          <Button onClick={createWorkSpace}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Workspace
-          </Button>
+          {canCreate && (
+            <Button
+              asChild
+              disabled={activeWorkspace?.subscription.status === "trialing"}
+            >
+              <Link href="/workspace/new">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Workspace
+              </Link>
+            </Button>
+          )}
         </div>
 
         {workspaces.length === 0 ? (
@@ -144,14 +128,16 @@ export default function Dashboard() {
                     </button>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t">
-                  <Link href="/workspace/new">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <Plus className="h-4 w-4 mr-2" />
-                      New Workspace
-                    </Button>
-                  </Link>
-                </div>
+                {canCreate && (
+                  <div className="mt-4 pt-4 border-t">
+                    <Link href="/workspace/new">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Plus className="h-4 w-4 mr-2" />
+                        New Workspace
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -249,17 +235,13 @@ export default function Dashboard() {
                     {activeWorkspace.settings.slackTeamId ? (
                       <div className="bg-green-50 p-4 rounded-md dark:bg-green-900/20">
                         <div className="flex items-center">
-                          <div className="bg-green-100 p-2 rounded-full dark:bg-green-900/40">
-                            <svg
-                              className="h-5 w-5 text-green-600"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                            >
-                              <path d="M9.5 15.6c1.1 0 2-.9 2-2v-5.1c0-1.1-.9-2-2-2s-2 .9-2 2v5.1c0 1.1.9 2 2 2zm0-10.2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z" />
-                              <path d="M22 8.5c0-1.1-.9-2-2-2h-5.1c-1.1 0-2 .9-2 2s.9 2 2 2H20c1.1 0 2-.9 2-2zM9.5 20c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-                              <path d="M6.4 8.5c0-1.1-.9-2-2-2H2c-1.1 0-2 .9-2 2s.9 2 2 2h2.4c1.1 0 2-.9 2-2zm2 7.1c0-1.1-.9-2-2-2s-2 .9-2 2v5.1c0 1.1.9 2 2 2s2-.9 2-2v-5.1z" />
-                              <path d="M15.6 14.5c-1.1 0-2 .9-2 2s.9 2 2 2h5.1c1.1 0 2-.9 2-2s-.9-2-2-2h-5.1z" />
-                            </svg>
+                          <div className="bg-green-300 p-2 rounded-full dark:bg-green-900/40">
+                            <Image
+                              alt="Add to Slack"
+                              height="16"
+                              width="16"
+                              src="/slack-icon.png"
+                            />
                           </div>
                           <div className="ml-3">
                             <h4 className="font-medium">Connected to Slack</h4>
@@ -278,13 +260,8 @@ export default function Dashboard() {
                                 target="_blank"
                                 href="https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install"
                               >
-                                Re-install Bot
-                                <Image
-                                  alt="Add to Slack"
-                                  height="16"
-                                  width="16"
-                                  src="/slack-icon.png"
-                                />
+                                Reinstall
+                                <RefreshCw className="ml-2 h-4 w-4" />
                               </Link>
                             </Button>
                           </div>
@@ -362,10 +339,12 @@ export default function Dashboard() {
                     Select a workspace from the sidebar or create a new one to
                     get started.
                   </p>
-                  <Button onClick={createWorkSpace}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Workspace
-                  </Button>
+                  <Link href="/workspace/new">
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Workspace
+                    </Button>
+                  </Link>
                 </div>
               )}
             </div>
