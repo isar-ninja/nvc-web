@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { MessageSquareText, Menu, X } from "lucide-react";
+import { MessageSquareText, Menu, X, Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { firebaseUser, userData, workspaces, defaultWorkspace, logout } =
+    useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -21,7 +22,9 @@ export function Header() {
     }
   };
 
-  const isDashboard = pathname.startsWith("/dashboard");
+  const isDashboard =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/workspace");
+  const isWorkspacesEmpty = workspaces.length === 0;
 
   return (
     <header className="border-b px-4 md:px-8">
@@ -60,7 +63,7 @@ export function Header() {
           </nav>
         )}
 
-        {isDashboard && (
+        {isDashboard && !isWorkspacesEmpty && (
           <nav className="hidden md:flex items-center gap-6">
             <Link
               href="/dashboard"
@@ -68,30 +71,44 @@ export function Header() {
             >
               Dashboard
             </Link>
-            <Link
-              href="/dashboard/settings"
-              className="text-sm font-medium hover:underline"
-            >
-              Settings
-            </Link>
-            <Link
-              href="/dashboard/analytics"
-              className="text-sm font-medium hover:underline"
-            >
-              Analytics
-            </Link>
+            {defaultWorkspace && (
+              <>
+                <Link
+                  href={`/workspace/${defaultWorkspace.id}/settings`}
+                  className="text-sm font-medium hover:underline"
+                >
+                  Settings
+                </Link>
+                <Link
+                  href={`/workspace/${defaultWorkspace.id}/analytics`}
+                  className="text-sm font-medium hover:underline"
+                >
+                  Analytics
+                </Link>
+              </>
+            )}
           </nav>
         )}
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-4">
-          {user ? (
+          {firebaseUser ? (
             <>
-              <span className="text-sm">{user.email}</span>
+              <span className="text-sm">{firebaseUser.email}</span>
               {isDashboard ? (
-                <Button variant="outline" onClick={handleLogout}>
-                  Logout
-                </Button>
+                <>
+                  {!isWorkspacesEmpty && (
+                    <Link href="/workspace/new">
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-1" />
+                        New Workspace
+                      </Button>
+                    </Link>
+                  )}
+                  <Button variant="outline" onClick={handleLogout}>
+                    Logout
+                  </Button>
+                </>
               ) : (
                 <>
                   <Link href="/dashboard">
@@ -172,35 +189,61 @@ export function Header() {
               >
                 Dashboard
               </Link>
-              <Link
-                href="/dashboard/settings"
-                className="text-sm font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Settings
-              </Link>
-              <Link
-                href="/dashboard/analytics"
-                className="text-sm font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Analytics
-              </Link>
+              {defaultWorkspace && !isWorkspacesEmpty && (
+                <>
+                  <Link
+                    href={`/workspace/${defaultWorkspace.id}/settings`}
+                    className="text-sm font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                  <Link
+                    href={`/workspace/${defaultWorkspace.id}/analytics`}
+                    className="text-sm font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Analytics
+                  </Link>
+                </>
+              )}
+              {workspaces.length > 0 && (
+                <Link
+                  href="/workspace/new"
+                  className="text-sm font-medium"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  New Workspace
+                </Link>
+              )}
             </nav>
           )}
 
           <div className="pt-4 border-t">
-            {user ? (
+            {firebaseUser ? (
               <>
-                <div className="text-sm mb-3">{user.email}</div>
+                <div className="text-sm mb-3">{firebaseUser.email}</div>
                 {isDashboard ? (
-                  <Button
-                    variant="outline"
-                    onClick={handleLogout}
-                    className="w-full"
-                  >
-                    Logout
-                  </Button>
+                  <div className="flex flex-col space-y-2">
+                    {!isWorkspacesEmpty && (
+                      <Link
+                        href="/workspace/new"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Button variant="outline" className="w-full">
+                          <Plus className="h-4 w-4 mr-1" />
+                          New Workspace
+                        </Button>
+                      </Link>
+                    )}
+                    <Button
+                      variant="outline"
+                      onClick={handleLogout}
+                      className="w-full"
+                    >
+                      Logout
+                    </Button>
+                  </div>
                 ) : (
                   <div className="flex flex-col space-y-2">
                     <Link
