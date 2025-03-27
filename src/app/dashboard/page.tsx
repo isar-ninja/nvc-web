@@ -12,6 +12,7 @@ import {
   MessageSquareText,
 } from "lucide-react";
 import { Workspace } from "@/lib/shared/models";
+import { getTranslationsThisMonth } from "@/lib/client/db-service"; // Import the function
 import Image from "next/image";
 
 export default function Dashboard() {
@@ -43,6 +44,21 @@ export default function Dashboard() {
     return planId.charAt(0).toUpperCase() + planId.slice(1);
   };
 
+  // Get maximum translations based on plan
+  const getMaxTranslations = (workspace: Workspace): number => {
+    const planId = workspace.subscription.planId;
+
+    switch (planId) {
+      case "starter":
+        return 100;
+      case "professional":
+        return 1000;
+      case "enterprise":
+        return Infinity;
+      default:
+        return 100; // Default to starter limit
+    }
+  };
 
   async function createWorkSpace() {
     try {
@@ -70,17 +86,21 @@ export default function Dashboard() {
     }
   }
 
+  // Format the translations display
+  const formatTranslationsDisplay = (workspace: Workspace) => {
+    if (!workspace) return "0 / 0";
+
+    const used = getTranslationsThisMonth(workspace);
+    const max = getMaxTranslations(workspace);
+
+    return max === Infinity ? `${used} / Unlimited` : `${used} / ${max}`;
+  };
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <h1 className="text-3xl font-bold mb-4 md:mb-0">Dashboard</h1>
-          {/* <Link href="/workspace/new">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Workspace
-            </Button>
-          </Link> */}
           <Button onClick={createWorkSpace}>
             <Plus className="h-4 w-4 mr-2" />
             Create Workspace
@@ -185,26 +205,18 @@ export default function Dashboard() {
 
                   {/* Quick Stats */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-sm text-gray-500">Members</p>
-                          <h3 className="text-2xl font-bold mt-1">
-                            {activeWorkspace.members.length}
-                          </h3>
-                        </div>
-                        <div className="bg-primary/10 p-2 rounded-full">
-                          <Users className="h-5 w-5 text-primary" />
-                        </div>
-                      </div>
-                    </div> */}
                     <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm text-gray-500">
                             Translations Used
                           </p>
-                          <h3 className="text-2xl font-bold mt-1">0 / 100</h3>
+                          <h3 className="text-2xl font-bold mt-1">
+                            {formatTranslationsDisplay(activeWorkspace)}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-1">
+                            This month
+                          </p>
                         </div>
                         <div className="bg-primary/10 p-2 rounded-full">
                           <MessageSquareText className="h-5 w-5 text-primary" />
@@ -228,6 +240,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
+                  {/* Rest of the component remains unchanged */}
                   {/* Slack Integration */}
                   <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800">
                     <h3 className="text-lg font-semibold mb-4">
@@ -256,9 +269,23 @@ export default function Dashboard() {
                             </p>
                           </div>
                           <div className="ml-auto">
-                            <Button variant="outline" size="sm">
-                              <Settings className="h-4 w-4 mr-1" />
-                              Configure
+                            <Button
+                              asChild={true}
+                              size="sm"
+                              className="w-full min-[400px]:w-auto"
+                            >
+                              <Link
+                                target="_blank"
+                                href="https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install"
+                              >
+                                Re-install Bot
+                                <Image
+                                  alt="Add to Slack"
+                                  height="16"
+                                  width="16"
+                                  src="/slack-icon.png"
+                                />
+                              </Link>
                             </Button>
                           </div>
                         </div>
@@ -297,18 +324,6 @@ export default function Dashboard() {
                       Quick Actions
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <h4 className="font-medium">Invite Team Members</h4>
-                        <p className="text-sm text-gray-500 mt-1 mb-3">
-                          Add colleagues to your workspace
-                        </p>
-                        <Link href={`/workspace/${activeWorkspace.id}/members`}>
-                          <Button variant="outline" size="sm">
-                            <Users className="h-4 w-4 mr-1" />
-                            Manage Members
-                          </Button>
-                        </Link>
-                      </div> */}
                       <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <h4 className="font-medium">View Usage Analytics</h4>
                         <p className="text-sm text-gray-500 mt-1 mb-3">
@@ -351,12 +366,6 @@ export default function Dashboard() {
                     <Plus className="h-4 w-4 mr-2" />
                     Create Workspace
                   </Button>
-                  {/* <Link href="/workspace/new">
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Workspace
-                    </Button>
-                  </Link> */}
                 </div>
               )}
             </div>

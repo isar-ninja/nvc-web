@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { createWorkspace } from "@/lib/db-service";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -33,29 +32,28 @@ export default function NewWorkspace() {
       setIsLoading(true);
       setError("");
 
-      const newWorkspace = await createWorkspace({
-        name: workspaceName,
-        ownerId: firebaseUser.uid,
-        settings: {
-          customization: {
-            preferredLanguage: "en",
-            responseStyle: "neutral",
-          },
+      const idToken = await firebaseUser.getIdToken();
+
+      // Call the API to create the workspace
+      const response = await fetch("/api/workspace", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
-        subscription: {
-          planId: "free",
-          status: "trialing",
-          currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days trial
-          cancelAtPeriodEnd: false,
-          billingCycle: "monthly",
-        },
+        body: JSON.stringify({ name: workspaceName }),
       });
 
-      // Refresh user data to include the new workspace
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create workspace");
+      }
+
+      const { workspace } = await response.json();
       await refreshUserData();
 
       // Redirect to the subscription selection page
-      router.push(`/workspace/${newWorkspace.id}/subscribe`);
+      router.push(`/workspace/${workspace.id}/subscribe`);
     } catch (err) {
       console.error("Error creating workspace:", err);
       setError("Failed to create workspace. Please try again.");

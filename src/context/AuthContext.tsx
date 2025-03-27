@@ -19,10 +19,16 @@ import {
 import { auth } from "@/lib/client/firebase";
 import { usePathname, useRouter } from "next/navigation";
 import { User, Workspace } from "@/lib/shared/models";
-import { createUser, getUser, getUserWorkspaces } from "@/lib/client/db-service";
+import {
+  createUser,
+  getUser,
+  getUserWorkspaces,
+} from "@/lib/client/db-service";
+
+type AccessToken = { accessToken: string };
 
 interface AuthContextProps {
-  firebaseUser: FirebaseUser | null;
+  firebaseUser: (FirebaseUser & AccessToken) | null;
   userData: User | null;
   workspaces: Workspace[];
   defaultWorkspace: Workspace | null;
@@ -96,39 +102,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      setFirebaseUser(fbUser);
-      if (fbUser) {
-        await fetchUserData(fbUser);
-      } else {
-        setUserData(null);
-        setWorkspaces([]);
-        setDefaultWorkspace(null);
-      }
-
-      setLoading(false);
-
-      // Handle route protection after auth state is determined
-      if (!loading) {
-        // If user is authenticated and trying to access auth pages, redirect to dashboard
-        if (fbUser && AUTH_ROUTES.includes(pathname)) {
-          router.push("/dashboard");
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (fbUser: FirebaseUser | null) => {
+        setFirebaseUser(fbUser);
+        if (fbUser) {
+          await fetchUserData(fbUser);
+        } else {
+          setUserData(null);
+          setWorkspaces([]);
+          setDefaultWorkspace(null);
         }
 
-        // If user is not authenticated and trying to access protected routes, redirect to login
-        if (
-          !fbUser &&
-          PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
-        ) {
-          router.push("/login");
-        }
+        setLoading(false);
 
-        // If user is authenticated but has no workspaces and is trying to access dashboard
-        if (fbUser && workspaces.length === 0 && pathname === "/dashboard") {
-          router.push("/workspace/new");
+        // Handle route protection after auth state is determined
+        if (!loading) {
+          // If user is authenticated and trying to access auth pages, redirect to dashboard
+          if (fbUser && AUTH_ROUTES.includes(pathname)) {
+            router.push("/dashboard");
+          }
+
+          // If user is not authenticated and trying to access protected routes, redirect to login
+          if (
+            !fbUser &&
+            PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
+          ) {
+            router.push("/login");
+          }
+
+          // If user is authenticated but has no workspaces and is trying to access dashboard
+          if (fbUser && workspaces.length === 0 && pathname === "/dashboard") {
+            router.push("/workspace/new");
+          }
         }
-      }
-    });
+      },
+    );
 
     return () => unsubscribe();
   }, [pathname, loading, router]);

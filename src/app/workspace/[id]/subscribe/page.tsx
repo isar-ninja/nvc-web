@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { getWorkspace, updateWorkspace } from "@/lib/db-service";
-import { Workspace } from "@/lib/models";
+import { getWorkspace } from "@/lib/client/db-service";
 import { CheckCircle, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Workspace } from "@/lib/shared/models";
 
 // Define plans to match those on the homepage
 const PLANS = [
@@ -118,24 +118,34 @@ export default function SubscribePage() {
   };
 
   const handleSubscribe = async () => {
-    if (!workspace || !selectedPlan) return;
+    if (!workspace || !selectedPlan || !firebaseUser) return;
 
     try {
       setIsLoading(true);
 
-      // In a real implementation, you would integrate with Stripe here
-      // For now, we'll just update the workspace with the selected plan
+      // Get the ID token for auth
+      const idToken = await firebaseUser.getIdToken();
 
-      await updateWorkspace(workspace.id, {
-        subscription: {
-          ...workspace.subscription,
-          planId: selectedPlan,
-          status: selectedPlan === "free" ? "active" : "trialing",
-          // Set trial end date to 14 days from now
-          currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-          billingCycle: billingCycle,
+      // Call the API to update subscription
+      const response = await fetch(
+        `/api/workspace/${workspace.id}/subscription`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({
+            planId: selectedPlan,
+            billingCycle: billingCycle,
+          }),
         },
-      });
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update subscription");
+      }
 
       // Refresh user data to include updated workspace
       await refreshUserData();
@@ -144,7 +154,11 @@ export default function SubscribePage() {
       router.push("/dashboard");
     } catch (err) {
       console.error("Error updating subscription:", err);
-      setError("Failed to update subscription. Please try again.");
+      setError(
+        typeof err === "object" && err !== null && "message" in err
+          ? String(err.message)
+          : "Failed to update subscription. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }

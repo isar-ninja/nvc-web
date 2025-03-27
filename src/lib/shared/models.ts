@@ -1,3 +1,5 @@
+import { FieldValue } from "firebase-admin/firestore";
+
 export const stati = [
   "trialing",
   "active",
@@ -11,9 +13,8 @@ export type Status = (typeof stati)[number];
 export interface Workspace {
   id: string;
   name: string;
-  createdAt: Date | number;
+  createdAt: Date | number | FieldValue;
   ownerId: string;
-  members: string[];
   settings: {
     slackTeamId?: string;
     slackBotToken?: string;
@@ -26,9 +27,14 @@ export interface Workspace {
     planId: string;
     status: Status;
     currentPeriodEnd: Date | number;
+    billingCycle: "monthly" | "yearly";
     cancelAtPeriodEnd: boolean;
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;
+  };
+  usage: {
+    // Keep track of translations by month (e.g., "2023-10": 157)
+    translations: Record<string, number>;
   };
 }
 
@@ -39,7 +45,7 @@ export interface User {
   photoURL?: string;
   workspaces: string[]; // Workspace IDs
   defaultWorkspace?: string;
-  createdAt: Date | number;
+  createdAt: Date | number | FieldValue;
 }
 
 export interface Plan {

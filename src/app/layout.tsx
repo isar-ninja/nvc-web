@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     "NVC-Bot translates aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

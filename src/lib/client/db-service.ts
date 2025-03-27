@@ -7,32 +7,13 @@ import {
   query,
   where,
   updateDoc,
-  serverTimestamp,
   Timestamp,
   QueryDocumentSnapshot,
   SnapshotOptions,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { User, Workspace, Plan } from "@/lib/shared/models";
-
-export const memberRoles = ["owner", "admin", "member"] as const;
-export type MemberRole = (typeof memberRoles)[number];
-
-// Define workspace member interface
-export interface WorkspaceMember {
-  uid: string;
-  email: string;
-  displayName?: string;
-  photoURL?: string;
-  role: MemberRole;
-  joinedAt: Date | number;
-  invitedBy?: string; // UID of the user who invited this member
-  lastActive?: Date | number;
-  settings?: {
-    notifications?: boolean;
-    // Add other member-specific settings as needed
-  };
-}
 
 // FireStore Converters
 const userConverter = {
@@ -93,38 +74,9 @@ const workspaceConverter = {
             ? data.subscription.currentPeriodEnd.toDate()
             : data.subscription.currentPeriodEnd,
       },
+      // Ensure usage exists with translations object
+      usage: data.usage || { translations: {} },
     } as Workspace;
-  },
-};
-
-const memberConverter = {
-  toFirestore: (member: WorkspaceMember) => ({
-    ...member,
-    joinedAt:
-      member.joinedAt instanceof Date
-        ? Timestamp.fromDate(member.joinedAt)
-        : member.joinedAt,
-    lastActive:
-      member.lastActive instanceof Date
-        ? Timestamp.fromDate(member.lastActive)
-        : member.lastActive,
-  }),
-  fromFirestore: (
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions,
-  ): WorkspaceMember => {
-    const data = snapshot.data(options);
-    return {
-      ...data,
-      joinedAt:
-        data.joinedAt instanceof Timestamp
-          ? data.joinedAt.toDate()
-          : data.joinedAt,
-      lastActive:
-        data.lastActive instanceof Timestamp
-          ? data.lastActive.toDate()
-          : data.lastActive,
-    } as WorkspaceMember;
   },
 };
 
@@ -160,58 +112,6 @@ export async function updateUser(uid: string, data: Partial<User>) {
   await updateDoc(userRef, data);
 }
 
-// Workspace Functions
-export async function createWorkspace(
-  workspaceData: Omit<Workspace, "id" | "createdAt" | "members"> & {
-    owner: User;
-  },
-) {
-  const workspacesRef = collection(db, "workspaces").withConverter(
-    workspaceConverter,
-  );
-  const workspaceRef = doc(workspacesRef);
-
-  const newWorkspace: Workspace = {
-    id: workspaceRef.id,
-    ...workspaceData,
-    members: [workspaceData.owner.uid],
-    createdAt: serverTimestamp(),
-  };
-
-  await setDoc(workspaceRef, newWorkspace);
-
-  const memberRef = doc(
-    collection(workspaceRef, "members"),
-    workspaceData.owner.uid,
-  ).withConverter(memberConverter);
-
-  const ownerMember: WorkspaceMember = {
-    uid: workspaceData.owner.uid,
-    email: workspaceData.owner.email,
-    displayName: workspaceData.owner.displayName,
-    photoURL: workspaceData.owner.photoURL,
-    role: "owner" as MemberRole,
-    joinedAt: serverTimestamp(),
-  };
-  await setDoc(memberRef, ownerMember);
-  // Update user's workspaces array
-  const userRef = doc(db, "users", workspaceData.ownerId).withConverter(
-    userConverter,
-  );
-  const userSnap = await getDoc(userRef);
-
-  if (userSnap.exists()) {
-    const userData = userSnap.data();
-    const updatedWorkspaces = [...userData.workspaces, workspaceRef.id];
-    await updateDoc(userRef, {
-      workspaces: updatedWorkspaces,
-      defaultWorkspace: userData.defaultWorkspace || workspaceRef.id,
-    });
-  }
-
-  return newWorkspace;
-}
-
 export async function getWorkspace(id: string) {
   const workspaceRef = doc(db, "workspaces", id).withConverter(
     workspaceConverter,
@@ -225,31 +125,12 @@ export async function getWorkspace(id: string) {
   return null;
 }
 
-export async function updateWorkspace(id: string, data: Partial<Workspace>) {
-  const workspaceRef = doc(db, "workspaces", id).withConverter(
-    workspaceConverter,
-  );
-  await updateDoc(workspaceRef, data);
-}
-
 export async function getUserWorkspaces(userId: string) {
   const workspacesRef = collection(db, "workspaces").withConverter(
     workspaceConverter,
   );
   const q = query(workspacesRef, where("ownerId", "==", userId));
   const querySnapshot = await getDocs(q);
-
-  return querySnapshot.docs.map((doc) => doc.data());
-}
-
-export async function getWorkspaceMembers(workspaceId: string) {
-  const membersRef = collection(
-    db,
-    "workspaces",
-    workspaceId,
-    "members",
-  ).withConverter(memberConverter);
-  const querySnapshot = await getDocs(membersRef);
 
   return querySnapshot.docs.map((doc) => doc.data());
 }
@@ -263,4 +144,34 @@ export async function getAvailablePlans() {
     id: doc.id,
     ...doc.data(),
   })) as Plan[];
+}
+
+// Utility functions for translation tracking
+export function getCurrentMonthKey(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export function getTranslationsThisMonth(workspace: Workspace): number {
+  const monthKey = getCurrentMonthKey();
+  return workspace.usage?.translations?.[monthKey] || 0;
+}
+
+export async function getWorkspaceBySlackTeamId(
+  slackTeamId: string,
+): Promise<Workspace | null> {
+  const workspacesRef = collection(db, "workspaces").withConverter(
+    workspaceConverter,
+  );
+  const q = query(
+    workspacesRef,
+    where("settings.slackTeamId", "==", slackTeamId),
+  );
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  return querySnapshot.docs[0].data();
 }
