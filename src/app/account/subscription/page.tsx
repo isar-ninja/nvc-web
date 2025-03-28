@@ -16,7 +16,17 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Plan } from "@/lib/shared/models";
+import Link from "next/link";
+import Script from "next/script";
 
+const LEMON_SQUEEZY_URLS = {
+  starter:
+    "https://stage.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38",
+  professional:
+    "https://stage.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38?embed=1", // Update with actual URL
+  enterprise:
+    "https://stage.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38?embed=1", // Update with actual URL
+};
 export default function SubscriptionPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
@@ -27,7 +37,7 @@ export default function SubscriptionPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const { userData, firebaseUser, refreshUserData } = useAuth();
+  const { userData, firebaseUser } = useAuth();
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -64,37 +74,12 @@ export default function SubscriptionPage() {
       setError("");
 
       // Get the ID token for auth
-      const idToken = await firebaseUser.getIdToken();
-
-      // Call the API to update subscription
-      const response = await fetch(`/api/user/subscription`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({
-          planId: selectedPlanId,
-          billingCycle: billingCycle,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update subscription");
-      }
-
-      const data = await response.json();
-
-      // If there's a checkout URL, redirect to LemonSqueezy checkout
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-        return;
-      }
-
+      // const idToken = await firebaseUser.getIdToken();
+      console.log(selectedPlanId);
+      window.open(LEMON_SQUEEZY_URLS[selectedPlanId], "_blank");
       // Otherwise refresh user data and redirect to dashboard
-      await refreshUserData();
-      router.push("/dashboard");
+      // await refreshUserData();
+      // router.push("/dashboard");
     } catch (err) {
       console.error("Error updating subscription:", err);
       setError(
@@ -164,6 +149,8 @@ export default function SubscriptionPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <Script defer src="https://assets.lemonsqueezy.com/lemon.js" />
+
       <main className="flex-1 p-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
@@ -347,34 +334,38 @@ export default function SubscriptionPage() {
           </div>
 
           <div className="mt-12 text-center">
-            <Button
-              size="lg"
-              onClick={handleSubscribe}
-              disabled={
-                isProcessing ||
-                !selectedPlanId ||
-                (userData?.subscription.planId === selectedPlanId &&
-                  userData?.subscription.billingCycle === billingCycle)
-              }
+            <Link
+              href={LEMON_SQUEEZY_URLS[selectedPlanId] || ""}
+              className="lemonsqueezy-button"
             >
-              {isProcessing ? (
-                <>
-                  <MessageSquareText className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : userData?.subscription.planId === selectedPlanId &&
-                userData?.subscription.billingCycle === billingCycle ? (
-                "Current Plan"
-              ) : isPlanUpgrade(selectedPlanId) ? (
-                <>
-                  Upgrade Subscription
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              ) : (
-                "Update Subscription"
-              )}
-            </Button>
-
+              <Button
+                size="lg"
+                onClick={handleSubscribe}
+                disabled={
+                  isProcessing ||
+                  !selectedPlanId ||
+                  (userData?.subscription.planId === selectedPlanId &&
+                    userData?.subscription.billingCycle === billingCycle)
+                }
+              >
+                {isProcessing ? (
+                  <>
+                    <MessageSquareText className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : userData?.subscription.planId === selectedPlanId &&
+                  userData?.subscription.billingCycle === billingCycle ? (
+                  "Current Plan"
+                ) : isPlanUpgrade(selectedPlanId) ? (
+                  <>
+                    Upgrade Subscription
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                ) : (
+                  "Update Subscription"
+                )}
+              </Button>
+            </Link>
             <p className="mt-4 text-sm text-gray-500">
               {selectedPlanId === "enterprise"
                 ? "Our sales team will contact you to discuss custom pricing and features."
