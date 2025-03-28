@@ -20,7 +20,11 @@ import { auth } from "@/lib/client/firebase";
 import { usePathname, useRouter } from "next/navigation";
 import { User, Workspace } from "@/lib/shared/models";
 import { getUser, getUserWorkspaces } from "@/lib/client/db-service";
-import { createUserAction } from "@/actions/auth-actions";
+import {
+  createCookie,
+  createUserAction,
+  deleteCookie,
+} from "@/actions/auth-actions";
 
 type AccessToken = { accessToken: string };
 
@@ -109,13 +113,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(
       auth,
       async (fbUser: FirebaseUser | null) => {
-        setFirebaseUser(fbUser as FirebaseUser & AccessToken);
+        // console.log("fbUser:", fbUser);
+        const userWithToken = fbUser as FirebaseUser & AccessToken;
+        setFirebaseUser(userWithToken);
         // await createSession(fbUser)
         if (fbUser) {
+          await createCookie(userWithToken.accessToken);
           await fetchUserData(fbUser);
         } else {
           // If logged out, clear the session cookie
-
+          deleteCookie();
           setUserData(null);
           setWorkspaces([]);
           setDefaultWorkspace(null);
@@ -147,7 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsubscribe();
-  }, [pathname, loading, router, workspaces]);
+  }, [pathname, loading, router]);
 
   const login = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(
@@ -177,6 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
+    await deleteCookie();
     router.push("/");
   };
 

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MessageSquareText, Menu, X, Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export function Header() {
   const { firebaseUser, workspaces, defaultWorkspace, logout } = useAuth();

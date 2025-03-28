@@ -2,8 +2,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, MessageSquareText, Shield, Zap } from "lucide-react";
 import Image from "next/image";
+import { verifyCookie } from "@/actions/auth-actions";
 
-export default function Home() {
+export default async function Home() {
+  const loggedIn = await verifyCookie();
   return (
     <>
       {/* Hero Section */}
@@ -27,10 +29,7 @@ export default function Home() {
                   size="lg"
                   className="w-full min-[400px]:w-auto"
                 >
-                  <Link
-                    target="_blank"
-                    href="https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install"
-                  >
+                  <Link href={loggedIn.valid ? "/dashboard" : "/register"}>
                     Try NVC-Bot Free
                     <Image
                       alt="Add to Slack"
@@ -163,11 +162,11 @@ export default function Home() {
             </div>
             <div className="relative mt-8 rounded-xl overflow-hidden border shadow-lg">
               <Image
-                src="https://kzmjph0iozma3tygpba2.lite.vusercontent.net/placeholder.svg"
-                width={1000}
-                height={400}
+                src="/daily_work.webp"
+                width={600}
+                height={300}
                 alt="Step-by-step demonstration of NVC-Bot in action"
-                className="object-cover w-full h-full"
+                className="object-cover w-full"
               />
             </div>
           </div>
