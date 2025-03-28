@@ -1,5 +1,4 @@
 "use server";
-import { getUser } from "@/lib/server/db-service";
 import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 import { Subscription, User } from "@/lib/shared/models";
 import { FieldValue } from "firebase-admin/firestore";

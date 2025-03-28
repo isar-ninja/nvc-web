@@ -1,14 +1,11 @@
 "use server";
 import { adminAuth } from "@/lib/server/firebase-admin";
-import { Plan } from "@/lib/shared/models";
 
-export async function createUserAction(
+export async function anyAction(
   token: string,
-): Promise<Record<string, Plan>> {
+): Promise<Record<string, string>> {
   try {
     await adminAuth.verifyIdToken(token);
-
-    // Convert the server timestamp to Date for the return value
     return {};
   } catch (error) {
     console.error(`Error getting plans:`, error);
