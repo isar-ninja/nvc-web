@@ -19,10 +19,8 @@ import {
 import { auth } from "@/lib/client/firebase";
 import { usePathname, useRouter } from "next/navigation";
 import { User, Workspace } from "@/lib/shared/models";
-import {
-  getUser,
-  getUserWorkspaces,
-} from "@/lib/client/db-service";
+import { getUser, getUserWorkspaces } from "@/lib/client/db-service";
+import { createUserAction } from "@/actions/auth-actions";
 
 type AccessToken = { accessToken: string };
 
@@ -63,29 +61,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Get user data from Firestore
       let userRecord = await getUser(fbUser.uid);
-
       if (userRecord) {
         setUserData(userRecord);
       } else {
         // User doesn't exist, create via server API
         // Get the ID token for authentication
         const idToken = await fbUser.getIdToken();
-
         // Call the server-side API to create the user
-        const response = await fetch("/api/auth/user", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${idToken}`,
-          },
+        userRecord = await createUserAction(idToken, {
+          uid: fbUser.uid,
+          email: fbUser.email!,
+          displayName: fbUser.displayName!,
+          photoURL: fbUser.photoURL!,
         });
-
-        if (!response.ok) {
-          throw new Error("Failed to create user data");
-        }
-
-        const data = await response.json();
-        userRecord = data.user;
 
         setUserData(userRecord);
       }
@@ -122,9 +110,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       auth,
       async (fbUser: FirebaseUser | null) => {
         setFirebaseUser(fbUser as FirebaseUser & AccessToken);
+        // await createSession(fbUser)
         if (fbUser) {
           await fetchUserData(fbUser);
         } else {
+          // If logged out, clear the session cookie
+
           setUserData(null);
           setWorkspaces([]);
           setDefaultWorkspace(null);
@@ -156,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsubscribe();
-  }, [pathname, loading, router]);
+  }, [pathname, loading, router, workspaces]);
 
   const login = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(

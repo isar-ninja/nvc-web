@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MessageSquareText, AlertCircle, ArrowUp } from "lucide-react";
-import { canUserCreateMoreWorkspaces } from "@/lib/client/db-service";
+// import { canUserCreateMoreWorkspaces } from "@/lib/client/db-service";
+import { createWorkspaceAction } from "@/actions/workspace-actions";
 
 export default function NewWorkspace() {
   const [workspaceName, setWorkspaceName] = useState("");
@@ -34,7 +35,8 @@ export default function NewWorkspace() {
 
     try {
       // Check if user can create more workspaces based on their subscription
-      const canCreateMore = await canUserCreateMoreWorkspaces(userData);
+      const canCreateMore =
+        userData.subscription?.maxWorkspaces > userData.workspaces.length;
       if (!canCreateMore) {
         setError(
           "You've reached the maximum number of workspaces for your subscription plan. Please upgrade to create more workspaces.",
@@ -48,23 +50,7 @@ export default function NewWorkspace() {
       setMaxWorkspacesError(false);
 
       const idToken = await firebaseUser.getIdToken();
-
-      // Call the API to create the workspace
-      const response = await fetch("/api/workspace", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({ name: workspaceName }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create workspace");
-      }
-
-      // const { workspace } = await response.json();
+      await createWorkspaceAction(idToken, workspaceName);
       await refreshUserData();
 
       // Redirect to the dashboard instead of subscription page

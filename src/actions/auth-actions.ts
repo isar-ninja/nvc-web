@@ -1,16 +1,35 @@
 "use server";
-import { adminDb } from "@/lib/server/firebase-admin";
-import { User } from "@/lib/shared/models";
+import { getUser } from "@/lib/server/db-service";
+import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
+import { Subscription, User } from "@/lib/shared/models";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function createUserAction(
-  userData: Omit<User, "createdAt">,
+  token: string,
+  data: { uid: string; email: string; displayName: string; photoURL: string },
 ): Promise<User> {
   try {
-    const userRef = adminDb.collection("users").doc(userData.uid);
+    await adminAuth.verifyIdToken(token);
+    const userRef = adminDb.collection("users").doc(data.uid);
+
+    const initialSubscription: Subscription = {
+      planId: "free",
+      status: "trialing",
+      currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14-day trial
+      billingCycle: "monthly",
+      cancelAtPeriodEnd: false,
+      maxTranslationsPerMonth: 15,
+      maxWorkspaces: 1,
+    };
 
     const newUser: User = {
-      ...userData,
+      uid: data.uid,
+      email: data?.email || "",
+      displayName: data?.displayName || "",
+      photoURL: data?.photoURL || "",
+      workspaces: [],
+      subscription: initialSubscription,
+      usage: { totalTranslations: {} },
       createdAt: FieldValue.serverTimestamp(),
     };
 
@@ -22,7 +41,7 @@ export async function createUserAction(
       createdAt: new Date(),
     };
   } catch (error) {
-    console.error(`Error creating user ${userData.uid}:`, error);
+    console.error(`Error creating user ${data.uid}:`, error);
     throw error;
   }
 }

@@ -54,9 +54,10 @@ export default function Home() {
             <div className="flex justify-center">
               <div className="relative w-full max-w-[500px] aspect-video rounded-xl overflow-hidden border shadow-lg">
                 <Image
-                  src="https://kzmjph0iozma3tygpba2.lite.vusercontent.net/placeholder.svg"
+                  src="/talking_couple.webp"
                   width={600}
-                  height={400}
+                  height={600}
+                  style={{ objectFit: "cover", objectPosition: "top" }}
                   alt="NVC-Bot in action showing message transformation"
                   className="object-cover w-full h-full"
                 />
