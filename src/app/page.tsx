@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, MessageSquareText, Shield, Zap } from "lucide-react";
 import Image from "next/image";
 import { verifyCookie } from "@/actions/auth-actions";
+import { getPlans } from "@/actions/plan-actions";
 
 export default async function Home() {
   const loggedIn = await verifyCookie();
+  const plans = await getPlans();
   return (
     <>
       {/* Hero Section */}
@@ -18,7 +20,7 @@ export default async function Home() {
                   Transform Workplace Communication
                 </h1>
                 <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                  NVC-Bot translates aggressive and passive-aggressive messages
+                  Goodspeech translates aggressive and passive-aggressive messages
                   into empathic, understandable communication that builds
                   connection and understanding.
                 </p>
@@ -30,7 +32,7 @@ export default async function Home() {
                   className="w-full min-[400px]:w-auto"
                 >
                   <Link href={loggedIn.valid ? "/dashboard" : "/register"}>
-                    Try NVC-Bot Free
+                    Try Goodspeech Free
                     <Image
                       alt="Add to Slack"
                       height="20"
@@ -57,7 +59,7 @@ export default async function Home() {
                   width={600}
                   height={600}
                   style={{ objectFit: "cover", objectPosition: "top" }}
-                  alt="NVC-Bot in action showing message transformation"
+                  alt="Goodspeech in action showing message transformation"
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -78,7 +80,7 @@ export default async function Home() {
                 Features That Transform Communication
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                NVC-Bot helps your team communicate with empathy and clarity
+                Goodspeech helps your team communicate with empathy and clarity
               </p>
             </div>
           </div>
@@ -121,7 +123,7 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                How NVC-Bot Works
+                How Goodspeech Works
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
                 See how our AI-powered bot transforms communication in your
@@ -137,7 +139,7 @@ export default async function Home() {
                 </div>
                 <h3 className="text-xl font-bold">Install the Bot</h3>
                 <p className="text-center text-gray-500 dark:text-gray-400">
-                  Add NVC-Bot to your Slack workspace with just a few clicks
+                  Add Goodspeech to your Slack workspace with just a few clicks
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-3 rounded-lg border p-6 shadow-sm">
@@ -162,10 +164,10 @@ export default async function Home() {
             </div>
             <div className="relative mt-8 rounded-xl overflow-hidden border shadow-lg">
               <Image
-                src="/daily_work.webp"
+                src="/lunch-break.webp"
                 width={600}
                 height={300}
-                alt="Step-by-step demonstration of NVC-Bot in action"
+                alt="Step-by-step demonstration of Goodspeech in action"
                 className="object-cover w-full"
               />
             </div>
@@ -182,10 +184,10 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                See NVC-Bot in Action
+                See Goodspeech in Action
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Watch how NVC-Bot transforms real messages
+                Watch how Goodspeech transforms real messages
               </p>
             </div>
           </div>
@@ -213,7 +215,7 @@ export default async function Home() {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">NVC-Bot</span>
+                      <span className="font-semibold">Goodspeech</span>
                       <span className="text-xs text-gray-500">10:30 AM</span>
                     </div>
                     <p className="text-gray-900 dark:text-gray-50 p-3 bg-green-50 dark:bg-green-950 rounded-lg">
@@ -250,7 +252,7 @@ export default async function Home() {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">NVC-Bot</span>
+                      <span className="font-semibold">Goodspeech</span>
                       <span className="text-xs text-gray-500">11:15 AM</span>
                     </div>
                     <p className="text-gray-900 dark:text-gray-50 p-3 bg-green-50 dark:bg-green-950 rounded-lg">
@@ -282,118 +284,70 @@ export default async function Home() {
             </div>
           </div>
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 mt-12">
-            <div className="flex flex-col rounded-lg border p-6 shadow-sm">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold">Starter</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  For small teams just getting started
-                </p>
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`flex flex-col rounded-lg border p-6 shadow-sm ${
+                  plan.recommended ? "border-primary shadow-md" : ""
+                }`}
+              >
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold">{plan.name}</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    {plan.description}
+                  </p>
+                </div>
+                <div className="mt-4 flex flex-col space-y-2">
+                  <div className="flex items-baseline text-gray-900 dark:text-gray-50">
+                    <span className="text-3xl font-bold">
+                      {typeof plan.pricing.monthly === "number"
+                        ? `$${plan.pricing.monthly}`
+                        : plan.pricing.monthly}
+                    </span>
+                    {typeof plan.pricing.monthly === "number" && (
+                      <span className="ml-1 text-xl font-normal text-gray-500 dark:text-gray-400">
+                        /month
+                      </span>
+                    )}
+                  </div>
+                  {typeof plan.pricing.monthly === "number" && (
+                    <div className="flex items-baseline text-gray-900 dark:text-gray-50">
+                      <span className="text-lg font-medium">
+                        ${Math.round(plan.pricing.monthly * 12 * 0.8)}
+                      </span>
+                      <span className="ml-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+                        /year
+                      </span>
+                      <span className="ml-2 text-sm font-medium text-green-600 dark:text-green-400">
+                        Save 20%
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <ul className="mt-6 space-y-3">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6">
+                  <Link
+                    href={plan.id === "enterprise" ? "#contact" : "#signup"}
+                  >
+                    <Button
+                      variant={plan.recommended ? "default" : "outline"}
+                      className="w-full"
+                    >
+                      {plan.id === "enterprise"
+                        ? "Contact Sales"
+                        : "Get Started"}
+                    </Button>
+                  </Link>
+                </div>
               </div>
-              <div className="mt-4 flex items-baseline text-gray-900 dark:text-gray-50">
-                <span className="text-3xl font-bold">$9</span>
-                <span className="ml-1 text-xl font-normal text-gray-500 dark:text-gray-400">
-                  /month
-                </span>
-              </div>
-              <ul className="mt-6 space-y-3">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Up to 10 users</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>100 translations per month</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Basic support</span>
-                </li>
-              </ul>
-              <div className="mt-6">
-                <Link href="#signup">
-                  <Button variant="outline" className="w-full">
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
-            </div>
-            <div className="flex flex-col rounded-lg border border-primary p-6 shadow-md">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold">Professional</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  For growing teams with more needs
-                </p>
-              </div>
-              <div className="mt-4 flex items-baseline text-gray-900 dark:text-gray-50">
-                <span className="text-3xl font-bold">$29</span>
-                <span className="ml-1 text-xl font-normal text-gray-500 dark:text-gray-400">
-                  /month
-                </span>
-              </div>
-              <ul className="mt-6 space-y-3">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Up to 50 users</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>1,000 translations per month</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Priority support</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Analytics dashboard</span>
-                </li>
-              </ul>
-              <div className="mt-6">
-                <Link href="#signup">
-                  <Button className="w-full">Get Started</Button>
-                </Link>
-              </div>
-            </div>
-            <div className="flex flex-col rounded-lg border p-6 shadow-sm">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold">Enterprise</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  For large organizations
-                </p>
-              </div>
-              <div className="mt-4 flex items-baseline text-gray-900 dark:text-gray-50">
-                <span className="text-3xl font-bold">Custom</span>
-              </div>
-              <ul className="mt-6 space-y-3">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Unlimited users</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Unlimited translations</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>24/7 dedicated support</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Custom integrations</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>On-premise deployment option</span>
-                </li>
-              </ul>
-              <div className="mt-6">
-                <Link href="#contact">
-                  <Button variant="outline" className="w-full">
-                    Contact Sales
-                  </Button>
-                </Link>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -429,7 +383,7 @@ export default async function Home() {
                 </div>
               </div>
               <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
-                {`"As a remote team, clear communication is essential. NVC-Bot
+                {`"As a remote team, clear communication is essential. Goodspeech
                   helps us avoid misunderstandings that used to derail our
                   projects."`}
               </blockquote>
@@ -449,7 +403,7 @@ export default async function Home() {
                 </div>
               </div>
               <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
-                {`"NVC-Bot has completely transformed how our teams communicate.
+                {`"Goodspeech has completely transformed how our teams communicate.
                  Conflicts are resolved faster, and people feel more heard and
                  understood."`}
               </blockquote>
@@ -471,7 +425,7 @@ export default async function Home() {
                 </div>
               </div>
               <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
-                {` "The ROI on NVC-Bot has been incredible. Less time spent on
+                {` "The ROI on Goodspeech has been incredible. Less time spent on
                  resolving conflicts means more time for productive work."`}
               </blockquote>
             </div>
@@ -488,16 +442,18 @@ export default async function Home() {
                 Frequently Asked Questions
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Everything you need to know about NVC-Bot
+                Everything you need to know about Goodspeech
               </p>
             </div>
           </div>
           <div className="mx-auto max-w-3xl mt-12 space-y-4">
             <div className="rounded-lg border p-4">
-              <h3 className="text-lg font-semibold">How does NVC-Bot work?</h3>
+              <h3 className="text-lg font-semibold">
+                How does Goodspeech work?
+              </h3>
               <p className="mt-2 text-gray-700 dark:text-gray-300">
-                NVC-Bot uses advanced AI to analyze messages for aggressive or
-                passive-aggressive language. It then rewrites these messages
+                Goodspeech uses advanced AI to analyze messages for aggressive
+                or passive-aggressive language. It then rewrites these messages
                 using the principles of Nonviolent Communication, focusing on
                 observations, feelings, needs, and requests.
               </p>
@@ -505,7 +461,7 @@ export default async function Home() {
             <div className="rounded-lg border p-4">
               <h3 className="text-lg font-semibold">Is my data secure?</h3>
               <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {`Yes, we take data security seriously. NVC-Bot only processes
+                {`Yes, we take data security seriously. Goodspeech only processes
                the messages it's explicitly asked to translate, and we don't
                store message content. All data is encrypted in transit and at
                rest.`}
@@ -513,11 +469,11 @@ export default async function Home() {
             </div>
             <div className="rounded-lg border p-4">
               <h3 className="text-lg font-semibold">
-                Can I customize how NVC-Bot responds?
+                Can I customize how Goodspeech responds?
               </h3>
               <p className="mt-2 text-gray-700 dark:text-gray-300">
                 {`Yes, on our Professional and Enterprise plans, you can
-                  customize the tone and style of NVC-Bot's translations to
+                  customize the tone and style of Goodspeech's translations to
                   match your company culture.`}
               </p>
             </div>
@@ -526,17 +482,18 @@ export default async function Home() {
                 How long does it take to set up?
               </h3>
               <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {`Most teams are up and running with NVC-Bot in less than 5
+                {`Most teams are up and running with Goodspeech in less than 5
                  minutes. Just add the bot to your Slack workspace and you're
                  ready to go.`}
               </p>
             </div>
             <div className="rounded-lg border p-4">
               <h3 className="text-lg font-semibold">
-                Can NVC-Bot translate messages in languages other than English?
+                Can Goodspeech translate messages in languages other than
+                English?
               </h3>
               <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {` Currently, NVC-Bot supports English, Spanish, French, German,
+                {` Currently, Goodspeech supports English, Spanish, French, German,
                  and Japanese. We're adding more languages regularly based on
                  customer demand.`}
               </p>
@@ -557,7 +514,7 @@ export default async function Home() {
                 {`Ready to Transform Your Team's Communication?`}
               </h2>
               <p className="max-w-[900px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                {`Get started with NVC-Bot today and see the difference in your
+                {`Get started with Goodspeech today and see the difference in your
                  team's communication`}
               </p>
             </div>
@@ -601,7 +558,7 @@ export default async function Home() {
               <div className="rounded-lg border p-4">
                 <h3 className="text-lg font-semibold">Email Us</h3>
                 <p className="mt-2 text-gray-700 dark:text-gray-300">
-                  hello@nvc-bot.com
+                  contact@goodspeech.chat
                 </p>
               </div>
               <div className="rounded-lg border p-4">

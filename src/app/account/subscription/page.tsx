@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { getAvailablePlans } from "@/lib/client/db-service";
 import {
   CheckCircle,
   MessageSquareText,
@@ -18,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Plan } from "@/lib/shared/models";
 import Link from "next/link";
 import Script from "next/script";
+import { getPlans } from "@/actions/plan-actions";
 
 const LEMON_SQUEEZY_URLS = {
   starter:
@@ -43,7 +43,7 @@ export default function SubscriptionPage() {
     const fetchPlans = async () => {
       try {
         setIsLoading(true);
-        const availablePlans = await getAvailablePlans();
+        const availablePlans = await getPlans();
         setPlans(availablePlans);
 
         // If user has a subscription, preselect their current plan
@@ -95,13 +95,6 @@ export default function SubscriptionPage() {
   // Function to format price with dollar sign
   const formatPrice = (price: number | string) => {
     return typeof price === "number" ? `$${price}` : price;
-  };
-
-  // Function to calculate savings percentage
-  const getSavingsPercentage = (plan: Plan) => {
-    const monthly = plan.pricing.monthly * 12;
-    const yearly = plan.pricing.yearly;
-    return Math.round(((monthly - yearly) / monthly) * 100);
   };
 
   // Function to get the monthly equivalent of yearly pricing
@@ -233,7 +226,6 @@ export default function SubscriptionPage() {
                 billingCycle === "monthly"
                   ? plan.pricing.monthly
                   : plan.pricing.yearly;
-              const savingsPercentage = getSavingsPercentage(plan);
 
               return (
                 <div
@@ -275,9 +267,9 @@ export default function SubscriptionPage() {
                       </span>
                     </div>
 
-                    {billingCycle === "yearly" && savingsPercentage > 0 && (
+                    {billingCycle === "yearly" && (
                       <div className="text-green-600 text-sm mt-1">
-                        Save {savingsPercentage}% with annual billing
+                        Save 20% with annual billing
                       </div>
                     )}
 

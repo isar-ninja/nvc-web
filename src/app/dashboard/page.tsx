@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Workspace } from "@/lib/shared/models";
 import Image from "next/image";
-import { getCurrentMonthKey } from "@/lib/client/db-service";
+import { getCurrentMonthKey } from "@/lib/utils";
 
 export default function Dashboard() {
   const { userData, workspaces, defaultWorkspace } = useAuth();
@@ -97,7 +97,9 @@ export default function Dashboard() {
 
         {workspaces.length === 0 ? (
           <div className="bg-white border rounded-lg p-8 text-center shadow-sm dark:bg-gray-800">
-            <h2 className="text-xl font-semibold mb-4">Welcome to NVC-Bot!</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Welcome to Goodspeech!
+            </h2>
             <p className="mb-6">
               You haven't created any workspaces yet. Create one to get started.
             </p>
@@ -311,7 +313,7 @@ export default function Dashboard() {
                           <div className="ml-3">
                             <h4 className="font-medium">Connected to Slack</h4>
                             <p className="text-sm text-gray-500 mt-1">
-                              Your NVC-Bot is ready to use in your Slack
+                              Your Goodspeech Bot is ready to use in your Slack
                               workspace
                             </p>
                           </div>
@@ -335,8 +337,8 @@ export default function Dashboard() {
                     ) : (
                       <div className="bg-gray-50 p-4 rounded-md dark:bg-gray-800">
                         <p className="mb-4">
-                          Connect NVC-Bot to your Slack workspace to start
-                          translating messages.
+                          Connect the Goodspeech Bot to your Slack workspace to
+                          start translating messages.
                         </p>
                         <Button
                           asChild={true}
@@ -369,7 +371,7 @@ export default function Dashboard() {
                       <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <h4 className="font-medium">View Usage Analytics</h4>
                         <p className="text-sm text-gray-500 mt-1 mb-3">
-                          See how your team is using NVC-Bot
+                          See how your team is using Goodspeech
                         </p>
                         <Link
                           href={`/workspace/${activeWorkspace.id}/analytics`}
@@ -383,7 +385,7 @@ export default function Dashboard() {
                       <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <h4 className="font-medium">Documentation</h4>
                         <p className="text-sm text-gray-500 mt-1 mb-3">
-                          Learn how to use NVC-Bot effectively
+                          Learn how to use Goodspeech effectively
                         </p>
                         <Link href="/docs" target="_blank">
                           <Button variant="outline" size="sm">

@@ -1,4 +1,6 @@
-export const PLANS = [
+import { Plan } from "./models";
+
+export const PLANS: Plan[] = [
   {
     id: "starter",
     name: "Starter",
@@ -14,6 +16,7 @@ export const PLANS = [
     ],
     limits: {
       maxTranslationsPerMonth: 100,
+      maxWorkspaces: 1,
     },
   },
   {
@@ -32,6 +35,7 @@ export const PLANS = [
     ],
     limits: {
       maxTranslationsPerMonth: 1000,
+      maxWorkspaces: 5,
     },
     recommended: true,
   },
@@ -51,7 +55,8 @@ export const PLANS = [
       "Advanced security features",
     ],
     limits: {
-      maxTranslationsPerMonth: Infinity,
+      maxTranslationsPerMonth: 0,
+      maxWorkspaces: 0,
     },
   },
 ];

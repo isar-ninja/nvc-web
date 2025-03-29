@@ -19,12 +19,9 @@ import {
 import { auth } from "@/lib/client/firebase";
 import { usePathname, useRouter } from "next/navigation";
 import { User, Workspace } from "@/lib/shared/models";
-import { getUser, getUserWorkspaces } from "@/lib/client/db-service";
-import {
-  createCookie,
-  createUserAction,
-  deleteCookie,
-} from "@/actions/auth-actions";
+import { createCookie, deleteCookie } from "@/actions/auth-actions";
+import { getWorkspacesAction } from "@/actions/workspace-actions";
+import { createUserAction, getUserAction } from "@/actions/user-actions";
 
 type AccessToken = { accessToken: string };
 
@@ -61,29 +58,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const fetchUserData = async (fbUser: FirebaseUser) => {
+  const fetchUserData = async () => {
     try {
       // Get user data from Firestore
-      let userRecord = await getUser(fbUser.uid);
+      let userRecord = await getUserAction();
       if (userRecord) {
         setUserData(userRecord);
       } else {
-        // User doesn't exist, create via server API
-        // Get the ID token for authentication
-        const idToken = await fbUser.getIdToken();
         // Call the server-side API to create the user
-        userRecord = await createUserAction(idToken, {
-          uid: fbUser.uid,
-          email: fbUser.email!,
-          displayName: fbUser.displayName!,
-          photoURL: fbUser.photoURL!,
-        });
+        userRecord = await createUserAction();
 
         setUserData(userRecord);
       }
 
       // Fetch user workspaces
-      const userWorkspaces = await getUserWorkspaces(fbUser.uid);
+      const userWorkspaces = await getWorkspacesAction();
       setWorkspaces(userWorkspaces);
 
       // Set default workspace
@@ -105,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUserData = async () => {
     if (firebaseUser) {
-      await fetchUserData(firebaseUser);
+      await fetchUserData();
     }
   };
 
@@ -119,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // await createSession(fbUser)
         if (fbUser) {
           await createCookie(userWithToken.accessToken);
-          await fetchUserData(fbUser);
+          await fetchUserData();
         } else {
           // If logged out, clear the session cookie
           deleteCookie();
@@ -154,15 +143,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsubscribe();
-  }, [pathname, loading, router]);
+  }, [pathname, loading, router, workspaces.length]);
 
   const login = async (email: string, password: string) => {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    );
-    await fetchUserData(userCredential.user);
+    await signInWithEmailAndPassword(auth, email, password);
+    await fetchUserData();
 
     // Redirect to dashboard if user has workspaces, otherwise to workspace creation
     if (workspaces.length > 0) {
@@ -173,12 +158,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (email: string, password: string) => {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    );
-    await fetchUserData(userCredential.user);
+    await createUserWithEmailAndPassword(auth, email, password);
+    await fetchUserData();
     router.push("/workspace/new");
   };
 
@@ -190,8 +171,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
-    await fetchUserData(userCredential.user);
+    await signInWithPopup(auth, provider);
+    await fetchUserData();
 
     // Redirect to dashboard if user has workspaces, otherwise to workspace creation
     if (workspaces.length > 0) {

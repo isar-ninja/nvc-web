@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MessageSquareText, AlertCircle, ArrowUp } from "lucide-react";
-// import { canUserCreateMoreWorkspaces } from "@/lib/client/db-service";
 import { createWorkspaceAction } from "@/actions/workspace-actions";
 
 export default function NewWorkspace() {
@@ -49,8 +48,7 @@ export default function NewWorkspace() {
       setError("");
       setMaxWorkspacesError(false);
 
-      const idToken = await firebaseUser.getIdToken();
-      await createWorkspaceAction(idToken, workspaceName);
+      await createWorkspaceAction(workspaceName);
       await refreshUserData();
 
       // Redirect to the dashboard instead of subscription page

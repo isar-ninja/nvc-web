@@ -59,18 +59,14 @@ export interface Plan {
   id: string;
   name: string;
   description: string;
+  pricing: {
+    monthly: number | string;
+    yearly: number | string;
+  };
   features: string[];
   limits: {
-    maxUsers: number;
     maxTranslationsPerMonth: number;
-    maxWorkspaces: number; // Added limit for workspaces
+    maxWorkspaces: number;
   };
-  pricing: {
-    monthly: number;
-    yearly: number;
-  };
-  stripePriceId: {
-    monthly: string;
-    yearly: string;
-  };
+  recommended?: boolean;
 }
