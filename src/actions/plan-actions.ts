@@ -8,7 +8,6 @@ export async function getPlans(): Promise<Plan[]> {
     const querySnapshot = await plansRef.get();
 
     const plans = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
       ...doc.data(),
     })) as Plan[];
     return sortPlans(plans);

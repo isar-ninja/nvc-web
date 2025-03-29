@@ -2,6 +2,8 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { NextRequest, NextResponse } from "next/server";
 import { Timestamp } from "firebase-admin/firestore";
 import crypto from "crypto";
+import { getPlans } from "@/actions/plan-actions";
+import { Plan } from "@/lib/shared/models";
 
 // Your Lemon Squeezy signing secret from environment variables
 const LEMONSQUEEZY_SIGNING_SECRET = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -26,13 +28,6 @@ const subscriptionStatusMap: Record<string, string> = {
   unpaid: "unpaid",
   cancelled: "cancelled",
   expired: "expired",
-};
-
-// Plan ID mapping (Lemon Squeezy product IDs to your internal plan IDs)
-// Update these with your actual product IDs
-const planIdMap: Record<string, string> = {
-  "1096066": "starter", // Example - update with your actual product ID
-  "1096067": "pro", // Example - update with your actual product ID
 };
 
 // Verify the webhook signature
@@ -81,7 +76,7 @@ export async function POST(request: NextRequest) {
     const eventName = meta.event_name as LemonSqueezyEvent;
 
     console.log(`Received Lemon Squeezy eventData:`, eventData);
-    console.log(`Received Lemon Squeezy metadata:`, meta);
+    // console.log(`Received Lemon Squeezy metadata:`, meta);
 
     // Extract the user_id from custom data in meta
     const userId = meta.custom_data?.user_id;
@@ -96,7 +91,8 @@ export async function POST(request: NextRequest) {
     switch (eventName) {
       case "subscription_created":
       case "subscription_updated":
-        await handleSubscriptionUpdate(eventData, userId);
+        const plan = await getPlanDetails(eventData.attributes.variant_name);
+        await handleSubscriptionUpdate(eventData, plan, userId);
         break;
       case "subscription_cancelled":
         await handleSubscriptionCancellation(eventData, userId);
@@ -120,7 +116,11 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle subscription creation and updates
-async function handleSubscriptionUpdate(eventData: any, userId?: string) {
+async function handleSubscriptionUpdate(
+  eventData: any,
+  plan: Plan,
+  userId?: string,
+) {
   try {
     if (!eventData || !eventData.attributes) {
       console.error("Invalid event data structure", eventData);
@@ -136,14 +136,19 @@ async function handleSubscriptionUpdate(eventData: any, userId?: string) {
     }
 
     const attributes = eventData.attributes;
+    const variantName = attributes.variant_name.toLowerCase();
+    const planId = variantName.includes("starter") ? "starter" : "pro";
     const customerId = attributes.customer_id;
     const status = subscriptionStatusMap[attributes.status] || "unknown";
     const productId = attributes.product_id;
     const variantId = attributes.variant_id;
-    const planId = planIdMap[productId.toString()] || "starter"; // Default to starter if no mapping
-    const billingCycle = attributes.billing_anchor === 1 ? "monthly" : "yearly";
     const productName = attributes.product_name;
-    const variantName = attributes.variant_name;
+
+    const billingCycle = variantName.includes("yearly")
+      ? "yearly"
+      : variantName.includes("monthly")
+        ? "monthly"
+        : "unknown";
 
     console.log(
       `Processing subscription ID: ${subscriptionId} for product: ${productName} (${productId}), variant: ${variantName}, mapped to plan: ${planId}`,
@@ -171,17 +176,8 @@ async function handleSubscriptionUpdate(eventData: any, userId?: string) {
     }
 
     // Set subscription data based on the plan
-    let maxTranslationsPerMonth = 15; // Default value
-    let maxWorkspaces = 1; // Default value
-
-    // Set limits based on plan
-    if (planId === "starter") {
-      maxTranslationsPerMonth = 300;
-      maxWorkspaces = 3;
-    } else if (planId === "pro") {
-      maxTranslationsPerMonth = 1000;
-      maxWorkspaces = 10;
-    }
+    const maxTranslationsPerMonth = plan.limits.maxTranslationsPerMonth; // Default value
+    const maxWorkspaces = plan.limits.maxWorkspaces; // Default value
 
     // Calculate currentPeriodEnd
     const currentPeriodEnd = attributes.ends_at
@@ -277,7 +273,7 @@ async function handleSubscriptionCancellation(eventData: any, userId?: string) {
 async function handleOrderCreated(eventData: any, userId?: string) {
   const attributes = eventData.attributes;
   const customerId = attributes.customer_id;
-  const customerEmail = attributes.customer_email;
+  const customerEmail = attributes.user_email;
 
   // If we have a userId from custom_data, use it directly
   let uid = userId;
@@ -309,4 +305,12 @@ async function handleOrderCreated(eventData: any, userId?: string) {
   console.log(
     `Updated user ${uid} with Lemon Squeezy customer ID: ${customerId}`,
   );
+}
+
+async function getPlanDetails(variantName: string): Promise<Plan> {
+  const plans = await getPlans();
+  const plan = plans.find((plan: Plan) =>
+    variantName.toLowerCase().includes(plan.name.toLowerCase()),
+  );
+  return plan!;
 }

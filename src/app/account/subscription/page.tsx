@@ -34,7 +34,7 @@ export default function SubscriptionPage() {
     "monthly",
   );
   const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
+  // const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
   const { userData, firebaseUser } = useAuth();
@@ -66,35 +66,35 @@ export default function SubscriptionPage() {
     setSelectedPlanId(planId);
   };
 
-  const handleSubscribe = async () => {
-    if (!selectedPlanId || !firebaseUser || !userData) return;
+  // const handleSubscribe = async () => {
+  //   if (!selectedPlanId || !firebaseUser || !userData) return;
 
-    try {
-      setIsProcessing(true);
-      setError("");
+  //   try {
+  //     setIsProcessing(true);
+  //     setError("");
 
-      // Get the ID token for auth
-      // const idToken = await firebaseUser.getIdToken();
-      // console.log(selectedPlanId);
-      // ?checkout[custom][user_id]=${firebaseUser.uid}
-      window.open(
-        `${LEMON_SQUEEZY_URLS[selectedPlanId]}?checkout[custom][user_id]=${firebaseUser.uid}`,
-        "_blank",
-      );
-      // Otherwise refresh user data and redirect to dashboard
-      // await refreshUserData();
-      // router.push("/dashboard");
-    } catch (err) {
-      console.error("Error updating subscription:", err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to update subscription. Please try again.",
-      );
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  //     // Get the ID token for auth
+  //     // const idToken = await firebaseUser.getIdToken();
+  //     // console.log(selectedPlanId);
+  //     // ?checkout[custom][user_id]=${firebaseUser.uid}
+  //     window.open(
+  //       `${LEMON_SQUEEZY_URLS[selectedPlanId]}?checkout[custom][user_id]=${firebaseUser.uid}`,
+  //       "_blank",
+  //     );
+  //     // Otherwise refresh user data and redirect to dashboard
+  //     // await refreshUserData();
+  //     // router.push("/dashboard");
+  //   } catch (err) {
+  //     console.error("Error updating subscription:", err);
+  //     setError(
+  //       err instanceof Error
+  //         ? err.message
+  //         : "Failed to update subscription. Please try again.",
+  //     );
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // };
 
   // Function to format price with dollar sign
   const formatPrice = (price: number | string) => {
@@ -319,7 +319,7 @@ export default function SubscriptionPage() {
                       }
                       className="w-full"
                       onClick={() => handlePlanSelect(plan.id)}
-                      disabled={isProcessing}
+                      disabled={false}
                     >
                       {selectedPlanId === plan.id ? "Selected" : "Select Plan"}
                     </Button>
@@ -330,21 +330,21 @@ export default function SubscriptionPage() {
           </div>
 
           <div className="mt-12 text-center">
+            {selectedPlanId}
             <Link
-              href={LEMON_SQUEEZY_URLS[selectedPlanId] || ""}
+              href={`${LEMON_SQUEEZY_URLS[selectedPlanId]}?checkout[custom][user_id]=${firebaseUser!.uid}` || ""}
               className="lemonsqueezy-button"
             >
               <Button
                 size="lg"
-                onClick={handleSubscribe}
+                onClick={() => null}
                 disabled={
-                  isProcessing ||
                   !selectedPlanId ||
                   (userData?.subscription.planId === selectedPlanId &&
                     userData?.subscription.billingCycle === billingCycle)
                 }
               >
-                {isProcessing ? (
+                {false ? (
                   <>
                     <MessageSquareText className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
