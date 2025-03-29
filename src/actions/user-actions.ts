@@ -1,7 +1,13 @@
 "use server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { Subscription, User } from "@/lib/shared/models";
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import {
+  DocumentData,
+  FieldValue,
+  FirestoreDataConverter,
+  QueryDocumentSnapshot,
+  Timestamp,
+} from "firebase-admin/firestore";
 import { verifyCookie } from "./auth-actions";
 
 export async function createUserAction(): Promise<User> {
@@ -53,7 +59,10 @@ export async function getUserAction(): Promise<User | null> {
     const { data: authUser } = await verifyCookie();
     if (!authUser) throw new Error("User not authenticated");
 
-    const userRef = adminDb.collection("users").doc(authUser.uid);
+    const userRef = adminDb
+      .collection("users")
+      .doc(authUser.uid)
+      .withConverter(userConverter);
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
@@ -131,4 +140,91 @@ export async function updateUserAction(
     console.error(`Error updating user:`, error);
     throw error;
   }
+}
+
+const userConverter: FirestoreDataConverter<User> = {
+  toFirestore(user: User): DocumentData {
+    // When writing to Firestore, we don't need to do any special conversion
+    // (Dates are automatically converted to Timestamps)
+    return { ...user };
+  },
+  fromFirestore(snapshot: QueryDocumentSnapshot): User {
+    const data = snapshot.data();
+
+    // Recursively convert all Timestamps to Dates
+
+    // Convert the data
+    const userData = convertTimestamps(data);
+
+    // Set default values for required fields
+    if (!userData.subscription) {
+      userData.subscription = {
+        planId: "free",
+        status: "trialing",
+        currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        billingCycle: "monthly",
+        cancelAtPeriodEnd: true,
+        maxTranslationsPerMonth: 15,
+        maxWorkspaces: 1,
+      };
+    }
+
+    if (!userData.usage) {
+      userData.usage = { totalTranslations: {} };
+    }
+
+    if (!userData.workspaces) {
+      userData.workspaces = [];
+    }
+
+    // Ensure createdAt is a Date
+    if (!userData.createdAt) {
+      userData.createdAt = new Date();
+    }
+
+    return {
+      ...userData,
+      uid: snapshot.id,
+    } as User;
+  },
+};
+
+/**
+ * Recursively converts Firebase Timestamps to JavaScript Date objects
+ * @param obj Object that may contain Timestamp fields
+ * @returns Object with all Timestamps converted to Dates
+ */
+function convertTimestamps<T extends object>(obj: T): T {
+  if (!obj) return obj;
+
+  // Handle different types of input
+  if (obj instanceof Timestamp) {
+    return obj.toDate() as unknown as T;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) =>
+      typeof item === "object" && item !== null
+        ? convertTimestamps(item)
+        : item,
+    ) as unknown as T;
+  }
+
+  if (typeof obj === "object" && obj !== null) {
+    const converted: Record<string, any> = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+      if (value instanceof Timestamp) {
+        converted[key] = value.toDate();
+      } else if (typeof value === "object" && value !== null) {
+        converted[key] = convertTimestamps(value);
+      } else {
+        converted[key] = value;
+      }
+    }
+
+    return converted as T;
+  }
+
+  return obj;
 }

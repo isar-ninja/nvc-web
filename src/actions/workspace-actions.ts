@@ -7,7 +7,7 @@ import {
   QueryDocumentSnapshot,
   Timestamp,
 } from "firebase-admin/firestore";
-import { getUserAction, updateUserAction } from "./user-actions";
+import { getUserAction } from "./user-actions";
 
 export async function createWorkspaceAction(
   workspaceName: string,

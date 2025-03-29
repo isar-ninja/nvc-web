@@ -75,8 +75,12 @@ export default function SubscriptionPage() {
 
       // Get the ID token for auth
       // const idToken = await firebaseUser.getIdToken();
-      console.log(selectedPlanId);
-      window.open(LEMON_SQUEEZY_URLS[selectedPlanId], "_blank");
+      // console.log(selectedPlanId);
+      // ?checkout[custom][user_id]=${firebaseUser.uid}
+      window.open(
+        `${LEMON_SQUEEZY_URLS[selectedPlanId]}?checkout[custom][user_id]=${firebaseUser.uid}`,
+        "_blank",
+      );
       // Otherwise refresh user data and redirect to dashboard
       // await refreshUserData();
       // router.push("/dashboard");
