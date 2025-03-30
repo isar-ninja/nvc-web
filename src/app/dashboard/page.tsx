@@ -178,6 +178,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex gap-2 mt-4 md:mt-0">
                         <Link
+                          className="pointer-events-none"
                           href={`/workspace/${activeWorkspace.id}/settings`}
                         >
                           <Button variant="outline" size="sm">
@@ -346,6 +347,7 @@ export default function Dashboard() {
                           className="w-full min-[400px]:w-auto"
                         >
                           <Link
+                            className="pointer-events-none"
                             target="_blank"
                             href="https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install"
                           >
@@ -374,6 +376,7 @@ export default function Dashboard() {
                           See how your team is using Goodspeech
                         </p>
                         <Link
+                          className="pointer-events-none"
                           href={`/workspace/${activeWorkspace.id}/analytics`}
                         >
                           <Button variant="outline" size="sm">
