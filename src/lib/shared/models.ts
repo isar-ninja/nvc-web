@@ -4,8 +4,9 @@ export const stati = [
   "trialing",
   "active",
   "past_due",
-  "canceled",
   "unpaid",
+  "pending",
+  "cancelled",
 ] as const;
 
 export type Status = (typeof stati)[number];

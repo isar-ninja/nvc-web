@@ -160,7 +160,7 @@ export default function SubscriptionPage() {
             </p>
 
             {userData?.subscription &&
-              userData.subscription.status !== "canceled" && (
+              userData.subscription.status !== "cancelled" && (
                 <div className="mt-6 p-4 border rounded-lg bg-gray-50 max-w-lg mx-auto">
                   <h2 className="font-semibold mb-1">Current Subscription</h2>
                   <div className="flex items-center justify-center gap-2 flex-wrap">
