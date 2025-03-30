@@ -57,6 +57,7 @@ export async function createUserAction(): Promise<User> {
 export async function getUserAction(): Promise<User | null> {
   try {
     const { data: authUser } = await verifyCookie();
+    console.log("im just checking");
     if (!authUser) throw new Error("User not authenticated");
 
     const userRef = adminDb
@@ -70,24 +71,8 @@ export async function getUserAction(): Promise<User | null> {
     }
 
     const userData = userDoc.data() as any;
-
     // Convert Firestore Timestamp to Date
-    return {
-      ...userData,
-      createdAt:
-        userData.createdAt instanceof Timestamp
-          ? userData.createdAt.toDate()
-          : userData.createdAt instanceof Date
-            ? userData.createdAt
-            : new Date(),
-      subscription: {
-        ...userData.subscription,
-        currentPeriodEnd:
-          userData.subscription?.currentPeriodEnd instanceof Timestamp
-            ? userData.subscription.currentPeriodEnd.toDate()
-            : userData.subscription?.currentPeriodEnd,
-      },
-    } as User;
+    return userData;
   } catch (error) {
     console.error(`Error getting user:`, error);
     throw error;
@@ -146,46 +131,12 @@ const userConverter: FirestoreDataConverter<User> = {
   toFirestore(user: User): DocumentData {
     // When writing to Firestore, we don't need to do any special conversion
     // (Dates are automatically converted to Timestamps)
-    return { ...user };
+    return user;
   },
   fromFirestore(snapshot: QueryDocumentSnapshot): User {
     const data = snapshot.data();
-
-    // Recursively convert all Timestamps to Dates
-
-    // Convert the data
-    const userData = convertTimestamps(data);
-
-    // Set default values for required fields
-    if (!userData.subscription) {
-      userData.subscription = {
-        planId: "free",
-        status: "trialing",
-        currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-        billingCycle: "monthly",
-        cancelAtPeriodEnd: true,
-        maxTranslationsPerMonth: 15,
-        maxWorkspaces: 1,
-      };
-    }
-
-    if (!userData.usage) {
-      userData.usage = { totalTranslations: {} };
-    }
-
-    if (!userData.workspaces) {
-      userData.workspaces = [];
-    }
-
-    // Ensure createdAt is a Date
-    if (!userData.createdAt) {
-      userData.createdAt = new Date();
-    }
-
-    return {
-      ...userData,
-      uid: snapshot.id,
-    } as User;
+    const userData = convertTimestamps(data) as User;
+    return userData;
   },
 };
 

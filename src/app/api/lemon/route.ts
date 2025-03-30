@@ -17,18 +17,10 @@ type LemonSqueezyEvent =
   | "subscription_expired"
   | "subscription_paused"
   | "subscription_unpaused"
+  | "subscription_payment_success" // Added payment success event
+  | "subscription_payment_failed" // Added payment failed event
   | "order_created"
   | "order_refunded";
-
-// Subscription status mapping
-const subscriptionStatusMap: Record<string, string> = {
-  active: "active",
-  paused: "paused",
-  past_due: "past_due",
-  unpaid: "unpaid",
-  cancelled: "cancelled",
-  expired: "expired",
-};
 
 // Verify the webhook signature
 function verifyWebhookSignature(
@@ -75,32 +67,76 @@ export async function POST(request: NextRequest) {
     const { meta, data: eventData } = webhookData;
     const eventName = meta.event_name as LemonSqueezyEvent;
 
-    console.log(`Received Lemon Squeezy eventData:`, eventData);
-    // console.log(`Received Lemon Squeezy metadata:`, meta);
+    console.log(`Received Lemon Squeezy event: ${eventName}`);
 
     // Extract the user_id from custom data in meta
     const userId = meta.custom_data?.user_id;
 
     if (!userId) {
-      console.warn("No user_id found in webhook custom_data", meta);
+      console.log("No user_id found in webhook custom_data", eventData);
     } else {
       console.log(`Found user_id in custom_data: ${userId}`);
+    }
+
+    let billingCycle: string = "monthly";
+    if (eventData?.attributes?.variant_name) {
+      const variantName = eventData.attributes.variant_name;
+      const variantNameLower = variantName.toLowerCase();
+      if (
+        variantNameLower.includes("annual") ||
+        variantNameLower.includes("annually") ||
+        variantNameLower.includes("yearly") ||
+        variantNameLower.includes("year")
+      ) {
+        billingCycle = "yearly";
+      } else if (
+        variantNameLower.includes("month") ||
+        variantNameLower.includes("monthly")
+      ) {
+        billingCycle = "monthly";
+      }
     }
 
     // Process based on event type
     switch (eventName) {
       case "subscription_created":
-      case "subscription_updated":
+        // When subscription is created, set it to "pending" until payment is confirmed
         const plan = await getPlanDetails(eventData.attributes.variant_name);
-        await handleSubscriptionUpdate(eventData, plan, userId);
-        break;
+        return await handleSubscriptionCreated(
+          eventData,
+          plan,
+          billingCycle,
+          userId,
+        );
+
+      case "subscription_payment_success":
+        // When payment succeeds, set subscription to "active"
+        return await handleSubscriptionPaymentSuccess(eventData, userId);
+
+      case "subscription_payment_failed":
+        // Handle failed payment
+        return await handleSubscriptionPaymentFailed(eventData, userId);
+
+      case "subscription_updated":
+        // Regular update (not related to payment)
+        const updatePlan = await getPlanDetails(
+          eventData.attributes.variant_name,
+        );
+        return await handleSubscriptionUpdate(
+          eventData,
+          updatePlan,
+          billingCycle,
+          userId,
+        );
+
       case "subscription_cancelled":
-        await handleSubscriptionCancellation(eventData, userId);
-        break;
+        return await handleSubscriptionCancellation(eventData, userId);
+
       case "order_created":
-        await handleOrderCreated(eventData, userId);
+        // For order_created, we'll just log but not take action on subscription
+        console.log(`Order created, waiting for subscription events`);
         break;
-      // Add other event types as needed
+
       default:
         console.log(`Unhandled event type: ${eventName}`);
     }
@@ -115,53 +151,39 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Handle subscription creation and updates
-async function handleSubscriptionUpdate(
+// Handle initial subscription creation - mark as pending
+async function handleSubscriptionCreated(
   eventData: any,
   plan: Plan,
+  billingCycle: string,
   userId?: string,
 ) {
   try {
     if (!eventData || !eventData.attributes) {
       console.error("Invalid event data structure", eventData);
-      return;
+      return NextResponse.json({
+        success: false,
+        error: "Invalid data structure",
+      });
     }
 
-    // The subscription ID is in eventData.id, not in attributes
     const subscriptionId = eventData.id;
-
-    if (!subscriptionId) {
-      console.error("Could not find subscription ID in event data");
-      return;
-    }
-
     const attributes = eventData.attributes;
     const variantName = attributes.variant_name.toLowerCase();
     const planId = variantName.includes("starter") ? "starter" : "pro";
     const customerId = attributes.customer_id;
-    const status = subscriptionStatusMap[attributes.status] || "unknown";
-    const productId = attributes.product_id;
-    const variantId = attributes.variant_id;
-    const productName = attributes.product_name;
-
-    const billingCycle = variantName.includes("yearly")
-      ? "yearly"
-      : variantName.includes("monthly")
-        ? "monthly"
-        : "unknown";
+    const customerEmail = attributes.user_email;
 
     console.log(
-      `Processing subscription ID: ${subscriptionId} for product: ${productName} (${productId}), variant: ${variantName}, mapped to plan: ${planId}`,
+      `Processing new subscription ID: ${subscriptionId}, setting status to pending`,
     );
 
-    // If we have a userId from custom_data, use it directly
+    // Find the user
     let uid = userId;
-
-    // If no userId from custom_data, try to find user with customer ID
     if (!uid) {
       const usersRef = adminDb.collection("users");
       const userSnapshot = await usersRef
-        .where("lemonSqueezyCustomerId", "==", customerId)
+        .where("email", "==", customerEmail)
         .limit(1)
         .get();
 
@@ -169,38 +191,232 @@ async function handleSubscriptionUpdate(
         uid = userSnapshot.docs[0].id;
       } else {
         console.error(
-          `No user found with Lemon Squeezy customer ID: ${customerId} and no user_id was provided in custom_data`,
+          `No user found with email: ${customerEmail} and no user_id provided`,
         );
-        return;
+        return NextResponse.json({ success: false });
       }
     }
 
-    // Set subscription data based on the plan
-    const maxTranslationsPerMonth = plan.limits.maxTranslationsPerMonth; // Default value
-    const maxWorkspaces = plan.limits.maxWorkspaces; // Default value
+    // Subscription data with pending status
+    const maxTranslationsPerMonth = plan.limits.maxTranslationsPerMonth;
+    const maxWorkspaces = plan.limits.maxWorkspaces;
 
-    // Calculate currentPeriodEnd
+    // Calculate renewal date
     const currentPeriodEnd = attributes.ends_at
       ? new Date(attributes.ends_at).getTime()
       : attributes.renews_at
         ? new Date(attributes.renews_at).getTime()
-        : Date.now() + 30 * 24 * 60 * 60 * 1000; // Fallback to 30 days from now
+        : null;
 
-    // Update user subscription using dot notation to ensure we don't lose any existing fields
+    // Update user with pending subscription
     await adminDb
       .collection("users")
       .doc(uid)
       .update({
         "subscription.planId": planId,
-        "subscription.status": status,
+        "subscription.status": "pending", // Mark as pending until payment confirmed
         "subscription.billingCycle": billingCycle,
-        "subscription.currentPeriodEnd": Timestamp.fromMillis(currentPeriodEnd),
+        "subscription.currentPeriodEnd": currentPeriodEnd
+          ? Timestamp.fromMillis(currentPeriodEnd)
+          : null,
+        "subscription.cancelAtPeriodEnd": false,
+        "subscription.lemonSqueezySubscriptionId": subscriptionId,
+        "subscription.lemonSqueezyProductId": attributes.product_id,
+        "subscription.lemonSqueezyVariantId": attributes.variant_id,
+        "subscription.lemonSqueezyVariantName": attributes.variant_name,
+        "subscription.lemonSqueezyProductName": attributes.product_name,
+        "subscription.maxTranslationsPerMonth": maxTranslationsPerMonth,
+        "subscription.maxWorkspaces": maxWorkspaces,
+        "subscription.updatedAt": Timestamp.now(),
+        lemonSqueezyCustomerId: customerId,
+        updatedAt: Timestamp.now(),
+      });
+
+    console.log(
+      `Created pending subscription for user ${uid}: plan ${planId} (${subscriptionId})`,
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling subscription creation:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle successful payment - mark subscription as active
+async function handleSubscriptionPaymentSuccess(
+  eventData: any,
+  userId?: string,
+) {
+  try {
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid payment success data structure", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.attributes.subscription_id;
+    console.log(
+      `Processing successful payment for subscription ${subscriptionId}`,
+    );
+
+    // Find the user - first by userId, then by subscriptionId
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("subscription.lemonSqueezySubscriptionId", "==", subscriptionId)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with subscription ID: ${subscriptionId}`);
+        console.error(
+          `No user found with subscription email: ${eventData.attributes.user_email}`,
+        );
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    // Update subscription to active status
+    await adminDb.collection("users").doc(uid).update({
+      "subscription.status": "active", // Now we confirm it's active
+      "subscription.updatedAt": Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
+    console.log(
+      `Activated subscription ${subscriptionId} for user ${uid} after successful payment`,
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling successful payment:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle failed payment
+async function handleSubscriptionPaymentFailed(
+  eventData: any,
+  userId?: string,
+) {
+  try {
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid payment failed data structure", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.attributes.subscription_id;
+    console.log(`Processing failed payment for subscription ${subscriptionId}`);
+
+    // Find the user
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("subscription.lemonSqueezySubscriptionId", "==", subscriptionId)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with subscription ID: ${subscriptionId}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    // Update subscription to reflect payment failure
+    await adminDb.collection("users").doc(uid).update({
+      "subscription.status": "past_due", // Mark as past due
+      "subscription.updatedAt": Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
+    console.log(
+      `Marked subscription ${subscriptionId} as past_due for user ${uid} after payment failure`,
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling failed payment:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle general subscription updates (not payment related)
+async function handleSubscriptionUpdate(
+  eventData: any,
+  plan: Plan,
+  billingCycle: string,
+  userId?: string,
+) {
+  try {
+    // Most of the original update logic remains the same
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid event data structure", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.id;
+    const attributes = eventData.attributes;
+    const variantName = attributes.variant_name.toLowerCase();
+    const planId = variantName.includes("starter") ? "starter" : "pro";
+    const customerId = attributes.customer_id;
+    const customerEmail = attributes.user_email;
+    const status = attributes.status; // We'll use the status from Lemon Squeezy
+
+    // Find user
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("email", "==", customerEmail)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with email: ${customerEmail}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    // Update subscription - normal update case
+    const maxTranslationsPerMonth = plan.limits.maxTranslationsPerMonth;
+    const maxWorkspaces = plan.limits.maxWorkspaces;
+
+    const currentPeriodEnd = attributes.ends_at
+      ? new Date(attributes.ends_at).getTime()
+      : attributes.renews_at
+        ? new Date(attributes.renews_at).getTime()
+        : null;
+
+    await adminDb
+      .collection("users")
+      .doc(uid)
+      .update({
+        "subscription.planId": planId,
+        "subscription.status": status, // Use status from Lemon Squeezy
+        "subscription.billingCycle": billingCycle,
+        "subscription.currentPeriodEnd": currentPeriodEnd
+          ? Timestamp.fromMillis(currentPeriodEnd)
+          : null,
         "subscription.cancelAtPeriodEnd": !!attributes.cancelled,
         "subscription.lemonSqueezySubscriptionId": subscriptionId,
-        "subscription.lemonSqueezyProductId": productId,
-        "subscription.lemonSqueezyVariantId": variantId,
-        "subscription.lemonSqueezyVariantName": variantName,
-        "subscription.lemonSqueezyProductName": productName,
+        "subscription.lemonSqueezyProductId": attributes.product_id,
+        "subscription.lemonSqueezyVariantId": attributes.variant_id,
+        "subscription.lemonSqueezyVariantName": attributes.variant_name,
+        "subscription.lemonSqueezyProductName": attributes.product_name,
         "subscription.maxTranslationsPerMonth": maxTranslationsPerMonth,
         "subscription.maxWorkspaces": maxWorkspaces,
         "subscription.updatedAt": Timestamp.now(),
@@ -211,8 +427,13 @@ async function handleSubscriptionUpdate(
     console.log(
       `Updated subscription for user ${uid} to plan ${planId} (${subscriptionId})`,
     );
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error handling subscription update:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 }
 
@@ -221,12 +442,10 @@ async function handleSubscriptionCancellation(eventData: any, userId?: string) {
   try {
     if (!eventData || !eventData.attributes) {
       console.error("Invalid event data structure", eventData);
-      return;
+      return NextResponse.json({ success: false });
     }
 
-    // The subscription ID is in eventData.id
     const subscriptionId = eventData.id;
-
     const attributes = eventData.attributes;
     const customerId = attributes.customer_id;
 
@@ -234,10 +453,8 @@ async function handleSubscriptionCancellation(eventData: any, userId?: string) {
       `Processing cancellation for subscription ID: ${subscriptionId}`,
     );
 
-    // If we have a userId from custom_data, use it directly
+    // Find user
     let uid = userId;
-
-    // If no userId from custom_data, try to find user with customer ID
     if (!uid) {
       const usersRef = adminDb.collection("users");
       const userSnapshot = await usersRef
@@ -249,9 +466,9 @@ async function handleSubscriptionCancellation(eventData: any, userId?: string) {
         uid = userSnapshot.docs[0].id;
       } else {
         console.error(
-          `No user found with Lemon Squeezy customer ID: ${customerId} and no user_id was provided in custom_data`,
+          `No user found with Lemon Squeezy customer ID: ${customerId}`,
         );
-        return;
+        return NextResponse.json({ success: false });
       }
     }
 
@@ -264,47 +481,14 @@ async function handleSubscriptionCancellation(eventData: any, userId?: string) {
     });
 
     console.log(`Cancelled subscription ${subscriptionId} for user ${uid}`);
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error handling subscription cancellation:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
   }
-}
-
-// Handle new orders
-async function handleOrderCreated(eventData: any, userId?: string) {
-  const attributes = eventData.attributes;
-  const customerId = attributes.customer_id;
-  const customerEmail = attributes.user_email;
-
-  // If we have a userId from custom_data, use it directly
-  let uid = userId;
-
-  // If no userId provided, try to find user by email
-  if (!uid) {
-    const usersRef = adminDb.collection("users");
-    const userSnapshot = await usersRef
-      .where("email", "==", customerEmail)
-      .limit(1)
-      .get();
-
-    if (!userSnapshot.empty) {
-      uid = userSnapshot.docs[0].id;
-    } else {
-      console.log(
-        `No user found with email: ${customerEmail} and no user_id was provided in custom_data`,
-      );
-      return;
-    }
-  }
-
-  // Update the user with Lemon Squeezy customer ID
-  await adminDb.collection("users").doc(uid).update({
-    lemonSqueezyCustomerId: customerId,
-    updatedAt: Timestamp.now(),
-  });
-
-  console.log(
-    `Updated user ${uid} with Lemon Squeezy customer ID: ${customerId}`,
-  );
 }
 
 async function getPlanDetails(variantName: string): Promise<Plan> {

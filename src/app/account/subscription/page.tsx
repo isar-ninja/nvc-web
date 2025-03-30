@@ -21,11 +21,9 @@ import { getPlans } from "@/actions/plan-actions";
 
 const LEMON_SQUEEZY_URLS = {
   starter:
-    "https://stage.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38",
-  professional:
-    "https://stage.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38?embed=1", // Update with actual URL
-  enterprise:
-    "https://stage.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38?embed=1", // Update with actual URL
+    "https://store.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38",
+  professional: "", // Update with actual URL
+  enterprise: "", // Update with actual URL
 };
 export default function SubscriptionPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -47,10 +45,6 @@ export default function SubscriptionPage() {
         setPlans(availablePlans);
 
         // If user has a subscription, preselect their current plan
-        if (userData?.subscription) {
-          setSelectedPlanId(userData.subscription.planId);
-          setBillingCycle(userData.subscription.billingCycle);
-        }
       } catch (err) {
         console.error("Error fetching plans:", err);
         setError("Failed to load subscription plans. Please try again.");
@@ -60,6 +54,13 @@ export default function SubscriptionPage() {
     };
 
     fetchPlans();
+  }, []);
+
+  useEffect(() => {
+    if (userData?.subscription) {
+      setSelectedPlanId(userData.subscription.planId);
+      setBillingCycle(userData.subscription.billingCycle);
+    }
   }, [userData]);
 
   const handlePlanSelect = (planId: string) => {
@@ -98,7 +99,7 @@ export default function SubscriptionPage() {
 
   // Function to format price with dollar sign
   const formatPrice = (price: number | string) => {
-    return typeof price === "number" ? `$${price}` : price;
+    return typeof price === "number" ? `€${price}` : price;
   };
 
   // Function to get the monthly equivalent of yearly pricing
@@ -330,9 +331,11 @@ export default function SubscriptionPage() {
           </div>
 
           <div className="mt-12 text-center">
-            {selectedPlanId}
             <Link
-              href={`${LEMON_SQUEEZY_URLS[selectedPlanId]}?checkout[custom][user_id]=${firebaseUser!.uid}` || ""}
+              href={
+                `${LEMON_SQUEEZY_URLS[selectedPlanId]}?checkout[custom][user_id]=${firebaseUser!.uid}` ||
+                ""
+              }
               className="lemonsqueezy-button"
             >
               <Button
