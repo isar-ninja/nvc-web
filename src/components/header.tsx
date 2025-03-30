@@ -30,7 +30,7 @@ export function Header() {
         <div className="flex items-center gap-2 font-bold text-xl">
           <Link href="/" className="flex items-center gap-2">
             <MessageSquareText className="h-6 w-6 text-primary" />
-            <span>NVC-Bot</span>
+            <span>Goodspeech</span>
           </Link>
         </div>
 
