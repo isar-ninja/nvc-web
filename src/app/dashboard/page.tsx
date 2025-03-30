@@ -385,7 +385,6 @@ export default function Dashboard() {
                           className="w-full min-[400px]:w-auto"
                         >
                           <Link
-                            className="pointer-events-none"
                             target="_blank"
                             href="https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install"
                           >
