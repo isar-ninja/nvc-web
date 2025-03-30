@@ -81,6 +81,9 @@ export default function Dashboard() {
   };
 
   const usagePercentage = calculateUsagePercentage();
+  const isTrialOrPending =
+    userData.subscription.status === "trialing" ||
+    userData.subscription.status === "pending";
 
   return (
     <div className="p-8">
@@ -174,6 +177,11 @@ export default function Dashboard() {
                               ).toLocaleDateString()}
                             </span>
                           )}
+                          {userData.subscription.status === "pending" && (
+                            <span className="text-xs text-amber-500 ml-2">
+                              Payment processing
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4 md:mt-0">
@@ -188,7 +196,8 @@ export default function Dashboard() {
                         </Link>
                         <Link href="/account/subscription">
                           <Button size="sm">
-                            {userData.subscription.planId === "free"
+                            {userData.subscription.planId === "free" ||
+                            userData.subscription.status === "trialing"
                               ? "Upgrade"
                               : "Manage Subscription"}
                           </Button>
@@ -260,7 +269,9 @@ export default function Dashboard() {
                             "Your subscription is active"}
                           {userData.subscription.status === "trialing" &&
                             "Your trial is active"}
-                          {userData.subscription.status === "canceled" &&
+                          {userData.subscription.status === "pending" &&
+                            "Your payment is being processed"}
+                          {userData.subscription.status === "cancelled" &&
                             "Your subscription will end soon"}
                           {userData.subscription.status === "past_due" &&
                             "Payment is past due"}
@@ -269,7 +280,9 @@ export default function Dashboard() {
                           <Link href="/account/subscription">
                             <Button variant="outline" size="sm">
                               <BarChart className="h-4 w-4 mr-2" />
-                              Manage Subscription
+                              {isTrialOrPending
+                                ? "Upgrade Plan"
+                                : "Manage Subscription"}
                             </Button>
                           </Link>
                         </div>
@@ -280,17 +293,42 @@ export default function Dashboard() {
                         <p className="font-bold mt-1 capitalize">
                           {userData.subscription.planId}
                         </p>
-                        <p className="text-sm mt-1">
-                          {userData.subscription.billingCycle} billing
-                        </p>
-                        {userData.subscription.currentPeriodEnd && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            Renews on{" "}
-                            {new Date(
-                              userData.subscription.currentPeriodEnd as Date,
-                            ).toLocaleDateString()}
+
+                        {/* Only show billing cycle for active, paid subscriptions */}
+                        {!isTrialOrPending && (
+                          <p className="text-sm mt-1">
+                            {userData.subscription.billingCycle} billing
                           </p>
                         )}
+
+                        {/* For trial, show expiration date instead of renewal date */}
+                        {userData.subscription.status === "trialing" &&
+                          userData.subscription.currentPeriodEnd && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Trial ends on{" "}
+                              {new Date(
+                                userData.subscription.currentPeriodEnd as Date,
+                              ).toLocaleDateString()}
+                            </p>
+                          )}
+
+                        {/* For pending, show processing message */}
+                        {userData.subscription.status === "pending" && (
+                          <p className="text-xs text-amber-500 mt-1">
+                            Payment being processed
+                          </p>
+                        )}
+
+                        {/* For active subscriptions, show renewal date */}
+                        {userData.subscription.status === "active" &&
+                          userData.subscription.currentPeriodEnd && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Renews on{" "}
+                              {new Date(
+                                userData.subscription.currentPeriodEnd as Date,
+                              ).toLocaleDateString()}
+                            </p>
+                          )}
                       </div>
                     </div>
                   </div>
