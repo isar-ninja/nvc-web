@@ -8,6 +8,7 @@ import {
   Timestamp,
 } from "firebase-admin/firestore";
 import { getUserAction } from "./user-actions";
+import { convertTimestamps } from "./action-utils";
 
 export async function createWorkspaceAction(
   workspaceName: string,
@@ -119,15 +120,7 @@ const workspaceConverter = {
   }),
   fromFirestore: (snapshot: QueryDocumentSnapshot): Workspace => {
     const data = snapshot.data();
-    return {
-      ...data,
-      id: snapshot.id,
-      createdAt:
-        data.createdAt instanceof Timestamp
-          ? data.createdAt.toDate()
-          : data.createdAt,
-      // Ensure usage exists with translations object
-      usage: data.usage || { translations: {} },
-    } as Workspace;
+    const workspaceData = convertTimestamps(data) as Workspace;
+    return workspaceData;
   },
 };

@@ -2,10 +2,10 @@
 
 ## Getting Started
 
-First, run the development server:
+First, run the ngrok server for lemonsqueezy webhooks, and add the new url to your lemonsqueezy webhook settings:
 
 ```bash
-pnpm dev
+ngrok start --all
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
