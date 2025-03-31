@@ -1,41 +1,114 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Plus,
-  Settings,
   BarChart,
   ExternalLink,
   MessageSquareText,
   RefreshCw,
   PieChart,
   AlertTriangle,
+  Pencil,
+  X,
+  Check,
 } from "lucide-react";
 import { Workspace } from "@/lib/shared/models";
 import Image from "next/image";
 import { getCurrentMonthKey } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner"; // Using Sonner toast component instead
+import { updateWorkspaceNameAction } from "@/actions/workspace-actions";
 
 export default function Dashboard() {
-  const { userData, workspaces, defaultWorkspace } = useAuth();
+  const { userData, workspaces, defaultWorkspace, refreshWorkspaces } =
+    useAuth();
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
     null,
   );
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newWorkspaceName, setNewWorkspaceName] = useState("");
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
   // console.log("Dashboard userData", userData);
   useEffect(() => {
     // Set the active workspace to the default one
     if (defaultWorkspace) {
       setActiveWorkspace(defaultWorkspace);
+      setNewWorkspaceName(defaultWorkspace.name);
     } else if (workspaces.length > 0) {
       setActiveWorkspace(workspaces[0]);
+      setNewWorkspaceName(workspaces[0].name);
     }
   }, [defaultWorkspace, workspaces]);
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
+  }, [isEditingName]);
 
   if (!userData) {
     return null; // Will be handled by AuthContext
   }
+
+  const startEditingName = () => {
+    if (activeWorkspace) {
+      setNewWorkspaceName(activeWorkspace.name);
+      setIsEditingName(true);
+    }
+  };
+
+  const cancelEditingName = () => {
+    setIsEditingName(false);
+    if (activeWorkspace) {
+      setNewWorkspaceName(activeWorkspace.name);
+    }
+  };
+
+  const saveWorkspaceName = async () => {
+    if (!activeWorkspace || !newWorkspaceName.trim()) {
+      return;
+    }
+
+    if (newWorkspaceName === activeWorkspace.name) {
+      setIsEditingName(false);
+      return;
+    }
+
+    try {
+      setIsUpdatingName(true);
+      await updateWorkspaceNameAction(activeWorkspace.id, newWorkspaceName);
+      await refreshWorkspaces();
+      setIsEditingName(false);
+      toast.success("Workspace updated", {
+        description: "The workspace name has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating workspace name:", error);
+      toast.error("Error", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update workspace name",
+      });
+    } finally {
+      setIsUpdatingName(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      saveWorkspaceName();
+    } else if (e.key === "Escape") {
+      cancelEditingName();
+    }
+  };
 
   const getSubscriptionLabel = () => {
     const { planId, status } = userData.subscription;
@@ -181,7 +254,11 @@ export default function Dashboard() {
                   {workspaces.map((workspace) => (
                     <button
                       key={workspace.id}
-                      onClick={() => setActiveWorkspace(workspace)}
+                      onClick={() => {
+                        setActiveWorkspace(workspace);
+                        setNewWorkspaceName(workspace.name);
+                        setIsEditingName(false);
+                      }}
                       className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
                         activeWorkspace?.id === workspace.id
                           ? "bg-primary text-primary-foreground"
@@ -219,10 +296,67 @@ export default function Dashboard() {
                   {/* Workspace Header */}
                   <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <h2 className="text-2xl font-bold">
-                          {activeWorkspace.name}
-                        </h2>
+                      <div className="flex-grow">
+                        {isEditingName ? (
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              ref={nameInputRef}
+                              value={newWorkspaceName}
+                              onChange={(e) =>
+                                setNewWorkspaceName(e.target.value)
+                              }
+                              onKeyDown={handleKeyDown}
+                              className="text-xl font-bold h-auto py-1 max-w-md"
+                              disabled={isUpdatingName}
+                              maxLength={50}
+                            />
+                            <div className="flex space-x-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={saveWorkspaceName}
+                                disabled={
+                                  isUpdatingName || !newWorkspaceName.trim()
+                                }
+                                className="h-8 w-8 p-0"
+                              >
+                                {isUpdatingName ? (
+                                  <span className="animate-spin">
+                                    <RefreshCw className="h-4 w-4 text-green-600" />
+                                  </span>
+                                ) : (
+                                  <Check className="h-4 w-4 text-green-600" />
+                                )}
+                                <span className="sr-only">Save</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={cancelEditingName}
+                                disabled={isUpdatingName}
+                                className="h-8 w-8 p-0"
+                              >
+                                <X className="h-4 w-4 text-red-600" />
+                                <span className="sr-only">Cancel</span>
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center">
+                            <h2 className="text-2xl font-bold">
+                              {activeWorkspace.name}
+                            </h2>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={startEditingName}
+                              className="ml-2 h-8 w-8 p-0"
+                            >
+                              <Pencil className="h-4 w-4 text-gray-500" />
+                              <span className="sr-only">Edit name</span>
+                            </Button>
+                          </div>
+                        )}
                         <div className="flex items-center mt-2">
                           <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">
                             {getSubscriptionLabel()}
@@ -251,7 +385,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4 md:mt-0">
-                        <Link
+                        {/* <Link
                           className="pointer-events-none"
                           href={`/workspace/${activeWorkspace.id}/settings`}
                         >
@@ -259,7 +393,7 @@ export default function Dashboard() {
                             <Settings className="h-4 w-4 mr-2" />
                             Settings
                           </Button>
-                        </Link>
+                        </Link> */}
                         <Link href="/account/subscription">
                           <Button
                             size="sm"
@@ -583,7 +717,7 @@ export default function Dashboard() {
                       Quick Actions
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                      {/* <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <h4 className="font-medium">View Usage Analytics</h4>
                         <p className="text-sm text-gray-500 mt-1 mb-3">
                           See how your team is using Goodspeech
@@ -597,7 +731,7 @@ export default function Dashboard() {
                             View Analytics
                           </Button>
                         </Link>
-                      </div>
+                      </div> */}
                       <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <h4 className="font-medium">Documentation</h4>
                         <p className="text-sm text-gray-500 mt-1 mb-3">

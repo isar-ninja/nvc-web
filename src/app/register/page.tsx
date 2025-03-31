@@ -47,7 +47,7 @@ export default function RegisterPage() {
         <div className="flex flex-col items-center text-center">
           <div className="flex items-center gap-2 font-bold text-xl">
             <MessageSquareText className="h-6 w-6 text-primary" />
-            <span>NVC-Bot</span>
+            <span>Goodspeech</span>
           </div>
           <h2 className="mt-6 text-3xl font-bold">Create your account</h2>
           <p className="mt-2 text-sm text-gray-500">

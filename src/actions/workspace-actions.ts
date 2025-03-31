@@ -77,6 +77,55 @@ export async function getWorkspacesAction(): Promise<Workspace[]> {
   }
 }
 
+export async function updateWorkspaceNameAction(
+  workspaceId: string,
+  newName: string,
+): Promise<Workspace> {
+  try {
+    const { data: user } = await verifyCookie();
+    if (!user) throw new Error("User not authenticated");
+
+    // Get the workspace document reference
+    const workspaceRef = adminDb
+      .collection("workspaces")
+      .doc(workspaceId)
+      .withConverter(workspaceConverter);
+
+    // Get the workspace to verify ownership
+    const workspaceDoc = await workspaceRef.get();
+
+    if (!workspaceDoc.exists) {
+      throw new Error("Workspace not found");
+    }
+
+    const workspace = workspaceDoc.data() as Workspace;
+
+    // Security check - ensure the user is authorized to update this workspace
+    if (workspace.ownerId !== user.uid) {
+      throw new Error("You do not have permission to update this workspace");
+    }
+
+    // Validate the new name
+    if (!newName || newName.trim().length === 0) {
+      throw new Error("Workspace name cannot be empty");
+    }
+
+    // Update the workspace name
+    await workspaceRef.update({
+      name: newName.trim(),
+    });
+
+    // Return the updated workspace
+    return {
+      ...workspace,
+      name: newName.trim(),
+    };
+  } catch (error) {
+    console.error(`Error updating workspace name:`, error);
+    throw error;
+  }
+}
+
 export async function getWorkspaceByIdAction(
   workspaceId: string,
 ): Promise<Workspace | null> {

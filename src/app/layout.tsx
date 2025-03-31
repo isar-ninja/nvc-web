@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { AuthProvider } from "@/context/AuthContext";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,9 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NVC-Bot | Transform Workplace Communication",
+  title: "Goodspeech | Transform Workplace Communication",
   description:
-    "NVC-Bot translates aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding.",
+    "Goodspeech translates aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding.",
 };
 
 export default async function RootLayout({
@@ -34,6 +35,7 @@ export default async function RootLayout({
       >
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
           <AuthProvider>
+            <Toaster />
             <div className="flex flex-col min-h-screen">
               <Header />
               <main className="flex-1">{children}</main>

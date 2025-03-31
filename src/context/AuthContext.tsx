@@ -36,6 +36,7 @@ interface AuthContextProps {
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   refreshUserData: () => Promise<void>;
+  refreshWorkspaces: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -97,6 +98,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetchUserData();
     }
   };
+
+  async function refreshWorkspaces() {
+    if (firebaseUser) {
+      const userWorkspaces = await getWorkspacesAction();
+      setWorkspaces(userWorkspaces);
+      if (userData?.defaultWorkspace) {
+        const defaultWs = userWorkspaces.find(
+          (ws) => ws.id === userData?.defaultWorkspace,
+        );
+        setDefaultWorkspace(defaultWs || null);
+      } else if (userWorkspaces.length > 0) {
+        setDefaultWorkspace(userWorkspaces[0]);
+      }
+    }
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
@@ -204,6 +220,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         loginWithGoogle,
         refreshUserData,
+        refreshWorkspaces,
       }}
     >
       {children}

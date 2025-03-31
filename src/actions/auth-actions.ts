@@ -12,20 +12,24 @@ const COOKIE_OPTIONS = {
 };
 
 export async function createCookie(idToken: string) {
-  const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days in milliseconds
-  const sessionCookie = await adminAuth.createSessionCookie(idToken, {
-    expiresIn,
-  });
-  const cookieStore = await cookies();
-  cookieStore.set({
-    name: COOKIE_NAME,
-    value: sessionCookie,
-    httpOnly: COOKIE_OPTIONS.httpOnly,
-    secure: COOKIE_OPTIONS.secure,
-    maxAge: COOKIE_OPTIONS.maxAge,
-    path: COOKIE_OPTIONS.path,
-    sameSite: COOKIE_OPTIONS.sameSite,
-  });
+  try {
+    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days in milliseconds
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
+      expiresIn,
+    });
+    const cookieStore = await cookies();
+    cookieStore.set({
+      name: COOKIE_NAME,
+      value: sessionCookie,
+      httpOnly: COOKIE_OPTIONS.httpOnly,
+      secure: COOKIE_OPTIONS.secure,
+      maxAge: COOKIE_OPTIONS.maxAge,
+      path: COOKIE_OPTIONS.path,
+      sameSite: COOKIE_OPTIONS.sameSite,
+    });
+  } catch (error) {
+    console.log("createCookie error ", error);
+  }
 }
 
 export async function verifyCookie() {

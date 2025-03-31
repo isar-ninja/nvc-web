@@ -61,7 +61,7 @@ export function Header() {
           </nav>
         )}
 
-        {isDashboard && !isWorkspacesEmpty && (
+        {isDashboard && !isWorkspacesEmpty && false && (
           <nav className="hidden md:flex items-center gap-6">
             <Link
               href="/dashboard"
@@ -72,13 +72,13 @@ export function Header() {
             {defaultWorkspace && (
               <>
                 <Link
-                  href={`/workspace/${defaultWorkspace.id}/settings`}
+                  href={`/workspace/${defaultWorkspace?.id}/settings`}
                   className="text-sm font-medium hover:underline"
                 >
                   Settings
                 </Link>
                 <Link
-                  href={`/workspace/${defaultWorkspace.id}/analytics`}
+                  href={`/workspace/${defaultWorkspace?.id}/analytics`}
                   className="text-sm font-medium hover:underline"
                 >
                   Analytics
