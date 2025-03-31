@@ -4,8 +4,7 @@ import { CheckCircle, MessageSquareText, Shield, Zap } from "lucide-react";
 import Image from "next/image";
 import { verifyCookie } from "@/actions/auth-actions";
 import { getPlans } from "@/actions/plan-actions";
-import Contact from "@/components/Contact";
-
+import Contact from "@/components/contact";
 export default async function Home() {
   const loggedIn = await verifyCookie();
   const plans = await getPlans();
@@ -370,7 +369,7 @@ export default async function Home() {
             <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/testimonials/man-1.png"
+                  src="/testimonials/testi-1.png"
                   width={60}
                   height={60}
                   alt="Michael Chen"
@@ -392,7 +391,7 @@ export default async function Home() {
             <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/testimonials/woman-1.png"
+                  src="/testimonials/testi-2.png"
                   width={60}
                   height={60}
                   alt="Sarah Johnson"
@@ -412,7 +411,7 @@ export default async function Home() {
             <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/testimonials/man-2.png"
+                  src="/testimonials/testi-3.png"
                   width={60}
                   height={60}
                   alt="Hermann Sorglos"
