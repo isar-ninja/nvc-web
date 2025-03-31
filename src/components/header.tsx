@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageSquareText, Menu, X, Plus } from "lucide-react";
+import { Menu, X, Plus } from "lucide-react";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -29,8 +30,9 @@ export function Header() {
       <div className="flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 font-bold text-xl">
           <Link href="/" className="flex items-center gap-2">
-            <MessageSquareText className="h-6 w-6 text-primary" />
-            <span>Goodspeech</span>
+            <Image alt="Add to Slack" height="70" width="120" src="/logo.svg" />
+            {/* <MessageSquareText className="h-6 w-6 text-primary" /> */}
+            {/* <span className="">Goodspeech</span> */}
           </Link>
         </div>
 

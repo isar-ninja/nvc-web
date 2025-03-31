@@ -2,38 +2,59 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { MessageSquareText } from "lucide-react";
+import { Loader2, MessageSquareText } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState(false);
   const { login, loginWithGoogle } = useAuth();
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoggingIn(true);
     try {
       setError("");
       await login(email, password);
-      router.push("/dashboard");
+      // No need to push to dashboard here, it's handled in the login function
     } catch (err: any) {
       setError("Failed to log in: " + err.message);
+      setIsLoggingIn(false);
     }
   };
 
   const handleGoogleLogin = async () => {
+    setIsGoogleLoggingIn(true);
     try {
       setError("");
       await loginWithGoogle();
-      router.push("/dashboard");
+      // No need to push to dashboard here, it's handled in the loginWithGoogle function
     } catch (err: any) {
       setError("Failed to log in with Google: " + err.message);
+      setIsGoogleLoggingIn(false);
     }
   };
+
+  // Show a full-screen loader when Google sign-in is processing
+  if (isGoogleLoggingIn) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-background/95 z-50">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <h3 className="mt-4 text-xl font-semibold">Signing you in...</h3>
+          <p className="mt-2 text-muted-foreground">
+            Setting up your account and preparing your workspaces.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -120,14 +141,22 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-4">
-            <Button type="submit" className="w-full">
-              Sign in
+            <Button type="submit" className="w-full" disabled={isLoggingIn}>
+              {isLoggingIn ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
             </Button>
             <Button
               type="button"
               variant="outline"
               className="w-full"
               onClick={handleGoogleLogin}
+              disabled={isLoggingIn || isGoogleLoggingIn}
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path

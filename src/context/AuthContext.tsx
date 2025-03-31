@@ -22,6 +22,7 @@ import { User, Workspace } from "@/lib/shared/models";
 import { createCookie, deleteCookie } from "@/actions/auth-actions";
 import { getWorkspacesAction } from "@/actions/workspace-actions";
 import { createUserAction, getUserAction } from "@/actions/user-actions";
+import { Loader2 } from "lucide-react";
 
 type AccessToken = { accessToken: string };
 
@@ -56,6 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     null,
   );
   const [loading, setLoading] = useState(true);
+  const [initialAuthCheckComplete, setInitialAuthCheckComplete] =
+    useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -68,7 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         // Call the server-side API to create the user
         userRecord = await createUserAction();
-
         setUserData(userRecord);
       }
 
@@ -86,10 +88,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setDefaultWorkspace(userWorkspaces[0]);
       }
 
-      return userRecord;
+      return { userRecord, userWorkspaces };
     } catch (error) {
       console.error("Error fetching user data:", error);
-      return null;
+      return { userRecord: null, userWorkspaces: [] };
     }
   };
 
@@ -121,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // console.log("fbUser:", fbUser);
         const userWithToken = fbUser as FirebaseUser & AccessToken;
         setFirebaseUser(userWithToken);
-        // await createSession(fbUser)
+
         if (fbUser) {
           await createCookie(userWithToken.accessToken);
           await fetchUserData();
@@ -134,49 +136,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         setLoading(false);
-
-        // Handle route protection after auth state is determined
-        if (!loading) {
-          // If user is authenticated and trying to access auth pages, redirect to dashboard
-          if (fbUser && AUTH_ROUTES.includes(pathname)) {
-            router.push("/dashboard");
-          }
-
-          // If user is not authenticated and trying to access protected routes, redirect to login
-          if (
-            !fbUser &&
-            PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
-          ) {
-            router.push("/login");
-          }
-
-          // If user is authenticated but has no workspaces and is trying to access dashboard
-          if (fbUser && workspaces.length === 0 && pathname === "/dashboard") {
-            router.push("/workspace/new");
-          }
-        }
+        setInitialAuthCheckComplete(true);
       },
     );
 
     return () => unsubscribe();
-  }, [pathname, loading, router, workspaces.length]);
+  }, []);
+
+  // Handle routing after auth state and initial data load is complete
+  useEffect(() => {
+    if (!initialAuthCheckComplete) return;
+
+    // If user is authenticated and trying to access auth pages, redirect to dashboard
+    if (firebaseUser && AUTH_ROUTES.includes(pathname)) {
+      router.push("/dashboard");
+    }
+
+    // If user is not authenticated and trying to access protected routes, redirect to login
+    if (
+      !firebaseUser &&
+      PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
+    ) {
+      router.push("/login");
+    }
+  }, [
+    pathname,
+    initialAuthCheckComplete,
+    firebaseUser,
+    workspaces.length,
+    router,
+  ]);
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
-    await fetchUserData();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      const { userWorkspaces } = await fetchUserData();
 
-    // Redirect to dashboard if user has workspaces, otherwise to workspace creation
-    if (workspaces.length > 0) {
-      router.push("/dashboard");
-    } else {
-      router.push("/workspace/new");
+      // Redirect to dashboard if user has workspaces, otherwise to workspace creation
+      if (userWorkspaces.length > 0) {
+        router.push("/dashboard");
+      } else {
+        router.push("/workspace/new");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
     }
   };
 
   const register = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
-    await fetchUserData();
-    router.push("/workspace/new");
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      await fetchUserData();
+      router.push("/workspace/new");
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error;
+    }
   };
 
   const logout = async () => {
@@ -186,23 +202,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-    await fetchUserData();
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      const { userWorkspaces } = await fetchUserData();
 
-    // Redirect to dashboard if user has workspaces, otherwise to workspace creation
-    if (workspaces.length > 0) {
-      router.push("/dashboard");
-    } else {
-      router.push("/workspace/new");
+      // Redirect to dashboard if user has workspaces, otherwise to workspace creation
+      if (userWorkspaces.length > 0) {
+        router.push("/dashboard");
+      } else {
+        router.push("/workspace/new");
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      throw error;
     }
   };
 
-  // Show loading state while determining authentication
+  // Show better loading state
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        Loading...
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-lg font-medium">Loading your account...</p>
       </div>
     );
   }

@@ -414,7 +414,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Quick Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div
                       className={`bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800 ${
                         trialStatus.trialEnded && trialStatus.reason === "usage"
