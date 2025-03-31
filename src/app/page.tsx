@@ -11,7 +11,7 @@ export default async function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="py-20 md:py-28 flex justify-center">
+      <section className="py-8 md:py-28 flex justify-center">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="flex flex-col justify-center space-y-4">
@@ -20,9 +20,9 @@ export default async function Home() {
                   Transform Workplace Communication
                 </h1>
                 <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Goodspeech translates aggressive and passive-aggressive messages
-                  into empathic, understandable communication that builds
-                  connection and understanding.
+                  Goodspeech translates aggressive and passive-aggressive
+                  messages into empathic, understandable communication that
+                  builds connection and understanding.
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
