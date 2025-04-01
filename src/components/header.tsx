@@ -30,7 +30,13 @@ export function Header() {
       <div className="flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 font-bold text-xl">
           <Link href="/" className="flex items-center gap-2">
-            <Image alt="Add to Slack" height="70" width="120" src="/logo.svg" />
+            <Image
+              priority
+              alt="Goodspeech Logo"
+              height={40}
+              width={120}
+              src="/logo.svg"
+            />
             {/* <MessageSquareText className="h-6 w-6 text-primary" /> */}
             {/* <span className="">Goodspeech</span> */}
           </Link>

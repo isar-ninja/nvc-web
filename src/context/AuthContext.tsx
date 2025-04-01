@@ -22,7 +22,7 @@ import { User, Workspace } from "@/lib/shared/models";
 import { createCookie, deleteCookie } from "@/actions/auth-actions";
 import { getWorkspacesAction } from "@/actions/workspace-actions";
 import { createUserAction, getUserAction } from "@/actions/user-actions";
-import { Loader2 } from "lucide-react";
+import { LogoLoading } from "@/components/logo-loader";
 
 type AccessToken = { accessToken: string };
 
@@ -45,7 +45,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 // List of protected routes that require authentication
 const PROTECTED_ROUTES = ["/dashboard", "/workspace", "/profile", "/settings"];
 // List of auth routes (login, register) that should redirect to dashboard if logged in
-const AUTH_ROUTES = ["/login", "/register"];
+// const AUTH_ROUTES = ["/login", "/register"];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<
@@ -120,7 +120,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(
       auth,
       async (fbUser: FirebaseUser | null) => {
-        // console.log("fbUser:", fbUser);
         const userWithToken = fbUser as FirebaseUser & AccessToken;
         setFirebaseUser(userWithToken);
 
@@ -170,18 +169,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      const { userWorkspaces, userRecord } = await fetchUserData();
-
-      if (!userRecord?.displayName) {
-        return router.push("/onboarding/company");
-      }
-      // Redirect to dashboard if user has workspaces, otherwise to workspace creation
-      if (userWorkspaces.length > 0) {
-        router.push("/dashboard");
-      } else {
-        router.push("/workspace/new");
-      }
+      setLoading(true);
+      await fetchUserData();
+      return router.push("/dashboard");
     } catch (error) {
+      setLoading(false);
       console.error("Login error:", error);
       throw error;
     }
@@ -190,9 +182,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (email: string, password: string) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      setLoading(true);
       await fetchUserData();
-      router.push("/workspace/new");
+      router.push("/dashboard");
     } catch (error) {
+      setLoading(false);
       console.error("Registration error:", error);
       throw error;
     }
@@ -208,19 +202,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      const { userWorkspaces, userRecord } = await fetchUserData();
-
-      // Redirect to dashboard if user has workspaces, otherwise to workspace creation
-      if (!userRecord?.displayName) {
-        return router.push("/onboarding/company");
-      }
-      if (userWorkspaces.length > 0) {
-        router.push("/dashboard");
-      } else {
-        console.log("heheheheheh");
-        router.push("/workspace/new");
-      }
+      setLoading(true);
+      await fetchUserData();
+      router.push("/dashboard");
     } catch (error) {
+      setLoading(false);
       console.error("Google login error:", error);
       throw error;
     }
@@ -230,7 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <LogoLoading width={400} height={140} className="mb-8" full repeat />
         <p className="text-lg font-medium">Loading your account...</p>
       </div>
     );

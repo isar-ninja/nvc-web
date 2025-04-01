@@ -56,6 +56,7 @@ export default async function Home() {
               <div className="relative w-full max-w-[500px] aspect-video rounded-xl overflow-hidden border shadow-lg">
                 <Image
                   src="/talking_couple.webp"
+                  priority
                   width={600}
                   height={600}
                   style={{ objectFit: "cover", objectPosition: "top" }}

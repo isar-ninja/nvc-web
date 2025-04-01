@@ -47,7 +47,7 @@ export default function Dashboard() {
     } else if (!userData?.displayName) {
       router.push("/onboarding/company");
     } else router.push("/workspaces/new");
-  }, [defaultWorkspace, workspaces, userData]);
+  }, [defaultWorkspace, workspaces, userData, router]);
 
   // Focus input when editing starts
   useEffect(() => {
