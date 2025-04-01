@@ -148,9 +148,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!initialAuthCheckComplete) return;
 
     // If user is authenticated and trying to access auth pages, redirect to dashboard
-    if (firebaseUser && AUTH_ROUTES.includes(pathname)) {
-      router.push("/dashboard");
-    }
+    // if (firebaseUser && AUTH_ROUTES.includes(pathname)) {
+    //   router.push("/dashboard");
+    // }
 
     // If user is not authenticated and trying to access protected routes, redirect to login
     if (
@@ -170,8 +170,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      const { userWorkspaces } = await fetchUserData();
+      const { userWorkspaces, userRecord } = await fetchUserData();
 
+      if (!userRecord?.displayName) {
+        return router.push("/onboarding/company");
+      }
       // Redirect to dashboard if user has workspaces, otherwise to workspace creation
       if (userWorkspaces.length > 0) {
         router.push("/dashboard");
@@ -205,12 +208,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      const { userWorkspaces } = await fetchUserData();
+      const { userWorkspaces, userRecord } = await fetchUserData();
 
       // Redirect to dashboard if user has workspaces, otherwise to workspace creation
+      if (!userRecord?.displayName) {
+        return router.push("/onboarding/company");
+      }
       if (userWorkspaces.length > 0) {
         router.push("/dashboard");
       } else {
+        console.log("heheheheheh");
         router.push("/workspace/new");
       }
     } catch (error) {

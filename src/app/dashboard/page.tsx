@@ -22,6 +22,7 @@ import { getCurrentMonthKey } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner"; // Using Sonner toast component instead
 import { updateWorkspaceNameAction } from "@/actions/workspace-actions";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const { userData, workspaces, defaultWorkspace, refreshWorkspaces } =
@@ -33,8 +34,8 @@ export default function Dashboard() {
   const [newWorkspaceName, setNewWorkspaceName] = useState("");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
-  // console.log("Dashboard userData", userData);
   useEffect(() => {
     // Set the active workspace to the default one
     if (defaultWorkspace) {
@@ -43,8 +44,10 @@ export default function Dashboard() {
     } else if (workspaces.length > 0) {
       setActiveWorkspace(workspaces[0]);
       setNewWorkspaceName(workspaces[0].name);
-    }
-  }, [defaultWorkspace, workspaces]);
+    } else if (!userData?.displayName) {
+      router.push("/onboarding/company");
+    } else router.push("/workspaces/new");
+  }, [defaultWorkspace, workspaces, userData]);
 
   // Focus input when editing starts
   useEffect(() => {

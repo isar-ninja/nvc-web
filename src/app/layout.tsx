@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ui/theme-provider";
 import { AuthProvider } from "@/context/AuthContext";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/ui/theme-provider";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,21 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
           <AuthProvider>
-            <Toaster />
+            <Toaster
+              toastOptions={{
+                classNames: {
+                  error: "bg-red-400",
+                  success: "text-green-400",
+                },
+              }}
+            />
             <div className="flex flex-col min-h-screen">
               <Header />
               <main className="flex-1">{children}</main>

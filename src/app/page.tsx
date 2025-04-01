@@ -369,7 +369,7 @@ export default async function Home() {
             <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/testimonials/testi-1.png"
+                  src="/testimonials/testi-1.webp"
                   width={60}
                   height={60}
                   alt="Michael Chen"
@@ -391,7 +391,7 @@ export default async function Home() {
             <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/testimonials/testi-2.png"
+                  src="/testimonials/testi-2.webp"
                   width={60}
                   height={60}
                   alt="Sarah Johnson"
@@ -411,7 +411,7 @@ export default async function Home() {
             <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/testimonials/testi-3.png"
+                  src="/testimonials/testi-3.webp"
                   width={60}
                   height={60}
                   alt="Hermann Sorglos"
@@ -518,22 +518,16 @@ export default async function Home() {
                  team's communication`}
               </p>
             </div>
-            <div className="mx-auto w-full max-w-sm space-y-2">
-              <form className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
-                <input
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-gray-900"
-                  placeholder="Enter your work email"
-                  type="email"
-                />
-                <Button
-                  type="submit"
-                  className="bg-white text-primary hover:bg-gray-100"
-                >
-                  Start Free Trial
-                </Button>
-              </form>
-              <p className="text-xs text-primary-foreground/80">
-                No credit card required. 14-day free trial.
+            <div className="mx-auto w-full max-w-sm space-y-2 mt-6">
+              <Button
+                type="submit"
+                className="bg-white h-10 text-primary hover:bg-gray-100"
+              >
+                Start Free Trial
+              </Button>
+              <p className="text-md text-primary-foreground/80">
+                No credit card required. 14-day free trial. <br />
+                Cancel anytime.
               </p>
             </div>
           </div>
