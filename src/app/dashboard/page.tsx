@@ -46,7 +46,7 @@ export default function Dashboard() {
       setNewWorkspaceName(workspaces[0].name);
     } else if (!userData?.displayName) {
       router.push("/onboarding/company");
-    } else router.push("/workspaces/new");
+    } else router.push("/workspace/new");
   }, [defaultWorkspace, workspaces, userData, router]);
 
   // Focus input when editing starts
@@ -676,7 +676,7 @@ export default function Dashboard() {
                               >
                                 <Link
                                   target="_blank"
-                                  href="https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install"
+                                  href={`https://a764-2001-a61-cc0-9801-a114-4be8-787-c439.ngrok-free.app/slack/install?workspace=${activeWorkspace.id}`}
                                 >
                                   Reinstall
                                   <RefreshCw className="ml-2 h-4 w-4" />
@@ -698,7 +698,7 @@ export default function Dashboard() {
                           >
                             <Link
                               target="_blank"
-                              href="https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install"
+                              href={`https://a764-2001-a61-cc0-9801-a114-4be8-787-c439.ngrok-free.app/slack/install?workspace=${activeWorkspace.id}`}
                             >
                               <Image
                                 alt="Add to Slack"

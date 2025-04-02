@@ -37,8 +37,6 @@ export function Header() {
               width={120}
               src="/logo.svg"
             />
-            {/* <MessageSquareText className="h-6 w-6 text-primary" /> */}
-            {/* <span className="">Goodspeech</span> */}
           </Link>
         </div>
 
