@@ -121,8 +121,6 @@
     header {
         --thickness: 0px;
         --blur: 5px;
-        position: sticky;
-        top: 0;
         /*
           Very opaque, for unsupported browsers.
           Overwritten in the feature queries below.
@@ -134,8 +132,10 @@
         This code gets applied for folks using
         browsers that support backdrop-filter.
       */
-    @supports (backdrop-filter: blur(var(--blur)) or
-        (-webkit-backdrop-filter: blur(var(--blur)))) {
+    @supports (
+        backdrop-filter: blur(var(--blur)) or
+            (-webkit-backdrop-filter: blur(var(--blur)))
+    ) {
         header {
             background: hsl(0deg 0% 100% / 0.5);
         }

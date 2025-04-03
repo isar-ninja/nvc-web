@@ -19,9 +19,9 @@ export const metadata: Metadata = {
       "Our AI-powered bot helps teams communicate with empathy and clarity by transforming messages in Slack and other platforms.",
     images: [
       {
-        url: "/talking couple.png", // Make sure this image exists in your public folder
-        width: 1536,
-        height: 1024,
+        url: "/talking-couple-og.png", // Make sure this image exists in your public folder
+        width: 1200,
+        height: 800,
         alt: "Goodspeech - AI Communication Assistant",
       },
     ],
