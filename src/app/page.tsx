@@ -5,6 +5,36 @@ import Image from "next/image";
 import { verifyCookie } from "@/actions/auth-actions";
 import { getPlans } from "@/actions/plan-actions";
 import Contact from "@/components/contact";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Goodspeech | Transform Workplace Communication with AI",
+  description:
+    "Goodspeech transforms aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding in workplace conversations.",
+  keywords:
+    "workplace communication, communication ai, slack bot, empathic communication, nonviolent communication, conflict resolution, team communication",
+  openGraph: {
+    title: "Goodspeech | Transform Workplace Communication with AI",
+    description:
+      "Our AI-powered bot helps teams communicate with empathy and clarity by transforming messages in Slack and other platforms.",
+    images: [
+      {
+        url: "/talking couple.png", // Make sure this image exists in your public folder
+        width: 1536 ,
+        height: 1024,
+        alt: "Goodspeech - AI Communication Assistant",
+      },
+    ],
+    type: "website",
+    siteName: "Goodspeech",
+  },
+  authors: [{ name: "Goodspeech Team" }],
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
 export default async function Home() {
   const loggedIn = await verifyCookie();
   const plans = await getPlans();
@@ -635,12 +665,14 @@ export default async function Home() {
               </p>
             </div>
             <div className="mx-auto w-full max-w-sm space-y-2 mt-6">
-              <Button
-                type="submit"
-                className="bg-white h-10 text-primary hover:bg-gray-100"
+              <Link
+                href="/register"
+                className="text-md text-primary-foreground/80"
               >
-                Start Free Trial
-              </Button>
+                <Button className="bg-white h-10 text-primary hover:bg-gray-100">
+                  Start Free Trial
+                </Button>
+              </Link>
               <p className="text-md text-primary-foreground/80">
                 No credit card required. 14-day free trial. <br />
                 Cancel anytime.
