@@ -215,8 +215,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Show better loading state
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center">
-        <LogoLoading width={400} height={140} className="mb-8" full repeat />
+      <div className="px-6 flex min-h-screen flex-col items-center justify-center">
+        <LogoLoading className="mb-8 w-full md:w-[400px]" full repeat />
         <p className="text-lg font-medium">Loading your account...</p>
       </div>
     );

@@ -458,14 +458,129 @@ export default async function Home() {
                 using the principles of Nonviolent Communication, focusing on
                 observations, feelings, needs, and requests.
               </p>
+              <br />
+              <ul className="space-y-4">
+                <li className="flex items-start">
+                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
+                    <svg
+                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-slate-700 dark:text-slate-200 font-medium">
+                      Suggestion-Only Model
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                      The bot analyzes communication and generates response
+                      suggestions without sending messages automatically.
+                    </p>
+                  </div>
+                </li>
+
+                <li className="flex items-start">
+                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
+                    <svg
+                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-slate-700 dark:text-slate-200 font-medium">
+                      Private Suggestions
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                      All suggestions are only visible to you and are never
+                      shared with message recipients.
+                    </p>
+                  </div>
+                </li>
+
+                <li className="flex items-start">
+                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
+                    <svg
+                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-slate-700 dark:text-slate-200 font-medium">
+                      Manual Copy & Paste Required
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                      To use a suggestion, you must manually copy and paste it
+                      into your messaging platform.
+                    </p>
+                  </div>
+                </li>
+
+                <li className="flex items-start">
+                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
+                    <svg
+                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-slate-700 dark:text-slate-200 font-medium">
+                      Full Control Over Content
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                      You always have the opportunity to review, edit, or
+                      discard any suggestion before sending.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+              <br />
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                <p className="text-blue-800 dark:text-blue-300 text-sm">
+                  <span className="font-semibold">Our promise:</span> Goodspeech
+                  enhances your natural communication abilities rather than
+                  replacing your unique voice. You maintain complete control
+                  over every message you send, and it does not make you being
+                  right or wrong in any argument.
+                </p>
+              </div>
             </div>
             <div className="rounded-lg border p-4">
               <h3 className="text-lg font-semibold">Is my data secure?</h3>
               <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {`Yes, we take data security seriously. Goodspeech only processes
-               the messages it's explicitly asked to translate, and we don't
-               store message content. All data is encrypted in transit and at
-               rest.`}
+                {`Goodspeech never collects user messages. We use a secure API to
+                 translate messages in real-time. Your messages are never stored
+                 on our servers. We take data privacy seriously and ensure that
+                 all data is encrypted and transmitted securely. We also comply
+                 with all relevant data protection regulations. We are committed
+                 to protecting your data and ensuring that it is handled with the
+                 utmost care and respect.`}
               </p>
             </div>
             <div className="rounded-lg border p-4">

@@ -5,8 +5,6 @@ import { useEffect, useRef, useState } from "react";
 interface LogoLoadingProps {
   progress?: number;
   duration?: number;
-  width?: number;
-  height?: number;
   className?: string;
   full?: boolean;
   repeat?: boolean;
@@ -16,9 +14,7 @@ interface LogoLoadingProps {
 export function LogoLoading({
   progress,
   duration = 2000,
-  width = 300,
-  height = 100,
-  className = "",
+  className = "flex",
   full = false,
   repeat = false,
 }: LogoLoadingProps) {
@@ -93,7 +89,7 @@ export function LogoLoading({
   }, [currentProgress, pathLength, initialized]);
 
   return (
-    <div className={className} style={{ width, height }}>
+    <div className={className}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 557.73 186.87"
