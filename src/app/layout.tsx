@@ -54,7 +54,12 @@ export default async function RootLayout({
               }}
             />
             <div className="flex flex-col min-h-screen">
-              <Header />
+              {/* <div className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
+              <header className="sticky top-0 z-40 w-full">
+                <Header />
+                <div className="backdrop -z-10"></div>
+                <div className="backdrop-edge -z-10 max-h-[61px]"></div>
+              </header>
               <main className="flex-1">{children}</main>
               <Footer />
             </div>

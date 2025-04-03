@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/talking couple.png", // Make sure this image exists in your public folder
-        width: 1536 ,
+        width: 1536,
         height: 1024,
         alt: "Goodspeech - AI Communication Assistant",
       },
@@ -673,7 +673,7 @@ export default async function Home() {
                   Start Free Trial
                 </Button>
               </Link>
-              <p className="text-md text-primary-foreground/80">
+              <p className="text-md text-primary-foreground/80 mt-2">
                 No credit card required. 14-day free trial. <br />
                 Cancel anytime.
               </p>

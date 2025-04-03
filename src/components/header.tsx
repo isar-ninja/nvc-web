@@ -26,7 +26,7 @@ export function Header() {
     pathname.startsWith("/dashboard") || pathname.startsWith("/workspace");
   const isWorkspacesEmpty = workspaces.length === 0;
   return (
-    <header className="border-b px-4 md:px-8">
+    <div className="relative border-b px-4 md:px-8">
       <div className="flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 font-bold text-xl">
           <Link href="/" className="flex items-center gap-2">
@@ -283,6 +283,6 @@ export function Header() {
           </div>
         </div>
       )}
-    </header>
+    </div>
   );
 }
