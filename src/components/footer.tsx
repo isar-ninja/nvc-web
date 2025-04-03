@@ -21,13 +21,13 @@ export function Footer() {
         </p>
         <div className="flex items-center gap-4">
           <Link
-            href="#"
+            href="/impress"
             className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-50"
           >
-            Terms
+            Impress
           </Link>
           <Link
-            href="#"
+            href="/dsgvo"
             className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-50"
           >
             Privacy
