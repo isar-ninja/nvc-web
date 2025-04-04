@@ -7,6 +7,8 @@ import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { GoogleAnalytics } from "@/components/analytics";
+import { PostHogProvider } from "./cookie-provider";
+import CookieBanner from "@/components/cookie-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,37 +37,40 @@ export default async function RootLayout({
         {/* Google Analytics will be loaded after the initial page load */}
         <GoogleAnalytics />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
+      <PostHogProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <AuthProvider>
-            <Toaster
-              toastOptions={{
-                classNames: {
-                  error: "bg-red-400",
-                  success: "text-green-400",
-                },
-              }}
-            />
-            <div className="flex flex-col min-h-screen">
-              {/* <div className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
-              <header className="sticky top-0 z-40 w-full">
-                <Header />
-                <div className="backdrop -z-10"></div>
-                <div className="backdrop-edge -z-10 max-h-[61px]"></div>
-              </header>
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-          </AuthProvider>
-        </ThemeProvider>
-      </body>
+          <CookieBanner />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthProvider>
+              <Toaster
+                toastOptions={{
+                  classNames: {
+                    error: "bg-red-400",
+                    success: "text-green-400",
+                  },
+                }}
+              />
+              <div className="flex flex-col min-h-screen">
+                {/* <div className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
+                <header className="sticky top-0 z-40 w-full">
+                  <Header />
+                  <div className="backdrop -z-10"></div>
+                  <div className="backdrop-edge -z-10 max-h-[61px]"></div>
+                </header>
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </AuthProvider>
+          </ThemeProvider>
+        </body>
+      </PostHogProvider>
     </html>
   );
 }
