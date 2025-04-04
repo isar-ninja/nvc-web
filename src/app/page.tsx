@@ -17,14 +17,6 @@ export const metadata: Metadata = {
     title: "Goodspeech | Transform Workplace Communication with AI",
     description:
       "Our AI-powered bot helps teams communicate with empathy and clarity by transforming messages in Slack and other platforms.",
-    images: [
-      {
-        url: "/couple.png", // Make sure this image exists in your public folder
-        width: 1200,
-        height: 628,
-        alt: "Goodspeech - AI Communication Assistant",
-      },
-    ],
     type: "website",
     siteName: "Goodspeech",
   },
