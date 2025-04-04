@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     siteName: "Goodspeech",
     images: [
       {
-        url: "/opengraph-image.png", // Reference to file in public directory
+        url: "https://goodspeech.chat/opengraph-image.png", // Reference to file in public directory
         width: 1200,
         height: 630,
         alt: "Goodspeech - AI Communication Assistant",
