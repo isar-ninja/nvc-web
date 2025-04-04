@@ -19,6 +19,14 @@ export const metadata: Metadata = {
       "Our AI-powered bot helps teams communicate with empathy and clarity by transforming messages in Slack and other platforms.",
     type: "website",
     siteName: "Goodspeech",
+    images: [
+      {
+        url: "/opengraph-image.png", // Reference to file in public directory
+        width: 1200,
+        height: 630,
+        alt: "Goodspeech - AI Communication Assistant",
+      },
+    ],
   },
   authors: [{ name: "Goodspeech Team" }],
   robots: {
