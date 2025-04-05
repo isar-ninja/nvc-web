@@ -6,38 +6,50 @@ import { verifyCookie } from "@/actions/auth-actions";
 import { getPlans } from "@/actions/plan-actions";
 import Contact from "@/components/contact";
 import { Metadata } from "next";
+import { getDictionary } from "@/lib/i18n";
+import { Locale } from "@/lib/i18n-config";
 
-export const metadata: Metadata = {
-  title: "Goodspeech | Transform Workplace Communication with AI",
-  description:
-    "Goodspeech transforms aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding in workplace conversations.",
-  keywords:
-    "workplace communication, communication ai, slack bot, empathic communication, nonviolent communication, conflict resolution, team communication",
-  openGraph: {
-    title: "Goodspeech | Transform Workplace Communication with AI",
-    description:
-      "Our AI-powered bot helps teams communicate with empathy and clarity by transforming messages in Slack and other platforms.",
-    type: "website",
-    siteName: "Goodspeech",
-    images: [
-      {
-        url: "https://goodspeech.chat/opengraph-image.png", // Reference to file in public directory
-        width: 1200,
-        height: 630,
-        alt: "Goodspeech - AI Communication Assistant",
-      },
-    ],
-  },
-  authors: [{ name: "Goodspeech Team" }],
-  robots: {
-    index: true,
-    follow: true,
-  },
+type Props = {
+  params: Promise<{ lang: Locale }>;
 };
 
-export default async function Home() {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang as Locale);
+
+  return {
+    title: `Goodspeech | ${dict.hero.title}`,
+    description: dict.hero.subtitle,
+    keywords:
+      "workplace communication, communication ai, slack bot, empathic communication, nonviolent communication, conflict resolution, team communication",
+    openGraph: {
+      title: `Goodspeech | ${dict.hero.title}`,
+      description: dict.meta.ogDescription,
+      type: "website",
+      siteName: "Goodspeech",
+      images: [
+        {
+          url: "https://goodspeech.chat/opengraph-image.png",
+          width: 1200,
+          height: 630,
+          alt: "Goodspeech - AI Communication Assistant",
+        },
+      ],
+    },
+    authors: [{ name: "Goodspeech Team" }],
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
+export default async function Home({ params }: Props) {
   const loggedIn = await verifyCookie();
   const plans = await getPlans();
+  const { lang } = await params;
+  const dict = await getDictionary(lang as Locale);
+
   return (
     <>
       {/* Hero Section */}
@@ -47,12 +59,10 @@ export default async function Home() {
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                  Transform Workplace Communication
+                  {dict.hero.title}
                 </h1>
                 <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Goodspeech translates aggressive and passive-aggressive
-                  messages into empathic, understandable communication that
-                  builds connection and understanding.
+                  {dict.hero.subtitle}
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -61,8 +71,14 @@ export default async function Home() {
                   size="lg"
                   className="w-full min-[400px]:w-auto"
                 >
-                  <Link href={loggedIn.valid ? "/dashboard" : "/register"}>
-                    Try Goodspeech Free
+                  <Link
+                    href={
+                      loggedIn.valid
+                        ? `/${lang}/dashboard`
+                        : `/${lang}/register`
+                    }
+                  >
+                    {dict.actions.tryFree}
                     <Image
                       alt="Add to Slack"
                       height="20"
@@ -77,7 +93,7 @@ export default async function Home() {
                     variant="outline"
                     className="w-full min-[400px]:w-auto"
                   >
-                    See Demo
+                    {dict.demo.seeDemo}
                   </Button>
                 </Link>
               </div>
@@ -90,7 +106,7 @@ export default async function Home() {
                   width={600}
                   height={600}
                   style={{ objectFit: "cover", objectPosition: "top" }}
-                  alt="Goodspeech in action showing message transformation"
+                  alt={dict.hero.imageAlt}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -108,10 +124,10 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Features That Transform Communication
+                {dict.features.title}
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Goodspeech helps your team communicate with empathy and clarity
+                {dict.features.subtitle}
               </p>
             </div>
           </div>
@@ -120,28 +136,33 @@ export default async function Home() {
               <div className="rounded-full bg-primary/10 p-3">
                 <MessageSquareText className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold">Real-time Translation</h3>
+              <h3 className="text-xl font-bold">
+                {dict.features.realtime.title}
+              </h3>
               <p className="text-center text-gray-500 dark:text-gray-400">
-                Instantly transforms aggressive messages into empathic
-                communication
+                {dict.features.realtime.description}
               </p>
             </div>
             <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
               <div className="rounded-full bg-primary/10 p-3">
                 <Shield className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold">Private & Secure</h3>
+              <h3 className="text-xl font-bold">
+                {dict.features.secure.title}
+              </h3>
               <p className="text-center text-gray-500 dark:text-gray-400">
-                Your conversations stay private with enterprise-grade security
+                {dict.features.secure.description}
               </p>
             </div>
             <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
               <div className="rounded-full bg-primary/10 p-3">
                 <Zap className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold">Easy Integration</h3>
+              <h3 className="text-xl font-bold">
+                {dict.features.integration.title}
+              </h3>
               <p className="text-center text-gray-500 dark:text-gray-400">
-                Installs in minutes with no coding required
+                {dict.features.integration.description}
               </p>
             </div>
           </div>
@@ -154,11 +175,10 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                How Goodspeech Works
+                {dict.howItWorks.title}
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                See how our AI-powered bot transforms communication in your
-                Slack workspace
+                {dict.howItWorks.subtitle}
               </p>
             </div>
           </div>
@@ -168,28 +188,33 @@ export default async function Home() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
                   1
                 </div>
-                <h3 className="text-xl font-bold">Install the Bot</h3>
+                <h3 className="text-xl font-bold">
+                  {dict.howItWorks.steps.install.title}
+                </h3>
                 <p className="text-center text-gray-500 dark:text-gray-400">
-                  Add Goodspeech to your Slack workspace with just a few clicks
+                  {dict.howItWorks.steps.install.description}
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-3 rounded-lg border p-6 shadow-sm">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
                   2
                 </div>
-                <h3 className="text-xl font-bold">Call the Bot</h3>
+                <h3 className="text-xl font-bold">
+                  {dict.howItWorks.steps.call.title}
+                </h3>
                 <p className="text-center text-gray-500 dark:text-gray-400">
-                  {`Type "/nvc your message" in any conversation where you need
-                      translation`}
+                  {dict.howItWorks.steps.call.description}
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-3 rounded-lg border p-6 shadow-sm">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
                   3
                 </div>
-                <h3 className="text-xl font-bold">Get Better Communication</h3>
+                <h3 className="text-xl font-bold">
+                  {dict.howItWorks.steps.results.title}
+                </h3>
                 <p className="text-center text-gray-500 dark:text-gray-400">
-                  Watch as messages are transformed into empathic communication
+                  {dict.howItWorks.steps.results.description}
                 </p>
               </div>
             </div>
@@ -198,7 +223,7 @@ export default async function Home() {
                 src="/lunch-break.webp"
                 width={600}
                 height={300}
-                alt="Step-by-step demonstration of Goodspeech in action"
+                alt={dict.howItWorks.demoAlt}
                 className="object-cover w-full"
               />
             </div>
@@ -215,10 +240,10 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                See Goodspeech in Action
+                {dict.demo.title}
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Watch how Goodspeech transforms real messages
+                {dict.demo.subtitle}
               </p>
             </div>
           </div>
@@ -231,12 +256,11 @@ export default async function Home() {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">John Doe</span>
+                      <span className="font-semibold">{dict.demo.person1}</span>
                       <span className="text-xs text-gray-500">10:30 AM</span>
                     </div>
                     <p className="text-gray-900 dark:text-gray-50 p-3 bg-red-50 dark:bg-red-950 rounded-lg">
-                      {`Why hasn't anyone fixed this bug yet? We've been talking
-                        about it for weeks!`}
+                      {dict.demo.message1}
                     </p>
                   </div>
                 </div>
@@ -250,11 +274,7 @@ export default async function Home() {
                       <span className="text-xs text-gray-500">10:30 AM</span>
                     </div>
                     <p className="text-gray-900 dark:text-gray-50 p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                      {`"I'm feeling concerned about the bug that's been
-                        discussed for several weeks. I'm wondering what
-                        obstacles might be preventing its resolution, and I'd
-                        appreciate understanding the timeline for when we might
-                        expect it to be fixed."`}
+                      {dict.demo.response1}
                     </p>
                   </div>
                 </div>
@@ -268,12 +288,11 @@ export default async function Home() {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">Jane Smith</span>
+                      <span className="font-semibold">{dict.demo.person2}</span>
                       <span className="text-xs text-gray-500">11:15 AM</span>
                     </div>
                     <p className="text-gray-900 dark:text-gray-50 p-3 bg-red-50 dark:bg-red-950 rounded-lg">
-                      {`Fine, whatever. I guess I'll just do it myself since no
-                        one else seems to care.`}
+                      {dict.demo.message2}
                     </p>
                   </div>
                 </div>
@@ -287,11 +306,7 @@ export default async function Home() {
                       <span className="text-xs text-gray-500">11:15 AM</span>
                     </div>
                     <p className="text-gray-900 dark:text-gray-50 p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                      {`"I'm feeling frustrated because I value collaboration
-                        and shared responsibility. I'm willing to take on this
-                        task, but I'd appreciate some support or acknowledgment
-                        from the team. Could we discuss how to distribute this
-                        work more effectively?"`}
+                      {dict.demo.response2}
                     </p>
                   </div>
                 </div>
@@ -307,10 +322,10 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Simple, Transparent Pricing
+                {dict.pricing.title}
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Choose the plan that works for your team
+                {dict.pricing.subtitle}
               </p>
             </div>
           </div>
@@ -337,7 +352,7 @@ export default async function Home() {
                     </span>
                     {typeof plan.pricing.monthly === "number" && (
                       <span className="ml-1 text-xl font-normal text-gray-500 dark:text-gray-400">
-                        /month
+                        {dict.pricing.monthly}
                       </span>
                     )}
                   </div>
@@ -347,10 +362,10 @@ export default async function Home() {
                         ${Math.round(plan.pricing.monthly * 12 * 0.8)}
                       </span>
                       <span className="ml-1 text-sm font-normal text-gray-500 dark:text-gray-400">
-                        /year
+                        {dict.pricing.yearly}
                       </span>
                       <span className="ml-2 text-sm font-medium text-green-600 dark:text-green-400">
-                        Save 20%
+                        {dict.pricing.savePercent}
                       </span>
                     </div>
                   )}
@@ -372,8 +387,8 @@ export default async function Home() {
                       className="w-full"
                     >
                       {plan.id === "enterprise"
-                        ? "Contact Sales"
-                        : "Get Started"}
+                        ? dict.pricing.contactSales
+                        : dict.pricing.getStarted}
                     </Button>
                   </Link>
                 </div>
@@ -389,77 +404,37 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                What Our Customers Say
+                {dict.testimonials.title}
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Hear from teams that have transformed their communication
+                {dict.testimonials.subtitle}
               </p>
             </div>
           </div>
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-12">
-            <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/testimonials/testi-1.webp"
-                  width={60}
-                  height={60}
-                  alt="Michael Chen"
-                  className="rounded-full h-12 w-12 object-cover"
-                />
-                <div>
-                  <h4 className="font-semibold">Michael Lütkenhorst</h4>
-                  <p className="text-sm text-gray-500">
-                    Engineering Lead, StartupX
-                  </p>
+            {dict.testimonials.items.map((testimonial, index) => (
+              <div
+                key={index}
+                className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950"
+              >
+                <div className="flex items-center gap-4">
+                  <Image
+                    src={testimonial.image}
+                    width={60}
+                    height={60}
+                    alt={testimonial.name}
+                    className="rounded-full h-12 w-12 object-cover"
+                  />
+                  <div>
+                    <h4 className="font-semibold">{testimonial.name}</h4>
+                    <p className="text-sm text-gray-500">{testimonial.role}</p>
+                  </div>
                 </div>
+                <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
+                  {testimonial.quote}
+                </blockquote>
               </div>
-              <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
-                {`"As a remote team, clear communication is essential. Goodspeech
-                  helps us avoid misunderstandings that used to derail our
-                  projects."`}
-              </blockquote>
-            </div>
-            <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/testimonials/testi-2.webp"
-                  width={60}
-                  height={60}
-                  alt="Sarah Johnson"
-                  className="rounded-full h-12 w-12 object-cover"
-                />
-                <div>
-                  <h4 className="font-semibold">Sarah Jung</h4>
-                  <p className="text-sm text-gray-500">HR Director, TechCorp</p>
-                </div>
-              </div>
-              <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
-                {`"Goodspeech has completely transformed how our teams communicate.
-                 Conflicts are resolved faster, and people feel more heard and
-                 understood."`}
-              </blockquote>
-            </div>
-            <div className="flex flex-col rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-950">
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/testimonials/testi-3.webp"
-                  width={60}
-                  height={60}
-                  alt="Hermann Sorglos"
-                  className="rounded-full h-12 w-12 object-cover"
-                />
-                <div>
-                  <h4 className="font-semibold">Martin Zoller</h4>
-                  <p className="text-sm text-gray-500">
-                    Team Lead, Global Solutions
-                  </p>
-                </div>
-              </div>
-              <blockquote className="mt-4 text-gray-700 dark:text-gray-300">
-                {` "The ROI on Goodspeech has been incredible. Less time spent on
-                 resolving conflicts means more time for productive work."`}
-              </blockquote>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -470,180 +445,63 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Frequently Asked Questions
+                {dict.faq.title}
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Everything you need to know about Goodspeech
+                {dict.faq.subtitle}
               </p>
             </div>
           </div>
           <div className="mx-auto max-w-3xl mt-12 space-y-4">
-            <div className="rounded-lg border p-4">
-              <h3 className="text-lg font-semibold">
-                How does Goodspeech work?
-              </h3>
-              <p className="mt-2 text-gray-700 dark:text-gray-300">
-                Goodspeech uses advanced AI to analyze messages for aggressive
-                or passive-aggressive language. It then rewrites these messages
-                using the principles of Nonviolent Communication, focusing on
-                observations, feelings, needs, and requests.
-              </p>
-              <br />
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
-                    <svg
-                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-slate-700 dark:text-slate-200 font-medium">
-                      Suggestion-Only Model
-                    </p>
-                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
-                      The bot analyzes communication and generates response
-                      suggestions without sending messages automatically.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
-                    <svg
-                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-slate-700 dark:text-slate-200 font-medium">
-                      Private Suggestions
-                    </p>
-                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
-                      All suggestions are only visible to you and are never
-                      shared with message recipients.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
-                    <svg
-                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-slate-700 dark:text-slate-200 font-medium">
-                      Manual Copy & Paste Required
-                    </p>
-                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
-                      To use a suggestion, you must manually copy and paste it
-                      into your messaging platform.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
-                    <svg
-                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-slate-700 dark:text-slate-200 font-medium">
-                      Full Control Over Content
-                    </p>
-                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
-                      You always have the opportunity to review, edit, or
-                      discard any suggestion before sending.
-                    </p>
-                  </div>
-                </li>
-              </ul>
-              <br />
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                <p className="text-blue-800 dark:text-blue-300 text-sm">
-                  <span className="font-semibold">Our promise:</span> Goodspeech
-                  enhances your natural communication abilities rather than
-                  replacing your unique voice. You maintain complete control
-                  over every message you send, and it does not make you being
-                  right or wrong in any argument.
+            {dict.faq.items.map((faq, index) => (
+              <div key={index} className="rounded-lg border p-4">
+                <h3 className="text-lg font-semibold">{faq.question}</h3>
+                <p className="mt-2 text-gray-700 dark:text-gray-300">
+                  {faq.answer}
                 </p>
+                {index === 0 && (
+                  <>
+                    <br />
+                    <ul className="space-y-4">
+                      {dict.faq.workModel.map((model, idx) => (
+                        <li key={idx} className="flex items-start">
+                          <div className="flex-shrink-0 h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mt-0.5">
+                            <svg
+                              className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-slate-700 dark:text-slate-200 font-medium">
+                              {model.title}
+                            </p>
+                            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                              {model.description}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    <br />
+                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                      <p className="text-blue-800 dark:text-blue-300 text-sm">
+                        <span className="font-semibold">
+                          {dict.faq.promise.title}
+                        </span>{" "}
+                        {dict.faq.promise.text}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
-            <div className="rounded-lg border p-4">
-              <h3 className="text-lg font-semibold">Is my data secure?</h3>
-              <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {`Goodspeech never collects user messages. We use a secure API to
-                 translate messages in real-time. Your messages are never stored
-                 on our servers. We take data privacy seriously and ensure that
-                 all data is encrypted and transmitted securely. We also comply
-                 with all relevant data protection regulations. We are committed
-                 to protecting your data and ensuring that it is handled with the
-                 utmost care and respect.`}
-              </p>
-            </div>
-            <div className="rounded-lg border p-4">
-              <h3 className="text-lg font-semibold">
-                Can I customize how Goodspeech responds?
-              </h3>
-              <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {`Yes, on our Professional and Enterprise plans, you can
-                  customize the tone and style of Goodspeech's translations to
-                  match your company culture.`}
-              </p>
-            </div>
-            <div className="rounded-lg border p-4">
-              <h3 className="text-lg font-semibold">
-                How long does it take to set up?
-              </h3>
-              <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {`Most teams are up and running with Goodspeech in less than 5
-                 minutes. Just add the bot to your Slack workspace and you're
-                 ready to go.`}
-              </p>
-            </div>
-            <div className="rounded-lg border p-4">
-              <h3 className="text-lg font-semibold">
-                Can Goodspeech translate messages in languages other than
-                English?
-              </h3>
-              <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {` Currently, Goodspeech supports English, Spanish, French, German,
-                 and Japanese. We're adding more languages regularly based on
-                 customer demand.`}
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -655,27 +513,26 @@ export default async function Home() {
       >
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                {`Ready to Transform Your Team's Communication?`}
+            <div className="space-y-2 items-center flex flex-col">
+              <h2 className="text-3xl font-bold  tracking-tighter sm:text-4xl md:text-5xl">
+                {dict.cta.title}
               </h2>
-              <p className="max-w-[900px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                {`Get started with Goodspeech today and see the difference in your
-                 team's communication`}
+              <p className="max-w-[900px]  md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                {dict.cta.subtitle}
               </p>
             </div>
-            <div className="mx-auto w-full max-w-sm space-y-2 mt-6">
+            <div className="mx-auto w-full max-w-sm space-y-2 mt-6 items-center flex flex-col">
               <Link
-                href="/register"
+                href={`/${lang}/register`}
                 className="text-md text-primary-foreground/80"
               >
                 <Button className="bg-white h-10 text-primary hover:bg-gray-100">
-                  Start Free Trial
+                  {dict.cta.button}
                 </Button>
               </Link>
               <p className="text-md text-primary-foreground/80 mt-2">
-                No credit card required. 14-day free trial. <br />
-                Cancel anytime.
+                {dict.cta.noCreditCard} <br />
+                {dict.cta.cancelAnytime}
               </p>
             </div>
           </div>
@@ -688,36 +545,34 @@ export default async function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Get in Touch
+                {dict.contact.title}
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                {`Have questions or need more information? We're here to help.`}
+                {dict.contact.subtitle}
               </p>
             </div>
           </div>
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 mt-12">
             <div className="flex flex-col space-y-4">
               <div className="rounded-lg border p-4">
-                <h3 className="text-lg font-semibold">Email Us</h3>
+                <h3 className="text-lg font-semibold">
+                  {dict.contact.emailUs}
+                </h3>
                 <p className="mt-2 text-gray-700 dark:text-gray-300">
                   contact@goodspeech.chat
                 </p>
               </div>
-              {/* <div className="rounded-lg border p-4">
-                <h3 className="text-lg font-semibold">Call Us</h3>
-                <p className="mt-2 text-gray-700 dark:text-gray-300">
-                  +1 (555) 123-4567
-                </p>
-              </div> */}
               <div className="rounded-lg border p-4">
-                <h3 className="text-lg font-semibold">Office Hours</h3>
+                <h3 className="text-lg font-semibold">
+                  {dict.contact.officeHours}
+                </h3>
                 <p className="mt-2 text-gray-700 dark:text-gray-300">
-                  Monday - Friday: 9am - 5pm EST
+                  {dict.contact.officeHoursValue}
                 </p>
               </div>
             </div>
             <div className="rounded-lg border p-6">
-              <Contact />
+              <Contact dict={dict} />
             </div>
           </div>
         </div>

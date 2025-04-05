@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Plus } from "lucide-react";
+import { Menu, X, Plus, Globe } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
+import LanguageSwitcher from "@/components/lang-switch";
 
-export function Header() {
+export function Header(props: { dict: any }) {
   const { firebaseUser, workspaces, defaultWorkspace, logout } = useAuth();
   const pathname = usePathname();
+  const params = useParams();
+  const lang = params.lang as string;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { dict } = props;
 
   const handleLogout = async () => {
     try {
@@ -23,13 +27,14 @@ export function Header() {
   };
 
   const isDashboard =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/workspace");
+    pathname.includes("/dashboard") || pathname.includes("/workspace");
   const isWorkspacesEmpty = workspaces.length === 0;
+
   return (
     <div className="relative border-b px-4 md:px-8">
       <div className="flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 font-bold text-xl">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href={`/${lang}`} className="flex items-center gap-2">
             <Image
               priority
               alt="Goodspeech Logo"
@@ -44,25 +49,25 @@ export function Header() {
         {!isDashboard && (
           <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="/#features"
+              href={`/${lang}#features`}
               className="text-sm font-medium hover:underline"
             >
-              Features
+              {dict.navigation.features}
             </Link>
             <Link
-              href="/#how-it-works"
+              href={`/${lang}#how-it-works`}
               className="text-sm font-medium hover:underline"
             >
-              How It Works
+              {dict.navigation.howItWorks}
             </Link>
             <Link
-              href="/#pricing"
+              href={`/${lang}#pricing`}
               className="text-sm font-medium hover:underline"
             >
-              Pricing
+              {dict.navigation.pricing}
             </Link>
-            <Link href="/#faq" className="text-sm font-medium hover:underline">
-              FAQ
+            <Link href={`/${lang}#faq`} className="text-sm font-medium hover:underline">
+              {dict.navigation.faq}
             </Link>
           </nav>
         )}
@@ -70,84 +75,99 @@ export function Header() {
         {isDashboard && !isWorkspacesEmpty && false && (
           <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="/dashboard"
+              href={`/${lang}/dashboard`}
               className="text-sm font-medium hover:underline"
             >
-              Dashboard
+              {dict.navigation.dashboard}
             </Link>
             {defaultWorkspace && (
               <>
                 <Link
-                  href={`/workspace/${defaultWorkspace?.id}/settings`}
+                  href={`/${lang}/workspace/${defaultWorkspace?.id}/settings`}
                   className="text-sm font-medium hover:underline"
                 >
-                  Settings
+                  {dict.navigation.settings}
                 </Link>
                 <Link
-                  href={`/workspace/${defaultWorkspace?.id}/analytics`}
+                  href={`/${lang}/workspace/${defaultWorkspace?.id}/analytics`}
                   className="text-sm font-medium hover:underline"
                 >
-                  Analytics
+                  {dict.navigation.analytics}
                 </Link>
               </>
             )}
           </nav>
         )}
 
-        {/* Desktop Auth Buttons */}
+        {/* Desktop Auth Buttons and Language Switcher */}
         <div className="hidden md:flex items-center gap-4">
+          {/* Language Switcher */}
+          <div className="flex items-center gap-2 mr-2 border-r pr-4">
+            <Globe className="h-4 w-4 text-slate-400" />
+            <LanguageSwitcher />
+          </div>
+
           {firebaseUser ? (
             <>
-              <span className="text-sm">{firebaseUser.email}</span>
+              {/* <span className="text-sm">{firebaseUser.email}</span> */}
               {isDashboard ? (
                 <>
                   {!isWorkspacesEmpty && (
-                    <Link href="/workspace/new">
+                    <Link href={`/${lang}/workspace/new`}>
                       <Button variant="outline" size="sm">
                         <Plus className="h-4 w-4 mr-1" />
-                        New Workspace
+                        {dict.actions.newWorkspace}
                       </Button>
                     </Link>
                   )}
                   <Button variant="outline" onClick={handleLogout}>
-                    Logout
+                    {dict.actions.logout}
                   </Button>
                 </>
               ) : (
                 <>
-                  <Link href="/dashboard">
-                    <Button variant="outline">Dashboard</Button>
+                  <Link href={`/${lang}/dashboard`}>
+                    <Button variant="outline">
+                      {dict.navigation.dashboard}
+                    </Button>
                   </Link>
                   <Button variant="outline" onClick={handleLogout}>
-                    Logout
+                    {dict.actions.logout}
                   </Button>
                 </>
               )}
             </>
           ) : (
             <>
-              <Link href="/login">
-                <Button variant="outline">Login</Button>
+              <Link href={`/${lang}/login`}>
+                <Button variant="outline">{dict.actions.login}</Button>
               </Link>
-              <Link href="/register">
-                <Button>Sign Up</Button>
+              <Link href={`/${lang}/register`}>
+                <Button>{dict.actions.signUp}</Button>
               </Link>
             </>
           )}
         </div>
 
         {/* Mobile Menu Button */}
-        <button
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
+        <div className="md:hidden flex items-center">
+          {/* Language Switcher for Mobile */}
+          <div className="mr-4 flex items-center">
+            <Globe className="h-4 w-4 text-slate-400 mr-1" />
+            <LanguageSwitcher />
+          </div>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={dict.aria.toggleMenu}
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -156,68 +176,68 @@ export function Header() {
           {!isDashboard ? (
             <nav className="flex flex-col space-y-3">
               <Link
-                href="/#features"
+                href={`/${lang}#features`}
                 className="text-sm font-medium"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Features
+                {dict.navigation.features}
               </Link>
               <Link
-                href="/#how-it-works"
+                href={`/${lang}#how-it-works`}
                 className="text-sm font-medium"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                How It Works
+                {dict.navigation.howItWorks}
               </Link>
               <Link
-                href="/#pricing"
+                href={`/${lang}#pricing`}
                 className="text-sm font-medium"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Pricing
+                {dict.navigation.pricing}
               </Link>
               <Link
-                href="/#faq"
+                href={`/${lang}#faq`}
                 className="text-sm font-medium"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                FAQ
+                {dict.navigation.faq}
               </Link>
             </nav>
           ) : (
             <nav className="flex flex-col space-y-3">
               <Link
-                href="/dashboard"
+                href={`/${lang}/dashboard`}
                 className="text-sm font-medium"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Dashboard
+                {dict.navigation.dashboard}
               </Link>
               {defaultWorkspace && !isWorkspacesEmpty && (
                 <>
                   <Link
-                    href={`/workspace/${defaultWorkspace.id}/settings`}
+                    href={`/${lang}/workspace/${defaultWorkspace.id}/settings`}
                     className="text-sm font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Settings
+                    {dict.navigation.settings}
                   </Link>
                   <Link
-                    href={`/workspace/${defaultWorkspace.id}/analytics`}
+                    href={`/${lang}/workspace/${defaultWorkspace.id}/analytics`}
                     className="text-sm font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Analytics
+                    {dict.navigation.analytics}
                   </Link>
                 </>
               )}
               {workspaces.length > 0 && (
                 <Link
-                  href="/workspace/new"
+                  href={`/${lang}/workspace/new`}
                   className="text-sm font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  New Workspace
+                  {dict.actions.newWorkspace}
                 </Link>
               )}
             </nav>
@@ -226,17 +246,17 @@ export function Header() {
           <div className="pt-4 border-t">
             {firebaseUser ? (
               <>
-                <div className="text-sm mb-3">{firebaseUser.email}</div>
+                {/* <div className="text-sm mb-3">{firebaseUser.email}</div> */}
                 {isDashboard ? (
                   <div className="flex flex-col space-y-2">
                     {!isWorkspacesEmpty && (
                       <Link
-                        href="/workspace/new"
+                        href={`/${lang}/workspace/new`}
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <Button variant="outline" className="w-full">
                           <Plus className="h-4 w-4 mr-1" />
-                          New Workspace
+                          {dict.actions.newWorkspace}
                         </Button>
                       </Link>
                     )}
@@ -245,17 +265,17 @@ export function Header() {
                       onClick={handleLogout}
                       className="w-full"
                     >
-                      Logout
+                      {dict.actions.logout}
                     </Button>
                   </div>
                 ) : (
                   <div className="flex flex-col space-y-2">
                     <Link
-                      href="/dashboard"
+                      href={`/${lang}/dashboard`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Button variant="outline" className="w-full">
-                        Dashboard
+                        {dict.navigation.dashboard}
                       </Button>
                     </Link>
                     <Button
@@ -263,20 +283,20 @@ export function Header() {
                       onClick={handleLogout}
                       className="w-full"
                     >
-                      Logout
+                      {dict.actions.logout}
                     </Button>
                   </div>
                 )}
               </>
             ) : (
               <div className="flex flex-col space-y-2">
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Link href={`/${lang}/login`} onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full">
-                    Login
+                    {dict.actions.login}
                   </Button>
                 </Link>
-                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full">Sign Up</Button>
+                <Link href={`/${lang}/register`} onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full">{dict.actions.signUp}</Button>
                 </Link>
               </div>
             )}

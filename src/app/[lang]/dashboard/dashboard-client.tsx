@@ -22,9 +22,10 @@ import { getCurrentMonthKey } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner"; // Using Sonner toast component instead
 import { updateWorkspaceNameAction } from "@/actions/workspace-actions";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
-export default function Dashboard() {
+// Dashboard component that accepts dictionary for translations
+export default function Dashboard({ dict }: { dict?: any }) {
   const { userData, workspaces, defaultWorkspace, refreshWorkspaces } =
     useAuth();
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
@@ -35,6 +36,8 @@ export default function Dashboard() {
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const params = useParams();
+  const lang = params.lang as string;
 
   useEffect(() => {
     // Set the active workspace to the default one
@@ -44,10 +47,10 @@ export default function Dashboard() {
     } else if (workspaces.length > 0) {
       setActiveWorkspace(workspaces[0]);
       setNewWorkspaceName(workspaces[0].name);
-    } else if (!userData?.displayName) {
-      router.push("/onboarding/company");
-    } else router.push("/workspace/new");
-  }, [defaultWorkspace, workspaces, userData, router]);
+    } else if (!userData?.companyName) {
+      router.push(`/${lang}/onboarding/company`);
+    } else router.push(`/${lang}/workspace/new`);
+  }, [defaultWorkspace, workspaces, userData, router, lang]);
 
   // Focus input when editing starts
   useEffect(() => {
@@ -189,15 +192,22 @@ export default function Dashboard() {
     userData.subscription.status === "pending";
   const trialStatus = checkTrialStatus();
 
+  // Format date based on language
+  const formatDate = (date: Date | string) => {
+    return new Date(date).toLocaleDateString(lang === "de" ? "de-DE" : "en-US");
+  };
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-          <h1 className="text-3xl font-bold mb-4 md:mb-0">Dashboard</h1>
+          <h1 className="text-3xl font-bold mb-4 md:mb-0">
+            {dict?.dashboard?.title || "Dashboard"}
+          </h1>
           <Button asChild>
-            <Link href="/workspace/new">
+            <Link href={`/${lang}/workspace/new`}>
               <Plus className="h-4 w-4 mr-2" />
-              Create Workspace
+              {dict?.dashboard?.createWorkspace || "Create Workspace"}
             </Link>
           </Button>
         </div>
@@ -211,19 +221,22 @@ export default function Dashboard() {
               </div>
               <div className="ml-3">
                 <h3 className="text-lg font-medium text-amber-800 dark:text-amber-300">
-                  Your trial has ended
+                  {dict?.dashboard?.trialBanner?.title ||
+                    "Your trial has ended"}
                 </h3>
                 <p className="mt-2 text-amber-700 dark:text-amber-200">
                   {trialStatus.reason === "time"
-                    ? "Your trial period has expired."
-                    : "You've reached your maximum translations limit for the trial."}{" "}
-                  Upgrade now to continue enjoying Goodspeech's full benefits
-                  with no interruptions.
+                    ? dict?.dashboard?.trialBanner?.timeExpired ||
+                      "Your trial period has expired."
+                    : dict?.dashboard?.trialBanner?.usageReached ||
+                      "You've reached your maximum translations limit for the trial."}{" "}
+                  {dict?.dashboard?.trialBanner?.upgradeMessage ||
+                    "Upgrade now to continue enjoying Goodspeech's full benefits with no interruptions."}
                 </p>
                 <div className="mt-4">
-                  <Link href="/account/subscription">
+                  <Link href={`/${lang}/account/subscription`}>
                     <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                      Upgrade Now
+                      {dict?.dashboard?.upgradeNow || "Upgrade Now"}
                     </Button>
                   </Link>
                 </div>
@@ -235,15 +248,16 @@ export default function Dashboard() {
         {workspaces.length === 0 ? (
           <div className="bg-white border rounded-lg p-8 text-center shadow-sm dark:bg-gray-800">
             <h2 className="text-xl font-semibold mb-4">
-              Welcome to Goodspeech!
+              {dict?.dashboard?.welcomeTitle || "Welcome to Goodspeech!"}
             </h2>
             <p className="mb-6">
-              You haven't created any workspaces yet. Create one to get started.
+              {dict?.dashboard?.welcomeMessage ||
+                "You haven't created any workspaces yet. Create one to get started."}
             </p>
-            <Link href="/workspace/new">
+            <Link href={`/${lang}/workspace/new`}>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Workspace
+                {dict?.dashboard?.createWorkspace || "Create Workspace"}
               </Button>
             </Link>
           </div>
@@ -252,7 +266,9 @@ export default function Dashboard() {
             {/* Workspace Sidebar */}
             <div className="md:col-span-3">
               <div className="bg-white border rounded-lg p-4 shadow-sm dark:bg-gray-800">
-                <h2 className="font-semibold mb-4">Your Workspaces</h2>
+                <h2 className="font-semibold mb-4">
+                  {dict?.dashboard?.yourWorkspaces || "Your Workspaces"}
+                </h2>
                 <div className="space-y-2">
                   {workspaces.map((workspace) => (
                     <button
@@ -275,17 +291,17 @@ export default function Dashboard() {
                         </span>
                         <span className="text-gray-500">
                           {formatWorkspaceTranslationsDisplay(workspace)}{" "}
-                          translations
+                          {dict?.dashboard?.translations || "translations"}
                         </span>
                       </div>
                     </button>
                   ))}
                 </div>
                 <div className="mt-4 pt-4 border-t">
-                  <Link href="/workspace/new">
+                  <Link href={`/${lang}/workspace/new`}>
                     <Button variant="outline" size="sm" className="w-full">
                       <Plus className="h-4 w-4 mr-2" />
-                      New Workspace
+                      {dict?.dashboard?.newWorkspace || "New Workspace"}
                     </Button>
                   </Link>
                 </div>
@@ -367,37 +383,35 @@ export default function Dashboard() {
                           {userData.subscription.status === "trialing" &&
                             !trialStatus.trialEnded && (
                               <span className="text-xs text-gray-500 ml-2">
-                                Trial ends on{" "}
-                                {new Date(
-                                  userData.subscription
-                                    .currentPeriodEnd as Date,
-                                ).toLocaleDateString()}
+                                {(
+                                  dict?.dashboard?.trialEndsOn ||
+                                  "Trial ends on {date}"
+                                ).replace(
+                                  "{date}",
+                                  formatDate(
+                                    userData.subscription
+                                      .currentPeriodEnd as Date,
+                                  ),
+                                )}
                               </span>
                             )}
                           {userData.subscription.status === "trialing" &&
                             trialStatus.trialEnded && (
                               <span className="text-xs text-red-500 ml-2 font-medium">
-                                Trial has ended - Upgrade now
+                                {dict?.dashboard?.trialEnded ||
+                                  "Trial has ended - Upgrade now"}
                               </span>
                             )}
                           {userData.subscription.status === "pending" && (
                             <span className="text-xs text-amber-500 ml-2">
-                              Payment processing
+                              {dict?.dashboard?.paymentProcessing ||
+                                "Payment processing"}
                             </span>
                           )}
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4 md:mt-0">
-                        {/* <Link
-                          className="pointer-events-none"
-                          href={`/workspace/${activeWorkspace.id}/settings`}
-                        >
-                          <Button variant="outline" size="sm">
-                            <Settings className="h-4 w-4 mr-2" />
-                            Settings
-                          </Button>
-                        </Link> */}
-                        <Link href="/account/subscription">
+                        <Link href={`/${lang}/account/subscription`}>
                           <Button
                             size="sm"
                             className={
@@ -408,8 +422,9 @@ export default function Dashboard() {
                           >
                             {userData.subscription.planId === "free" ||
                             userData.subscription.status === "trialing"
-                              ? "Upgrade"
-                              : "Manage Subscription"}
+                              ? dict?.dashboard?.upgradePlan || "Upgrade"
+                              : dict?.dashboard?.manageSubscription ||
+                                "Manage Subscription"}
                           </Button>
                         </Link>
                       </div>
@@ -428,7 +443,8 @@ export default function Dashboard() {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm text-gray-500">
-                            Global Translations
+                            {dict?.dashboard?.globalTranslations ||
+                              "Global Translations"}
                           </p>
                           <h3
                             className={`text-2xl font-bold mt-1 ${
@@ -462,20 +478,28 @@ export default function Dashboard() {
                             >
                               {trialStatus.trialEnded &&
                               trialStatus.reason === "usage"
-                                ? "Translation limit reached - Upgrade to continue"
-                                : `Using ${usagePercentage}% of your monthly quota`}
+                                ? dict?.dashboard?.translationLimitReached ||
+                                  "Translation limit reached - Upgrade to continue"
+                                : (
+                                    dict?.dashboard?.usingQuota ||
+                                    "Using {percentage}% of your monthly quota"
+                                  ).replace(
+                                    "{percentage}",
+                                    usagePercentage.toString(),
+                                  )}
                             </p>
                           </div>
 
                           {trialStatus.trialEnded &&
                             trialStatus.reason === "usage" && (
                               <div className="mt-3">
-                                <Link href="/account/subscription">
+                                <Link href={`/${lang}/account/subscription`}>
                                   <Button
                                     size="sm"
                                     className="bg-amber-600 hover:bg-amber-700"
                                   >
-                                    Upgrade Now
+                                    {dict?.dashboard?.upgradeNow ||
+                                      "Upgrade Now"}
                                   </Button>
                                 </Link>
                               </div>
@@ -504,7 +528,8 @@ export default function Dashboard() {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm text-gray-500">
-                            Workspace Translations
+                            {dict?.dashboard?.workspaceTranslations ||
+                              "Workspace Translations"}
                           </p>
                           <h3 className="text-2xl font-bold mt-1">
                             {formatWorkspaceTranslationsDisplay(
@@ -512,7 +537,7 @@ export default function Dashboard() {
                             )}
                           </h3>
                           <p className="text-xs text-gray-500 mt-1">
-                            This month in "{activeWorkspace.name}"
+                            {`${dict?.dashboard?.thisMonth || "This month in"} "${activeWorkspace.name}"`}
                           </p>
                         </div>
                         <div className="bg-primary/10 p-2 rounded-full">
@@ -532,38 +557,49 @@ export default function Dashboard() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-sm text-gray-500">Billing Status</p>
+                        <p className="text-sm text-gray-500">
+                          {dict?.dashboard?.billingStatus || "Billing Status"}
+                        </p>
                         <h3
                           className={`text-2xl font-bold mt-1 capitalize ${
                             trialStatus.trialEnded ? "text-amber-600" : ""
                           }`}
                         >
                           {trialStatus.trialEnded
-                            ? "Trial Ended"
+                            ? (
+                                dict?.dashboard?.trialEnded || "Trial Ended"
+                              ).split(" - ")[0]
                             : userData.subscription.status}
                         </h3>
                         <p
                           className={`text-sm mt-1 ${trialStatus.trialEnded ? "text-amber-600" : ""}`}
                         >
                           {userData.subscription.status === "active" &&
-                            "Your subscription is active"}
+                            (dict?.dashboard?.subscriptionActive ||
+                              "Your subscription is active")}
                           {userData.subscription.status === "trialing" &&
                             !trialStatus.trialEnded &&
-                            "Your trial is active"}
+                            (dict?.dashboard?.trialActive ||
+                              "Your trial is active")}
                           {userData.subscription.status === "trialing" &&
                             trialStatus.trialEnded &&
                             (trialStatus.reason === "time"
-                              ? "Your trial period has expired. Upgrade to continue using Goodspeech."
-                              : "You've reached your translation limit. Upgrade to continue translating.")}
+                              ? dict?.dashboard?.trialExpired ||
+                                "Your trial period has expired. Upgrade to continue using Goodspeech."
+                              : dict?.dashboard?.translationLimitReached ||
+                                "You've reached your translation limit. Upgrade to continue translating.")}
                           {userData.subscription.status === "pending" &&
-                            "Your payment is being processed"}
+                            (dict?.dashboard?.paymentProcessing ||
+                              "Your payment is being processed")}
                           {userData.subscription.status === "cancelled" &&
-                            "Your subscription will end soon"}
+                            (dict?.dashboard?.subscriptionEnding ||
+                              "Your subscription will end soon")}
                           {userData.subscription.status === "past_due" &&
-                            "Payment is past due"}
+                            (dict?.dashboard?.paymentPastDue ||
+                              "Payment is past due")}
                         </p>
                         <div className="mt-3">
-                          <Link href="/account/subscription">
+                          <Link href={`/${lang}/account/subscription`}>
                             <Button
                               variant={
                                 trialStatus.trialEnded ? "default" : "outline"
@@ -577,17 +613,21 @@ export default function Dashboard() {
                             >
                               <BarChart className="h-4 w-4 mr-2" />
                               {trialStatus.trialEnded
-                                ? "Upgrade Now"
+                                ? dict?.dashboard?.upgradeNow || "Upgrade Now"
                                 : isTrialOrPending
-                                  ? "Upgrade Plan"
-                                  : "Manage Subscription"}
+                                  ? dict?.dashboard?.upgradePlan ||
+                                    "Upgrade Plan"
+                                  : dict?.dashboard?.manageSubscription ||
+                                    "Manage Subscription"}
                             </Button>
                           </Link>
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <p className="text-sm text-gray-500">Current Plan</p>
+                        <p className="text-sm text-gray-500">
+                          {dict?.dashboard?.currentPlan || "Current Plan"}
+                        </p>
                         <p className="font-bold mt-1 capitalize">
                           {userData.subscription.planId}
                         </p>
@@ -595,7 +635,12 @@ export default function Dashboard() {
                         {/* Only show billing cycle for active, paid subscriptions */}
                         {!isTrialOrPending && (
                           <p className="text-sm mt-1">
-                            {userData.subscription.billingCycle} billing
+                            {(
+                              dict?.dashboard?.billingCycle || "{cycle} billing"
+                            ).replace(
+                              "{cycle}",
+                              userData.subscription.billingCycle,
+                            )}
                           </p>
                         )}
 
@@ -612,18 +657,34 @@ export default function Dashboard() {
                             >
                               {trialStatus.trialEnded &&
                               trialStatus.reason === "time"
-                                ? "Trial expired on "
-                                : "Trial ends on "}
-                              {new Date(
-                                userData.subscription.currentPeriodEnd as Date,
-                              ).toLocaleDateString()}
+                                ? (
+                                    dict?.dashboard?.trialExpiredOn ||
+                                    "Trial expired on {date}"
+                                  ).replace(
+                                    "{date}",
+                                    formatDate(
+                                      userData.subscription
+                                        .currentPeriodEnd as Date,
+                                    ),
+                                  )
+                                : (
+                                    dict?.dashboard?.trialEndsOn ||
+                                    "Trial ends on {date}"
+                                  ).replace(
+                                    "{date}",
+                                    formatDate(
+                                      userData.subscription
+                                        .currentPeriodEnd as Date,
+                                    ),
+                                  )}
                             </p>
                           )}
 
                         {/* For pending, show processing message */}
                         {userData.subscription.status === "pending" && (
                           <p className="text-xs text-amber-500 mt-1">
-                            Payment being processed
+                            {dict?.dashboard?.paymentBeingProcessed ||
+                              "Payment being processed"}
                           </p>
                         )}
 
@@ -631,10 +692,15 @@ export default function Dashboard() {
                         {userData.subscription.status === "active" &&
                           userData.subscription.currentPeriodEnd && (
                             <p className="text-xs text-gray-500 mt-1">
-                              Renews on{" "}
-                              {new Date(
-                                userData.subscription.currentPeriodEnd as Date,
-                              ).toLocaleDateString()}
+                              {(
+                                dict?.dashboard?.renewsOn || "Renews on {date}"
+                              ).replace(
+                                "{date}",
+                                formatDate(
+                                  userData.subscription
+                                    .currentPeriodEnd as Date,
+                                ),
+                              )}
                             </p>
                           )}
                       </div>
@@ -645,7 +711,8 @@ export default function Dashboard() {
                   {!trialStatus.trialEnded && (
                     <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800">
                       <h3 className="text-lg font-semibold mb-4">
-                        Slack Integration
+                        {dict?.dashboard?.slackIntegration ||
+                          "Slack Integration"}
                       </h3>
                       {activeWorkspace.settings.slackTeamId ? (
                         <div className="bg-green-50 p-4 rounded-md dark:bg-green-900/20">
@@ -660,11 +727,12 @@ export default function Dashboard() {
                             </div>
                             <div className="ml-3">
                               <h4 className="font-medium">
-                                Connected to Slack
+                                {dict?.dashboard?.connectedToSlack ||
+                                  "Connected to Slack"}
                               </h4>
                               <p className="text-sm text-gray-500 mt-1">
-                                Your Goodspeech Bot is ready to use in your
-                                Slack workspace
+                                {dict?.dashboard?.slackBotReady ||
+                                  "Your Goodspeech Bot is ready to use in your Slack workspace"}
                               </p>
                             </div>
 
@@ -678,7 +746,7 @@ export default function Dashboard() {
                                   target="_blank"
                                   href={`https://slackbot-e8huapd7e6cegqd9.germanywestcentral-01.azurewebsites.net/slack/install?workspace=${activeWorkspace.id}`}
                                 >
-                                  Reinstall
+                                  {dict?.dashboard?.reinstall || "Reinstall"}
                                   <RefreshCw className="ml-2 h-4 w-4" />
                                 </Link>
                               </Button>
@@ -688,8 +756,8 @@ export default function Dashboard() {
                       ) : (
                         <div className="bg-gray-50 p-4 rounded-md dark:bg-gray-800">
                           <p className="mb-4">
-                            Connect the Goodspeech Bot to your Slack workspace
-                            to start translating messages.
+                            {dict?.dashboard?.connectSlack ||
+                              "Connect the Goodspeech Bot to your Slack workspace to start translating messages."}
                           </p>
                           <Button
                             asChild={true}
@@ -706,7 +774,7 @@ export default function Dashboard() {
                                 width="16"
                                 src="/slack-icon.png"
                               />
-                              Add to slack
+                              {dict?.dashboard?.addToSlack || "Add to slack"}
                             </Link>
                           </Button>
                         </div>
@@ -717,33 +785,21 @@ export default function Dashboard() {
                   {/* Quick Actions */}
                   <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-gray-800">
                     <h3 className="text-lg font-semibold mb-4">
-                      Quick Actions
+                      {dict?.dashboard?.quickActions || "Quick Actions"}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <h4 className="font-medium">View Usage Analytics</h4>
-                        <p className="text-sm text-gray-500 mt-1 mb-3">
-                          See how your team is using Goodspeech
-                        </p>
-                        <Link
-                          className="pointer-events-none"
-                          href={`/workspace/${activeWorkspace.id}/analytics`}
-                        >
-                          <Button variant="outline" size="sm">
-                            <BarChart className="h-4 w-4 mr-1" />
-                            View Analytics
-                          </Button>
-                        </Link>
-                      </div> */}
                       <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <h4 className="font-medium">Documentation</h4>
+                        <h4 className="font-medium">
+                          {dict?.dashboard?.documentation || "Documentation"}
+                        </h4>
                         <p className="text-sm text-gray-500 mt-1 mb-3">
-                          Learn how to use Goodspeech effectively
+                          {dict?.dashboard?.learnToUse ||
+                            "Learn how to use Goodspeech effectively"}
                         </p>
-                        <Link href="/docs" target="_blank">
+                        <Link href={`/${lang}/docs`} target="_blank">
                           <Button variant="outline" size="sm">
                             <ExternalLink className="h-4 w-4 mr-1" />
-                            View Docs
+                            {dict?.dashboard?.viewDocs || "View Docs"}
                           </Button>
                         </Link>
                       </div>
@@ -753,16 +809,17 @@ export default function Dashboard() {
               ) : (
                 <div className="bg-white border rounded-lg p-6 shadow-sm text-center dark:bg-gray-800">
                   <h3 className="text-lg font-semibold mb-4">
-                    No Workspace Selected
+                    {dict?.dashboard?.noWorkspaceSelected ||
+                      "No Workspace Selected"}
                   </h3>
                   <p className="text-gray-500 mb-4">
-                    Select a workspace from the sidebar or create a new one to
-                    get started.
+                    {dict?.dashboard?.selectWorkspace ||
+                      "Select a workspace from the sidebar or create a new one to get started."}
                   </p>
-                  <Link href="/workspace/new">
+                  <Link href={`/${lang}/workspace/new`}>
                     <Button>
                       <Plus className="h-4 w-4 mr-2" />
-                      Create Workspace
+                      {dict?.dashboard?.createWorkspace || "Create Workspace"}
                     </Button>
                   </Link>
                 </div>

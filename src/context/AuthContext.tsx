@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   ReactNode,
+  useCallback,
 } from "react";
 import {
   User as FirebaseUser,
@@ -17,7 +18,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/client/firebase";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { User, Workspace } from "@/lib/shared/models";
 import { createCookie, deleteCookie } from "@/actions/auth-actions";
 import { getWorkspacesAction } from "@/actions/workspace-actions";
@@ -42,10 +43,8 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-// List of protected routes that require authentication
+// List of protected routes that require authentication (without language prefix)
 const PROTECTED_ROUTES = ["/dashboard", "/workspace", "/profile", "/settings"];
-// List of auth routes (login, register) that should redirect to dashboard if logged in
-// const AUTH_ROUTES = ["/login", "/register"];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<
@@ -61,6 +60,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const params = useParams();
+  const lang = (params.lang as string) || "en";
+
+  // Helper function to get localized route
+  const getLocalizedRoute = useCallback(
+    (route: string) => {
+      return `/${lang}${route}`;
+    },
+    [lang],
+  );
 
   const fetchUserData = async () => {
     try {
@@ -122,7 +131,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (fbUser: FirebaseUser | null) => {
         const userWithToken = fbUser as FirebaseUser & AccessToken;
         setFirebaseUser(userWithToken);
-
         if (fbUser) {
           await createCookie(userWithToken.accessToken);
           await fetchUserData();
@@ -146,24 +154,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!initialAuthCheckComplete) return;
 
-    // If user is authenticated and trying to access auth pages, redirect to dashboard
-    // if (firebaseUser && AUTH_ROUTES.includes(pathname)) {
-    //   router.push("/dashboard");
-    // }
+    // Check if current path (without language prefix) is a protected route
+    const pathWithoutLang = pathname.replace(new RegExp(`^/${lang}`), "");
 
     // If user is not authenticated and trying to access protected routes, redirect to login
     if (
       !firebaseUser &&
-      PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
+      PROTECTED_ROUTES.some((route) => pathWithoutLang.startsWith(route))
     ) {
-      router.push("/login");
+      router.push(getLocalizedRoute("/login"));
     }
   }, [
     pathname,
     initialAuthCheckComplete,
+    getLocalizedRoute,
     firebaseUser,
     workspaces.length,
     router,
+    lang,
   ]);
 
   const login = async (email: string, password: string) => {
@@ -171,7 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithEmailAndPassword(auth, email, password);
       setLoading(true);
       await fetchUserData();
-      return router.push("/dashboard");
+      return router.push(getLocalizedRoute("/dashboard"));
     } catch (error) {
       setLoading(false);
       console.error("Login error:", error);
@@ -184,7 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await createUserWithEmailAndPassword(auth, email, password);
       setLoading(true);
       await fetchUserData();
-      router.push("/dashboard");
+      router.push(getLocalizedRoute("/dashboard"));
     } catch (error) {
       setLoading(false);
       console.error("Registration error:", error);
@@ -195,7 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await signOut(auth);
     await deleteCookie();
-    router.push("/");
+    router.push(getLocalizedRoute("/"));
   };
 
   const loginWithGoogle = async () => {
@@ -204,7 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithPopup(auth, provider);
       setLoading(true);
       await fetchUserData();
-      router.push("/dashboard");
+      router.push(getLocalizedRoute("/dashboard"));
     } catch (error) {
       setLoading(false);
       console.error("Google login error:", error);

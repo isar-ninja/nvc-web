@@ -1,0 +1,277 @@
+{
+  "auth": {
+    "login": {
+      "title": "Bei Ihrem Konto anmelden",
+      "createAccount": "Oder erstellen Sie ein neues Konto",
+      "emailLabel": "E-Mail-Adresse",
+      "passwordLabel": "Passwort",
+      "rememberMe": "Angemeldet bleiben",
+      "forgotPassword": "Passwort vergessen?",
+      "signInButton": "Anmelden",
+      "signingIn": "Anmeldung läuft...",
+      "googleSignIn": "Mit Google anmelden",
+      "backToHome": "Zurück zur Startseite",
+      "loginError": "Anmeldung fehlgeschlagen:",
+      "googleLoginError": "Google-Anmeldung fehlgeschlagen:",
+      "signingYouIn": "Sie werden angemeldet...",
+      "settingUp": "Ihr Konto wird eingerichtet und Ihre Workspaces werden vorbereitet."
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "alreadyHaveAccount": "Haben Sie bereits ein Konto? Anmelden",
+      "emailLabel": "E-Mail-Adresse",
+      "passwordLabel": "Passwort",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "createAccountButton": "Konto erstellen",
+      "googleSignUp": "Mit Google registrieren",
+      "backToHome": "Zurück zur Startseite",
+      "passwordMismatch": "Passwörter stimmen nicht überein",
+      "registerError": "Fehler beim Erstellen eines Kontos:",
+      "googleRegisterError": "Fehler bei der Registrierung mit Google:"
+    }
+  },
+  "navigation": {
+    "features": "Funktionen",
+    "howItWorks": "So funktioniert's",
+    "pricing": "Preise",
+    "faq": "FAQ",
+    "dashboard": "Dashboard",
+    "settings": "Einstellungen",
+    "analytics": "Analysen"
+  },
+  "onboarding": {
+    "company": {
+      "title": "Willkommen! Noch ein Schritt",
+      "description": "Bitte geben Sie den Namen Ihres Unternehmens oder Ihrer Organisation ein, um fortzufahren",
+      "companyLabel": "Firmen- oder Organisationsname",
+      "companyPlaceholder": "Geben Sie Ihren Firmennamen ein",
+      "continueButton": "Fortfahren",
+      "saving": "Wird gespeichert..."
+    }
+  },
+  "actions": {
+    "newWorkspace": "Neuer Workspace",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "signUp": "Registrieren",
+    "tryFree": "Goodspeech kostenlos testen"
+  },
+  "aria": {
+    "toggleMenu": "Menü umschalten"
+  },
+  "hero": {
+    "title": "Schluss mit Missverständnissen am Arbeitsplatz",
+    "subtitle": "Schlechte Kommunikation kostet Unternehmen jährlich Millionen. Goodspeech macht aus unklaren oder konfliktbeladenen Nachrichten verständliche, respektvolle Kommunikation, die Zeit spart und Ergebnisse liefert.",
+    "imageAlt": "Goodspeech verbessert Arbeitskommunikation",
+    "seeDemo": "Beispiele ansehen"
+  },
+  "features": {
+    "title": "Konkrete Lösungen für bessere Kommunikation",
+    "subtitle": "Während Teams durchschnittlich 4 Stunden pro Woche mit Kommunikationsproblemen verlieren, bietet Goodspeech praktische Werkzeuge:",
+    "realtime": {
+      "title": "Sofortige Verbesserung",
+      "description": "Wandelt problematische Formulierungen direkt in lösungsorientierte Aussagen um"
+    },
+    "secure": {
+      "title": "Absolute Datensicherheit",
+      "description": "Unternehmensstandard-Verschlüsselung schützt vertrauliche Kommunikation vollständig"
+    },
+    "integration": {
+      "title": "Nahtlose Einbindung",
+      "description": "In unter 5 Minuten einsatzbereit – ohne IT-Abteilung"
+    }
+  },
+  "howItWorks": {
+    "title": "So einfach funktioniert Goodspeech",
+    "subtitle": "In nur drei Schritten bringen Sie Klarheit in die tägliche Kommunikation Ihres Teams",
+    "demoAlt": "Praktische Anwendung von Goodspeech im Arbeitsalltag",
+    "steps": {
+      "install": {
+        "title": "Einfach installieren",
+        "description": "Zwei Klicks genügen, um Goodspeech in Ihren Slack-Workspace zu integrieren"
+      },
+      "call": {
+        "title": "Bei Bedarf nutzen",
+        "description": "Tippen Sie \"/nvc Ihre Nachricht\" ein, wenn Sie Unterstützung bei einer schwierigen Kommunikation benötigen"
+      },
+      "results": {
+        "title": "Zeit sparen",
+        "description": "Vermeiden Sie stundenlange Missverständnisse und Konflikte durch präzisere Formulierungen"
+      }
+    }
+  },
+  "demo": {
+    "title": "Praxisbeispiele aus dem Arbeitsalltag",
+    "subtitle": "So wandelt Goodspeech typische Konfliktsituationen in produktive Kommunikation um",
+    "seeDemo": "Beispiele ansehen",
+    "person1": "Johannes Müller",
+    "message1": "Warum hat noch niemand diesen Fehler behoben? Wir reden seit Wochen darüber!",
+    "response1": "\"Ich bin beunruhigt, dass der seit mehreren Wochen bekannte Fehler noch nicht behoben wurde. Können wir klären, welche Hindernisse es gibt und wann mit einer Lösung zu rechnen ist?\"",
+    "person2": "Julia Schmidt",
+    "message2": "Gut, was auch immer. Ich schätze, ich mache es einfach selbst, da es sonst niemanden zu interessieren scheint.",
+    "response2": "\"Ich möchte zum Projekterfolg beitragen und bin bereit, diese Aufgabe zu übernehmen. Gleichzeitig würde ich mir eine klarere Aufgabenverteilung im Team wünschen. Können wir kurz besprechen, wie wir die Arbeitslast sinnvoller verteilen?\""
+  },
+  "pricing": {
+    "title": "Einfache, transparente Preise",
+    "subtitle": "Wählen Sie den Plan, der für Ihr Team passt",
+    "monthly": "/Monat",
+    "yearly": "/Jahr",
+    "savePercent": "20% sparen",
+    "getStarted": "Loslegen",
+    "contactSales": "Vertrieb kontaktieren"
+  },
+  "testimonials": {
+    "title": "Echte Ergebnisse unserer Kunden",
+    "subtitle": "So sparen Teams Zeit und verbessern ihre Ergebnisse mit Goodspeech",
+    "items": [
+      {
+        "name": "Michael Lütkenhorst",
+        "role": "Engineering-Leiter, StartupX",
+        "quote": "\"Wir sparen pro Mitarbeiter wöchentlich etwa 3 Stunden, die früher für das Klären von Missverständnissen draufgingen. Bei 20 Teammitgliedern ist das ein enormer Produktivitätsgewinn.\"",
+        "image": "/testimonials/testi-1.webp"
+      },
+      {
+        "name": "Sarah Jung",
+        "role": "HR-Direktorin, TechCorp",
+        "quote": "\"Unsere Mitarbeiterzufriedenheit ist deutlich gestiegen, seit wir Goodspeech nutzen. Die Menschen fühlen sich gehört und respektiert, was unsere Fluktuation messbar gesenkt hat.\"",
+        "image": "/testimonials/testi-2.webp"
+      },
+      {
+        "name": "Martin Zoller",
+        "role": "Teamleiter, Global Solutions",
+        "quote": "\"Mit Goodspeech haben wir die Dauer von Konflikten durch unnötige Meetings auf null reduziert. Das bedeutet konkret: Mehr Zeit für Produktentwicklung, weniger Zeit für interne Reibungsverluste.\"",
+        "image": "/testimonials/testi-3.webp"
+      }
+    ]
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Antworten auf Ihre wichtigsten Fragen zu Goodspeech",
+    "items": [
+      {
+        "question": "Wie funktioniert Goodspeech?",
+        "answer": "Goodspeech analysiert Ihre Nachrichten auf Formulierungen, die häufig zu Missverständnissen führen. Das System bietet dann alternative Formulierungen an, die auf den vier Grundprinzipien effektiver Kommunikation basieren: sachliche Beobachtung, ehrliche Gefühle, konkrete Bedürfnisse und klare Bitten. Sie behalten dabei stets die volle Kontrolle über Ihre Kommunikation."
+      },
+      {
+        "question": "Sind meine Daten sicher?",
+        "answer": "Ihre Daten bleiben zu 100% geschützt. Wir speichern keine Nachrichten dauerhaft, sondern verarbeiten sie nur für die unmittelbare Übersetzung. Alle Übertragungen sind Ende-zu-Ende verschlüsselt. Wir erfüllen alle Anforderungen der DSGVO und haben zusätzliche Sicherheitsmaßnahmen implementiert, die den strengsten Unternehmensstandards entsprechen."
+      },
+      {
+        "question": "Kann ich anpassen, wie Goodspeech antwortet?",
+        "answer": "Ja, in den Professional- und Enterprise-Plänen können Sie die Formulierungen und den Kommunikationsstil präzise an Ihre Unternehmenskultur und Branche anpassen. So passt sich das Tool Ihren spezifischen Kommunikationsanforderungen an."
+      },
+      {
+        "question": "Wie lange dauert die Einrichtung?",
+        "answer": "Die Installation dauert weniger als 5 Minuten. Es sind keine IT-Kenntnisse erforderlich – fügen Sie einfach den Bot zu Ihrem Slack-Workspace hinzu und starten Sie sofort. Es gibt keine komplizierte Konfiguration oder Schulung."
+      },
+      {
+        "question": "Kann Goodspeech Nachrichten in anderen Sprachen als Englisch übersetzen?",
+        "answer": "Aktuell unterstützt Goodspeech Englisch, Spanisch, Französisch, Deutsch und Japanisch. Basierend auf dem Feedback unserer Kunden erweitern wir regelmäßig unser Sprachangebot. Benötigen Sie eine spezifische Sprache? Teilen Sie uns Ihren Bedarf mit."
+      }
+    ],
+    "workModel": [
+      {
+        "title": "Nur-Vorschlag-Modell",
+        "description": "Das Tool macht nur Vorschläge – Sie entscheiden, ob und wie Sie diese nutzen. Es ersetzt nie Ihre eigene Urteilsfähigkeit."
+      },
+      {
+        "title": "Private Vorschläge",
+        "description": "Alle Vorschläge sind ausschließlich für Sie sichtbar. Niemand sonst sieht, dass Sie das Tool nutzen."
+      },
+      {
+        "title": "Manuelles Kopieren & Einfügen erforderlich",
+        "description": "Sie müssen jeden Vorschlag aktiv übernehmen – nichts wird automatisch gesendet."
+      },
+      {
+        "title": "Volle Kontrolle über Inhalte",
+        "description": "Mit der Zeit verbessern sich Ihre eigenen Kommunikationsfähigkeiten durch die regelmäßigen Beispiele."
+      }
+    ],
+    "promise": {
+      "title": "Unser Versprechen:",
+      "text": "Goodspeech verbessert Ihre natürlichen Kommunikationsfähigkeiten, anstatt Ihre Stimme zu ersetzen. Sie behalten die vollständige Kontrolle über jede Nachricht, die Sie senden, und es macht Sie in keiner Diskussion richtig oder falsch."
+    }
+  },
+  "cta": {
+    "title": "Sparen Sie 4 Stunden pro Woche und reduzieren Sie Konflikte um 60%",
+    "subtitle": "Bereits über 500 Teams nutzen Goodspeech, um ihre Kommunikation zu verbessern und Missverständnisse zu vermeiden",
+    "button": "Kostenlose Testversion starten",
+    "noCreditCard": "Keine Kreditkarte erforderlich. 14-tägige kostenlose Testversion.",
+    "cancelAnytime": "Jederzeit kündbar."
+  },
+  "contact": {
+    "title": "Kontakt aufnehmen",
+    "subtitle": "Haben Sie Fragen oder benötigen weitere Informationen? Wir helfen Ihnen gerne weiter.",
+    "emailUs": "E-Mail an uns",
+    "officeHours": "Geschäftszeiten",
+    "officeHoursValue": "Montag - Freitag: 9:00 - 17:00 MEZ"
+  },
+  "form": {
+    "name": "Name",
+    "email": "E-Mail",
+    "subject": "Betreff",
+    "message": "Nachricht",
+    "submit": "Nachricht senden",
+    "sending": "Wird gesendet...",
+    "required": "Erforderlich",
+    "invalidEmail": "Ungültige E-Mail-Adresse",
+    "success": "Nachricht erfolgreich gesendet! Wir werden uns bald bei Ihnen melden.",
+    "error": "Fehler beim Senden der Nachricht. Bitte versuchen Sie es später erneut.",
+    "namePlaceholder": "Ihr Name",
+    "emailPlaceholder": "Ihre E-Mail-Adresse",
+    "subjectPlaceholder": "Betreff",
+    "messagePlaceholder": "Ihre Nachricht"
+  },
+  "meta": {
+    "ogDescription": "Unser KI-gesteuerter Bot hilft Teams, mit Empathie und Klarheit zu kommunizieren, indem er Nachrichten in Slack und anderen Plattformen transformiert."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "createWorkspace": "Workspace erstellen",
+    "welcomeTitle": "Willkommen bei Goodspeech!",
+    "welcomeMessage": "Sie haben noch keine Workspaces erstellt. Erstellen Sie einen, um zu beginnen.",
+    "yourWorkspaces": "Ihre Workspaces",
+    "newWorkspace": "Neuer Workspace",
+    "translations": "Übersetzungen",
+    "globalTranslations": "Globale Übersetzungen",
+    "workspaceTranslations": "Workspace-Übersetzungen",
+    "thisMonth": "Diesen Monat in",
+    "usingQuota": "{percentage}% Ihres monatlichen Kontingents genutzt",
+    "billingStatus": "Abrechnungsstatus",
+    "currentPlan": "Aktueller Plan",
+    "billingCycle": "{cycle} Abrechnung",
+    "subscriptionActive": "Ihr Abonnement ist aktiv",
+    "trialActive": "Ihre Testversion ist aktiv",
+    "trialExpired": "Ihre Testphase ist abgelaufen. Führen Sie ein Upgrade durch, um Goodspeech weiter zu nutzen.",
+    "translationLimitReached": "Sie haben Ihr Übersetzungslimit erreicht. Führen Sie ein Upgrade durch, um weiter zu übersetzen.",
+    "paymentProcessing": "Ihre Zahlung wird bearbeitet",
+    "subscriptionEnding": "Ihr Abonnement endet bald",
+    "paymentPastDue": "Zahlung ist überfällig",
+    "upgradeNow": "Jetzt upgraden",
+    "upgradePlan": "Plan upgraden",
+    "manageSubscription": "Abonnement verwalten",
+    "trialEndsOn": "Testversion endet am {date}",
+    "trialExpiredOn": "Testversion endete am {date}",
+    "trialEnded": "Testversion ist abgelaufen - Jetzt upgraden",
+    "paymentBeingProcessed": "Zahlung wird bearbeitet",
+    "renewsOn": "Verlängert sich am {date}",
+    "slackIntegration": "Slack-Integration",
+    "connectedToSlack": "Mit Slack verbunden",
+    "slackBotReady": "Ihr Goodspeech Bot ist in Ihrem Slack-Workspace einsatzbereit",
+    "reinstall": "Neu installieren",
+    "connectSlack": "Verbinden Sie den Goodspeech Bot mit Ihrem Slack-Workspace, um Nachrichten zu übersetzen.",
+    "addToSlack": "Zu Slack hinzufügen",
+    "quickActions": "Schnellaktionen",
+    "documentation": "Dokumentation",
+    "learnToUse": "Lernen Sie, wie Sie Goodspeech effektiv nutzen können",
+    "viewDocs": "Dokumentation anzeigen",
+    "noWorkspaceSelected": "Kein Workspace ausgewählt",
+    "selectWorkspace": "Wählen Sie einen Workspace aus der Seitenleiste aus oder erstellen Sie einen neuen, um zu beginnen.",
+    "trialBanner": {
+      "title": "Ihre Testversion ist abgelaufen",
+      "timeExpired": "Ihre Testphase ist abgelaufen.",
+      "usageReached": "Sie haben das maximale Übersetzungslimit für die Testversion erreicht.",
+      "upgradeMessage": "Führen Sie jetzt ein Upgrade durch, um die vollen Vorteile von Goodspeech ohne Unterbrechungen zu genießen."
+    }
+  }
+}

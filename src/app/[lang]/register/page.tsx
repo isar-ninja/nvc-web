@@ -1,45 +1,92 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { MessageSquareText } from "lucide-react";
+import { Loader2, MessageSquareText } from "lucide-react";
+import { useParams } from "next/navigation";
+import { Locale } from "@/lib/i18n-config";
+import { getDictionary } from "@/lib/i18n";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [isGoogleRegistering, setIsGoogleRegistering] = useState(false);
   const { register, loginWithGoogle } = useAuth();
-  const router = useRouter();
+  const params = useParams();
+  const lang = params.lang as Locale;
+  const [dictionary, setDictionary] = useState<any>(null);
+
+  // Load dictionary when component mounts
+  useEffect(() => {
+    async function loadDictionary() {
+      const dict = await getDictionary(lang);
+      setDictionary(dict);
+    }
+    loadDictionary();
+  }, [lang]);
+
+  // Show loading state while dictionary is loading
+  if (!dictionary) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+
+  const t = dictionary.auth.register;
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsRegistering(true);
 
     if (password !== confirmPassword) {
-      return setError("Passwords do not match");
+      setError(t.passwordMismatch);
+      setIsRegistering(false);
+      return;
     }
 
     try {
       setError("");
       await register(email, password);
-      router.push("/dashboard");
     } catch (err: any) {
-      setError("Failed to create an account: " + err.message);
+      setError(`${t.registerError} ${err.message}`);
+      setIsRegistering(false);
     }
   };
 
   const handleGoogleLogin = async () => {
+    setIsGoogleRegistering(true);
     try {
       setError("");
       await loginWithGoogle();
-      router.push("/dashboard");
     } catch (err: any) {
-      setError("Failed to sign up with Google: " + err.message);
+      setError(`${t.googleRegisterError} ${err.message}`);
+      setIsGoogleRegistering(false);
     }
   };
+
+  // Show a full-screen loader when Google sign-in is processing
+  if (isGoogleRegistering) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-background/95 z-50">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <h3 className="mt-4 text-xl font-semibold">
+            {dictionary.auth.login.signingYouIn}
+          </h3>
+          <p className="mt-2 text-muted-foreground">
+            {dictionary.auth.login.settingUp}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -49,14 +96,13 @@ export default function RegisterPage() {
             <MessageSquareText className="h-6 w-6 text-primary" />
             <span>Goodspeech</span>
           </div>
-          <h2 className="mt-6 text-3xl font-bold">Create your account</h2>
+          <h2 className="mt-6 text-3xl font-bold">{t.title}</h2>
           <p className="mt-2 text-sm text-gray-500">
-            Already have an account?{" "}
             <Link
-              href="/login"
+              href={`/${lang}/login`}
               className="font-medium text-primary hover:underline"
             >
-              Sign in
+              {t.alreadyHaveAccount}
             </Link>
           </p>
         </div>
@@ -69,7 +115,7 @@ export default function RegisterPage() {
           <div className="space-y-4 rounded-md shadow-sm px-4 py-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium">
-                Email address
+                {t.emailLabel}
               </label>
               <input
                 id="email"
@@ -84,7 +130,7 @@ export default function RegisterPage() {
             </div>
             <div>
               <label htmlFor="password" className="block text-sm font-medium">
-                Password
+                {t.passwordLabel}
               </label>
               <input
                 id="password"
@@ -102,7 +148,7 @@ export default function RegisterPage() {
                 htmlFor="confirm-password"
                 className="block text-sm font-medium"
               >
-                Confirm Password
+                {t.confirmPasswordLabel}
               </label>
               <input
                 id="confirm-password"
@@ -118,14 +164,22 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-4">
-            <Button type="submit" className="w-full">
-              Create account
+            <Button type="submit" className="w-full" disabled={isRegistering}>
+              {isRegistering ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {dictionary.auth.login.signingIn}
+                </>
+              ) : (
+                t.createAccountButton
+              )}
             </Button>
             <Button
               type="button"
               variant="outline"
               className="w-full"
               onClick={handleGoogleLogin}
+              disabled={isRegistering || isGoogleRegistering}
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
@@ -146,13 +200,16 @@ export default function RegisterPage() {
                 />
                 <path d="M1 1h22v22H1z" fill="none" />
               </svg>
-              Sign up with Google
+              {t.googleSignUp}
             </Button>
           </div>
         </form>
         <div className="text-center mt-4">
-          <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
-            Back to home
+          <Link
+            href={`/${lang}`}
+            className="text-sm text-gray-500 hover:text-gray-900"
+          >
+            {t.backToHome}
           </Link>
         </div>
       </div>

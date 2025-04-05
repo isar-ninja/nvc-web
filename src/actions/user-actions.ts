@@ -29,7 +29,7 @@ export async function createUserAction(): Promise<User> {
     const newUser: User = {
       uid: user.uid,
       email: user?.email || "",
-      displayName: user?.displayName || "",
+      companyName: null,
       photoURL: user?.photoURL || "",
       workspaces: [],
       subscription: initialSubscription,

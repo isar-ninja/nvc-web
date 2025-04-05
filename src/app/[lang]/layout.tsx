@@ -9,6 +9,8 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { GoogleAnalytics } from "@/components/analytics";
 import { PostHogProvider } from "./cookie-provider";
 import CookieBanner from "@/components/cookie-banner";
+import { i18n, Locale } from "@/lib/i18n-config";
+import { getDictionary } from "@/lib/i18n";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,11 +28,19 @@ export const metadata: Metadata = {
     "Goodspeech translates aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding.",
 };
 
+export async function generateStaticParams() {
+  return i18n.locales.map((locale) => ({ lang: locale }));
+}
+
 export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }>) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang as Locale);
   return (
     <html lang="en">
       <head>
@@ -60,7 +70,7 @@ export default async function RootLayout({
               <div className="flex flex-col min-h-screen">
                 {/* <div className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
                 <header className="sticky top-0 z-40 w-full">
-                  <Header />
+                  <Header dict={dict} />
                   <div className="backdrop -z-10"></div>
                   <div className="backdrop-edge -z-10 max-h-[61px]"></div>
                 </header>

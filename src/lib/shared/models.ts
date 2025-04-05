@@ -45,7 +45,7 @@ export interface Subscription {
 export interface User {
   uid: string;
   email: string;
-  displayName?: string;
+  companyName: string | null;
   photoURL?: string;
   workspaces: string[]; // Workspace IDs
   defaultWorkspace?: string;

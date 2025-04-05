@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-// import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Loader2, MessageSquareText } from "lucide-react";
+import { useParams } from "next/navigation";
+import { Locale } from "@/lib/i18n-config";
+import { getDictionary } from "@/lib/i18n";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,7 +16,18 @@ export default function LoginPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState(false);
   const { login, loginWithGoogle } = useAuth();
-  // const router = useRouter();
+  const params = useParams();
+  const lang = params.lang as Locale;
+  const [dictionary, setDictionary] = useState<any>(null);
+
+  // Load dictionary when component mounts
+  useEffect(() => {
+    async function loadDictionary() {
+      const dict = await getDictionary(lang);
+      setDictionary(dict);
+    }
+    loadDictionary();
+  }, [lang]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +35,8 @@ export default function LoginPage() {
     try {
       setError("");
       await login(email, password);
-      // No need to push to dashboard here, it's handled in the login function
     } catch (err: any) {
-      setError("Failed to log in: " + err.message);
+      setError(`${dictionary.auth.login.loginError} ${err.message}`);
       setIsLoggingIn(false);
     }
   };
@@ -34,12 +46,20 @@ export default function LoginPage() {
     try {
       setError("");
       await loginWithGoogle();
-      // No need to push to dashboard here, it's handled in the loginWithGoogle function
     } catch (err: any) {
-      setError("Failed to log in with Google: " + err.message);
+      setError(`${dictionary.auth.login.googleLoginError} ${err.message}`);
       setIsGoogleLoggingIn(false);
     }
   };
+
+  // Show loading state while dictionary is loading
+  if (!dictionary) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
 
   // Show a full-screen loader when Google sign-in is processing
   if (isGoogleLoggingIn) {
@@ -47,14 +67,18 @@ export default function LoginPage() {
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-background/95 z-50">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-          <h3 className="mt-4 text-xl font-semibold">Signing you in...</h3>
+          <h3 className="mt-4 text-xl font-semibold">
+            {dictionary.auth.login.signingYouIn}
+          </h3>
           <p className="mt-2 text-muted-foreground">
-            Setting up your account and preparing your workspaces.
+            {dictionary.auth.login.settingUp}
           </p>
         </div>
       </div>
     );
   }
+
+  const t = dictionary.auth.login;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -64,14 +88,14 @@ export default function LoginPage() {
             <MessageSquareText className="h-6 w-6 text-primary" />
             <span>Goodspeech</span>
           </div>
-          <h2 className="mt-6 text-3xl font-bold">Sign in to your account</h2>
+          <h2 className="mt-6 text-3xl font-bold">{t.title}</h2>
           <p className="mt-2 text-sm text-gray-500">
-            Or{" "}
+            {t.createAccount}{" "}
             <Link
-              href="/register"
+              href={`/${lang}/register`}
               className="font-medium text-primary hover:underline"
             >
-              create a new account
+              {dictionary.actions.signUp}
             </Link>
           </p>
         </div>
@@ -84,7 +108,7 @@ export default function LoginPage() {
           <div className="space-y-4 rounded-md shadow-sm p-4 py-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium">
-                Email address
+                {t.emailLabel}
               </label>
               <input
                 id="email"
@@ -99,7 +123,7 @@ export default function LoginPage() {
             </div>
             <div>
               <label htmlFor="password" className="block text-sm font-medium">
-                Password
+                {t.passwordLabel}
               </label>
               <input
                 id="password"
@@ -126,7 +150,7 @@ export default function LoginPage() {
                 htmlFor="remember-me"
                 className="ml-2 block text-sm text-gray-900"
               >
-                Remember me
+                {t.rememberMe}
               </label>
             </div>
 
@@ -135,7 +159,7 @@ export default function LoginPage() {
                 href="#"
                 className="font-medium text-primary hover:underline"
               >
-                Forgot your password?
+                {t.forgotPassword}
               </Link>
             </div>
           </div>
@@ -145,10 +169,10 @@ export default function LoginPage() {
               {isLoggingIn ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  {t.signingIn}
                 </>
               ) : (
-                "Sign in"
+                t.signInButton
               )}
             </Button>
             <Button
@@ -177,13 +201,16 @@ export default function LoginPage() {
                 />
                 <path d="M1 1h22v22H1z" fill="none" />
               </svg>
-              Sign in with Google
+              {t.googleSignIn}
             </Button>
           </div>
         </form>
         <div className="text-center mt-4">
-          <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
-            Back to home
+          <Link
+            href={`/${lang}`}
+            className="text-sm text-gray-500 hover:text-gray-900"
+          >
+            {t.backToHome}
           </Link>
         </div>
       </div>

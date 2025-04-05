@@ -1,0 +1,228 @@
+{
+  "auth": {
+    "login": {
+      "title": "Sign in to your account",
+      "createAccount": "Or create a new account",
+      "emailLabel": "Email address",
+      "passwordLabel": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot your password?",
+      "signInButton": "Sign in",
+      "signingIn": "Signing in...",
+      "googleSignIn": "Sign in with Google",
+      "backToHome": "Back to home",
+      "loginError": "Failed to log in:",
+      "googleLoginError": "Failed to log in with Google:",
+      "signingYouIn": "Signing you in...",
+      "settingUp": "Setting up your account and preparing your workspaces."
+    },
+    "register": {
+      "title": "Create your account",
+      "alreadyHaveAccount": "Already have an account? Sign in",
+      "emailLabel": "Email address",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "createAccountButton": "Create account",
+      "googleSignUp": "Sign up with Google",
+      "backToHome": "Back to home",
+      "passwordMismatch": "Passwords do not match",
+      "registerError": "Failed to create an account:",
+      "googleRegisterError": "Failed to sign up with Google:"
+    }
+  },
+  "navigation": {
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "analytics": "Analytics"
+  },
+  "onboarding": {
+    "company": {
+      "title": "Welcome! One more step",
+      "description": "Please enter your company or organization name to continue",
+      "companyLabel": "Company or Organization Name",
+      "companyPlaceholder": "Enter your company name",
+      "continueButton": "Continue",
+      "saving": "Saving..."
+    }
+  },
+  "actions": {
+    "newWorkspace": "New Workspace",
+    "logout": "Logout",
+    "login": "Login",
+    "signUp": "Sign Up",
+    "tryFree": "Try Goodspeech Free"
+  },
+  "aria": {
+    "toggleMenu": "Toggle menu"
+  },
+  "hero": {
+    "title": "Transform Workplace Communication",
+    "subtitle": "Goodspeech translates aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding.",
+    "imageAlt": "Goodspeech in action showing message transformation",
+    "seeDemo": "See Demo"
+  },
+  "features": {
+    "title": "Features That Transform Communication",
+    "subtitle": "Goodspeech helps your team communicate with empathy and clarity",
+    "realtime": {
+      "title": "Real-time Translation",
+      "description": "Instantly transforms aggressive messages into empathic communication"
+    },
+    "secure": {
+      "title": "Private & Secure",
+      "description": "Your conversations stay private with enterprise-grade security"
+    },
+    "integration": {
+      "title": "Easy Integration",
+      "description": "Installs in minutes with no coding required"
+    }
+  },
+  "howItWorks": {
+    "title": "How Goodspeech Works",
+    "subtitle": "See how our AI-powered bot transforms communication in your Slack workspace",
+    "demoAlt": "Step-by-step demonstration of Goodspeech in action",
+    "steps": {
+      "install": {
+        "title": "Install the Bot",
+        "description": "Add Goodspeech to your Slack workspace with just a few clicks"
+      },
+      "call": {
+        "title": "Call the Bot",
+        "description": "Type \"/nvc your message\" in any conversation where you need translation"
+      },
+      "results": {
+        "title": "Get Better Communication",
+        "description": "Watch as messages are transformed into empathic communication"
+      }
+    }
+  },
+  "demo": {
+    "title": "See Goodspeech in Action",
+    "subtitle": "Watch how Goodspeech transforms real messages",
+    "seeDemo": "See Demo",
+    "person1": "John Doe",
+    "message1": "Why hasn't anyone fixed this bug yet? We've been talking about it for weeks!",
+    "response1": "\"I'm feeling concerned about the bug that's been discussed for several weeks. I'm wondering what obstacles might be preventing its resolution, and I'd appreciate understanding the timeline for when we might expect it to be fixed.\"",
+    "person2": "Jane Smith",
+    "message2": "Fine, whatever. I guess I'll just do it myself since no one else seems to care.",
+    "response2": "\"I'm feeling frustrated because I value collaboration and shared responsibility. I'm willing to take on this task, but I'd appreciate some support or acknowledgment from the team. Could we discuss how to distribute this work more effectively?\""
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the plan that works for your team",
+    "monthly": "/month",
+    "yearly": "/year",
+    "savePercent": "Save 20%",
+    "getStarted": "Get Started",
+    "contactSales": "Contact Sales"
+  },
+  "testimonials": {
+    "title": "What Our Customers Say",
+    "subtitle": "Hear from teams that have transformed their communication",
+    "items": [
+      {
+        "name": "Michael Lütkenhorst",
+        "role": "Engineering Lead, StartupX",
+        "quote": "\"As a remote team, clear communication is essential. Goodspeech helps us avoid misunderstandings that used to derail our projects.\"",
+        "image": "/testimonials/testi-1.webp"
+      },
+      {
+        "name": "Sarah Jung",
+        "role": "HR Director, TechCorp",
+        "quote": "\"Goodspeech has completely transformed how our teams communicate. Conflicts are resolved faster, and people feel more heard and understood.\"",
+        "image": "/testimonials/testi-2.webp"
+      },
+      {
+        "name": "Martin Zoller",
+        "role": "Team Lead, Global Solutions",
+        "quote": "\"The ROI on Goodspeech has been incredible. Less time spent on resolving conflicts means more time for productive work.\"",
+        "image": "/testimonials/testi-3.webp"
+      }
+    ]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about Goodspeech",
+    "items": [
+      {
+        "question": "How does Goodspeech work?",
+        "answer": "Goodspeech uses advanced AI to analyze messages for aggressive or passive-aggressive language. It then rewrites these messages using the principles of Nonviolent Communication, focusing on observations, feelings, needs, and requests."
+      },
+      {
+        "question": "Is my data secure?",
+        "answer": "Goodspeech never collects user messages. We use a secure API to translate messages in real-time. Your messages are never stored on our servers. We take data privacy seriously and ensure that all data is encrypted and transmitted securely. We also comply with all relevant data protection regulations. We are committed to protecting your data and ensuring that it is handled with the utmost care and respect."
+      },
+      {
+        "question": "Can I customize how Goodspeech responds?",
+        "answer": "Yes, on our Professional and Enterprise plans, you can customize the tone and style of Goodspeech's translations to match your company culture."
+      },
+      {
+        "question": "How long does it take to set up?",
+        "answer": "Most teams are up and running with Goodspeech in less than 5 minutes. Just add the bot to your Slack workspace and you're ready to go."
+      },
+      {
+        "question": "Can Goodspeech translate messages in languages other than English?",
+        "answer": "Currently, Goodspeech supports English, Spanish, French, German, and Japanese. We're adding more languages regularly based on customer demand."
+      }
+    ],
+    "workModel": [
+      {
+        "title": "Suggestion-Only Model",
+        "description": "The bot analyzes communication and generates response suggestions without sending messages automatically."
+      },
+      {
+        "title": "Private Suggestions",
+        "description": "All suggestions are only visible to you and are never shared with message recipients."
+      },
+      {
+        "title": "Manual Copy & Paste Required",
+        "description": "To use a suggestion, you must manually copy and paste it into your messaging platform."
+      },
+      {
+        "title": "Full Control Over Content",
+        "description": "You always have the opportunity to review, edit, or discard any suggestion before sending."
+      }
+    ],
+    "promise": {
+      "title": "Our promise:",
+      "text": "Goodspeech enhances your natural communication abilities rather than replacing your unique voice. You maintain complete control over every message you send, and it does not make you being right or wrong in any argument."
+    }
+  },
+  "cta": {
+    "title": "Ready to Transform Your Team's Communication?",
+    "subtitle": "Get started with Goodspeech today and see the difference in your team's communication",
+    "button": "Start Free Trial",
+    "noCreditCard": "No credit card required. 14-day free trial.",
+    "cancelAnytime": "Cancel anytime."
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "Have questions or need more information? We're here to help.",
+    "emailUs": "Email Us",
+    "officeHours": "Office Hours",
+    "officeHoursValue": "Monday - Friday: 9am - 5pm EST"
+  },
+  "form": {
+    "name": "Name",
+    "email": "Email",
+    "subject": "Subject",
+    "message": "Message",
+    "submit": "Send Message",
+    "sending": "Sending...",
+    "required": "Required",
+    "invalidEmail": "Invalid email",
+    "success": "Message sent successfully! We'll get back to you soon.",
+    "error": "Failed to send message. Please try again later.",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "Your email",
+    "subjectPlaceholder": "Subject",
+    "messagePlaceholder": "Your message"
+  },
+  "meta": {
+    "ogDescription": "Our AI-powered bot helps teams communicate with empathy and clarity by transforming messages in Slack and other platforms."
+  }
+}

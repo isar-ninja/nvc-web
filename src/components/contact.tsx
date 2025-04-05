@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function Contact() {
+export default function Contact({ dict }: { dict?: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -26,13 +26,13 @@ export default function Contact() {
       });
 
       if (response.ok) {
-        toast.success("Message sent successfully! We'll get back to you soon.");
+        toast.success(dict?.form?.success || "Message sent successfully! We'll get back to you soon.");
         formElement.reset(); // Clear the form
       } else {
-        toast.error("Failed to send message. Please try again later.");
+        toast.error(dict?.form?.error || "Failed to send message. Please try again later.");
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again later.");
+      toast.error(dict?.form?.error || "An error occurred. Please try again later.");
       console.error("Form submission error:", error);
     } finally {
       setIsSubmitting(false);
@@ -53,13 +53,13 @@ export default function Contact() {
             htmlFor="name"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Name
+            {dict?.form?.name || "Name"}
           </label>
           <input
             id="name"
             name="name"
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="Your name"
+            placeholder={dict?.form?.namePlaceholder || "Your name"}
             type="text"
             required
           />
@@ -69,13 +69,13 @@ export default function Contact() {
             htmlFor="email"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Email
+            {dict?.form?.email || "Email"}
           </label>
           <input
             id="email"
             name="email"
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="Your email"
+            placeholder={dict?.form?.emailPlaceholder || "Your email"}
             type="email"
             required
           />
@@ -86,13 +86,13 @@ export default function Contact() {
           htmlFor="subject"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Subject
+          {dict?.form?.subject || "Subject"}
         </label>
         <input
           id="subject"
           name="subject"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder="Subject"
+          placeholder={dict?.form?.subjectPlaceholder || "Subject"}
           type="text"
           required
         />
@@ -102,18 +102,20 @@ export default function Contact() {
           htmlFor="message"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Message
+          {dict?.form?.message || "Message"}
         </label>
         <textarea
           id="message"
           name="message"
           className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder="Your message"
+          placeholder={dict?.form?.messagePlaceholder || "Your message"}
           required
         ></textarea>
       </div>
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Sending..." : "Send Message"}
+        {isSubmitting
+          ? (dict?.form?.sending || "Sending...")
+          : (dict?.form?.submit || "Send Message")}
       </Button>
     </form>
   );
