@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import Link from "next/link";
 
 type ConsentSettings = {
   ad_storage: "granted" | "denied";
@@ -94,12 +95,12 @@ export function CookieConsent() {
               Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung auf
               unserer Website zu bieten. Weitere Informationen finden Sie in
               unserer{" "}
-              <a
-                href="/datenschutz"
+              <Link
+                href="/dsgvo"
                 className="underline text-primary hover:text-primary/90"
               >
                 Datenschutzerklärung
-              </a>
+              </Link>
               .
             </p>
           </div>
