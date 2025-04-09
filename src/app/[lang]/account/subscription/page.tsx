@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
   CheckCircle,
@@ -18,13 +17,16 @@ import { Plan } from "@/lib/shared/models";
 import Link from "next/link";
 import Script from "next/script";
 import { getPlans } from "@/actions/plan-actions";
+import router from "next/router";
 
 const LEMON_SQUEEZY_URLS = {
-  starter:
-    "https://store.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38",
-  professional: "", // Update with actual URL
-  enterprise: "", // Update with actual URL
+  starter: (uid: string) =>
+    `https://store.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38?checkout[custom][user_id]=${uid}`,
+  professional: (uid: string) =>
+    `https://store.goodspeech.chat/buy/4493c79c-c8ed-4184-bbd2-e5ca89af827a?checkout[custom][user_id]=${uid}`, // Update with actual URL
+  enterprise: `/enterprise`,
 };
+// 4242 4242 4242 4242
 export default function SubscriptionPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
@@ -32,11 +34,9 @@ export default function SubscriptionPage() {
     "monthly",
   );
   const [isLoading, setIsLoading] = useState(true);
-  // const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
-  const { userData, firebaseUser } = useAuth();
 
+  const { userData, firebaseUser } = useAuth();
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -66,36 +66,6 @@ export default function SubscriptionPage() {
   const handlePlanSelect = (planId: string) => {
     setSelectedPlanId(planId);
   };
-
-  // const handleSubscribe = async () => {
-  //   if (!selectedPlanId || !firebaseUser || !userData) return;
-
-  //   try {
-  //     setIsProcessing(true);
-  //     setError("");
-
-  //     // Get the ID token for auth
-  //     // const idToken = await firebaseUser.getIdToken();
-  //     // console.log(selectedPlanId);
-  //     // ?checkout[custom][user_id]=${firebaseUser.uid}
-  //     window.open(
-  //       `${LEMON_SQUEEZY_URLS[selectedPlanId]}?checkout[custom][user_id]=${firebaseUser.uid}`,
-  //       "_blank",
-  //     );
-  //     // Otherwise refresh user data and redirect to dashboard
-  //     // await refreshUserData();
-  //     // router.push("/dashboard");
-  //   } catch (err) {
-  //     console.error("Error updating subscription:", err);
-  //     setError(
-  //       err instanceof Error
-  //         ? err.message
-  //         : "Failed to update subscription. Please try again.",
-  //     );
-  //   } finally {
-  //     setIsProcessing(false);
-  //   }
-  // };
 
   // Function to format price with dollar sign
   const formatPrice = (price: number | string) => {
@@ -190,6 +160,11 @@ export default function SubscriptionPage() {
                         </div>
                       )}
                   </div>
+                  <Link href={`https://store.goodspeech.chat/billing`}>
+                    <Button size="sm" className="mt-4 ">
+                      Manage Subscription
+                    </Button>
+                  </Link>
                 </div>
               )}
 
@@ -333,8 +308,9 @@ export default function SubscriptionPage() {
           <div className="mt-12 text-center">
             <Link
               href={
-                `${LEMON_SQUEEZY_URLS[selectedPlanId]}?checkout[custom][user_id]=${firebaseUser!.uid}` ||
-                ""
+                selectedPlanId === "enterprise"
+                  ? `${LEMON_SQUEEZY_URLS[selectedPlanId]}`
+                  : `${LEMON_SQUEEZY_URLS[selectedPlanId]?.(firebaseUser?.uid) || ""}`
               }
               className="lemonsqueezy-button"
             >

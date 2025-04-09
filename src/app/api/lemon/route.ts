@@ -365,7 +365,6 @@ async function handleSubscriptionUpdate(
       console.error("Invalid event data structure", eventData);
       return NextResponse.json({ success: false });
     }
-
     const subscriptionId = eventData.id;
     const attributes = eventData.attributes;
     const variantName = attributes.variant_name.toLowerCase();

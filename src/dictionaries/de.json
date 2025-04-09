@@ -246,15 +246,16 @@
     "translationLimitReached": "Sie haben Ihr Übersetzungslimit erreicht. Führen Sie ein Upgrade durch, um weiter zu übersetzen.",
     "paymentProcessing": "Ihre Zahlung wird bearbeitet",
     "subscriptionEnding": "Ihr Abonnement endet bald",
+    "subscriptionCancelled": "Abonemment gekündigt. Zugang gültig bis",
     "paymentPastDue": "Zahlung ist überfällig",
     "upgradeNow": "Jetzt upgraden",
     "upgradePlan": "Plan upgraden",
     "manageSubscription": "Abonnement verwalten",
-    "trialEndsOn": "Testversion endet am {date}",
-    "trialExpiredOn": "Testversion endete am {date}",
+    "trialEndsOn": "Testversion endet am",
+    "trialExpiredOn": "Testversion endete am",
     "trialEnded": "Testversion ist abgelaufen - Jetzt upgraden",
     "paymentBeingProcessed": "Zahlung wird bearbeitet",
-    "renewsOn": "Verlängert sich am {date}",
+    "renewsOn": "Verlängert sich am",
     "slackIntegration": "Slack-Integration",
     "connectedToSlack": "Mit Slack verbunden",
     "slackBotReady": "Ihr Goodspeech Bot ist in Ihrem Slack-Workspace einsatzbereit",
@@ -272,6 +273,30 @@
       "timeExpired": "Ihre Testphase ist abgelaufen.",
       "usageReached": "Sie haben das maximale Übersetzungslimit für die Testversion erreicht.",
       "upgradeMessage": "Führen Sie jetzt ein Upgrade durch, um die vollen Vorteile von Goodspeech ohne Unterbrechungen zu genießen."
+    }
+  },
+  "enterprise": {
+    "title": "Enterprise-Lösungen",
+    "description": "Kontaktieren Sie uns für maßgeschneiderte Enterprise-Lösungen.",
+    "heroTitle": "Kontaktieren Sie uns für Enterprise-Lösungen",
+    "heroSubtitle": "Entdecken Sie, wie Goodspeech Ihre Unternehmenskommunikation verbessern kann.",
+    "benefitsTitle": "Vorteile unserer Enterprise-Lösung",
+    "benefit1": {
+      "title": "Maßgeschneiderte Integrationen",
+      "description": "Benutzerdefinierte Integrationen für Ihre bestehenden Systeme."
+    },
+    "benefit2": {
+      "title": "Erweiterte Sicherheit",
+      "description": "Erstklassige Sicherheitsfunktionen zum Schutz Ihrer Daten."
+    },
+    "benefit3": {
+      "title": "Dedizierter Support",
+      "description": "24/7 Support für Enterprise-Konten."
+    },
+    "contactTitle": "Nehmen Sie Kontakt auf",
+    "contactSubtitle": "Füllen Sie das untenstehende Formular aus, und wir werden umgehend antworten.",
+    "actions": {
+      "enterpriseContact": "Kontaktieren Sie uns für Enterprise"
     }
   }
 }

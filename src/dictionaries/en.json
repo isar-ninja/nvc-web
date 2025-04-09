@@ -49,6 +49,54 @@
       "saving": "Saving..."
     }
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "createWorkspace": "Create Workspace",
+    "welcomeTitle": "Welcome to Goodspeech!",
+    "welcomeMessage": "You haven't created any workspaces yet. Create one to get started.",
+    "yourWorkspaces": "Your Workspaces",
+    "newWorkspace": "New Workspace",
+    "globalTranslations": "Global Translations",
+    "workspaceTranslations": "Workspace Translations",
+    "thisMonth": "This month in",
+    "billingStatus": "Billing Status",
+    "currentPlan": "Current Plan",
+    "billingCycle": "{cycle} billing",
+    "upgradePlan": "Upgrade Plan",
+    "upgradeNow": "Upgrade Now",
+    "manageSubscription": "Manage Subscription",
+    "subscriptionActive": "Your subscription is active",
+    "trialActive": "Your trial is active",
+    "trialExpired": "Your trial period has expired. Upgrade to continue using Goodspeech.",
+    "translationLimitReached": "You've reached your translation limit. Upgrade to continue translating.",
+    "paymentProcessing": "Your payment is being processed",
+    "subscriptionCancelled": "Subscription cancelled. Access available until",
+    "subscriptionEnding": "Access until",
+    "paymentPastDue": "Payment is past due",
+    "trialEndsOn": "Trial ends on",
+    "trialExpiredOn": "Trial expired on",
+    "renewsOn": "Renews on",
+    "paymentBeingProcessed": "Payment being processed",
+    "usingQuota": "Using {percentage}% of your monthly quota",
+    "slackIntegration": "Slack Integration",
+    "connectedToSlack": "Connected to Slack",
+    "slackBotReady": "Your Goodspeech Bot is ready to use in your Slack workspace",
+    "reinstall": "Reinstall",
+    "connectSlack": "Connect the Goodspeech Bot to your Slack workspace to start translating messages.",
+    "addToSlack": "Add to Slack",
+    "quickActions": "Quick Actions",
+    "documentation": "Documentation",
+    "learnToUse": "Learn how to use Goodspeech effectively",
+    "viewDocs": "View Docs",
+    "noWorkspaceSelected": "No Workspace Selected",
+    "selectWorkspace": "Select a workspace from the sidebar or create a new one to get started.",
+    "trialBanner": {
+      "title": "Your trial has ended",
+      "timeExpired": "Your trial period has expired.",
+      "usageReached": "You've reached your maximum translations limit for the trial.",
+      "upgradeMessage": "Upgrade now to continue enjoying Goodspeech's full benefits with no interruptions."
+    }
+  },
   "actions": {
     "newWorkspace": "New Workspace",
     "logout": "Logout",
@@ -224,5 +272,29 @@
   },
   "meta": {
     "ogDescription": "Our AI-powered bot helps teams communicate with empathy and clarity by transforming messages in Slack and other platforms."
+  },
+  "enterprise": {
+    "title": "Enterprise Solutions",
+    "description": "Contact us for enterprise-level solutions tailored for your organization.",
+    "heroTitle": "Connect with Us for Enterprise Solutions",
+    "heroSubtitle": "Discover how Goodspeech can enhance your workplace communication.",
+    "benefitsTitle": "Benefits of Our Enterprise Solution",
+    "benefit1": {
+      "title": "Tailored Integrations",
+      "description": "Custom integrations to fit your existing systems."
+    },
+    "benefit2": {
+      "title": "Enhanced Security",
+      "description": "Top-notch security features to protect your data."
+    },
+    "benefit3": {
+      "title": "Dedicated Support",
+      "description": "24/7 support for enterprise accounts."
+    },
+    "contactTitle": "Get in Touch",
+    "contactSubtitle": "Fill out the form below and we will respond promptly.",
+    "actions": {
+      "enterpriseContact": "Contact us today"
+    }
   }
 }

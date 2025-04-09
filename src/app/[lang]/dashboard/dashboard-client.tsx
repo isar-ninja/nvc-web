@@ -197,6 +197,38 @@ export default function Dashboard({ dict }: { dict?: any }) {
     return new Date(date).toLocaleDateString(lang === "de" ? "de-DE" : "en-US");
   };
 
+  const getSubscriptionStatusDisplay = () => {
+    const { status, currentPeriodEnd } = userData.subscription;
+
+    switch (status) {
+      case "active":
+        return (
+          dict?.dashboard?.subscriptionActive || "Your subscription is active"
+        );
+      case "trialing":
+        return !trialStatus.trialEnded
+          ? dict?.dashboard?.trialActive || "Your trial is active"
+          : trialStatus.reason === "time"
+            ? dict?.dashboard?.trialExpired ||
+              "Your trial period has expired. Upgrade to continue using Goodspeech."
+            : dict?.dashboard?.translationLimitReached ||
+              "You've reached your translation limit. Upgrade to continue translating.";
+      case "pending":
+        return (
+          dict?.dashboard?.paymentProcessing ||
+          "Your payment is being processed"
+        );
+      case "cancelled":
+        return `${dict?.dashboard?.subscriptionCancelled || "Subscription cancelled. Access available until"} ${formatDate(
+          currentPeriodEnd as Date,
+        )}`;
+      case "past_due":
+        return dict?.dashboard?.paymentPastDue || "Payment is past due";
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
@@ -574,29 +606,7 @@ export default function Dashboard({ dict }: { dict?: any }) {
                         <p
                           className={`text-sm mt-1 ${trialStatus.trialEnded ? "text-amber-600" : ""}`}
                         >
-                          {userData.subscription.status === "active" &&
-                            (dict?.dashboard?.subscriptionActive ||
-                              "Your subscription is active")}
-                          {userData.subscription.status === "trialing" &&
-                            !trialStatus.trialEnded &&
-                            (dict?.dashboard?.trialActive ||
-                              "Your trial is active")}
-                          {userData.subscription.status === "trialing" &&
-                            trialStatus.trialEnded &&
-                            (trialStatus.reason === "time"
-                              ? dict?.dashboard?.trialExpired ||
-                                "Your trial period has expired. Upgrade to continue using Goodspeech."
-                              : dict?.dashboard?.translationLimitReached ||
-                                "You've reached your translation limit. Upgrade to continue translating.")}
-                          {userData.subscription.status === "pending" &&
-                            (dict?.dashboard?.paymentProcessing ||
-                              "Your payment is being processed")}
-                          {userData.subscription.status === "cancelled" &&
-                            (dict?.dashboard?.subscriptionEnding ||
-                              "Your subscription will end soon")}
-                          {userData.subscription.status === "past_due" &&
-                            (dict?.dashboard?.paymentPastDue ||
-                              "Payment is past due")}
+                          {getSubscriptionStatusDisplay()}
                         </p>
                         <div className="mt-3">
                           <Link href={`/${lang}/account/subscription`}>

@@ -102,7 +102,7 @@ export function Header(props: { dict: any }) {
         {/* Desktop Auth Buttons and Language Switcher */}
         <div className="hidden md:flex items-center gap-4">
           {/* Language Switcher */}
-          <div className="flex items-center gap-2 mr-2 border-r pr-4">
+          <div className="flex items-center gap-2 mr-2 border-r pr-6">
             <Globe className="h-4 w-4 text-slate-400" />
             <LanguageSwitcher />
           </div>

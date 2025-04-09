@@ -8,6 +8,7 @@ import Contact from "@/components/contact";
 import { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n";
 import { Locale } from "@/lib/i18n-config";
+import FAQ from "@/components/faq";
 
 type Props = {
   params: Promise<{ lang: Locale }>;
@@ -170,7 +171,7 @@ export default async function Home({ params }: Props) {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 flex justify-center">
+      <section id="how-it-works" className="py-16 flex justify-center mt-12">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -182,52 +183,7 @@ export default async function Home({ params }: Props) {
               </p>
             </div>
           </div>
-          <div className="mx-auto grid max-w-5xl gap-8 mt-12">
-            <div className="grid gap-8 md:grid-cols-3">
-              <div className="flex flex-col items-center space-y-3 rounded-lg border p-6 shadow-sm">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
-                  1
-                </div>
-                <h3 className="text-xl font-bold">
-                  {dict.howItWorks.steps.install.title}
-                </h3>
-                <p className="text-center text-gray-500 dark:text-gray-400">
-                  {dict.howItWorks.steps.install.description}
-                </p>
-              </div>
-              <div className="flex flex-col items-center space-y-3 rounded-lg border p-6 shadow-sm">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
-                  2
-                </div>
-                <h3 className="text-xl font-bold">
-                  {dict.howItWorks.steps.call.title}
-                </h3>
-                <p className="text-center text-gray-500 dark:text-gray-400">
-                  {dict.howItWorks.steps.call.description}
-                </p>
-              </div>
-              <div className="flex flex-col items-center space-y-3 rounded-lg border p-6 shadow-sm">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
-                  3
-                </div>
-                <h3 className="text-xl font-bold">
-                  {dict.howItWorks.steps.results.title}
-                </h3>
-                <p className="text-center text-gray-500 dark:text-gray-400">
-                  {dict.howItWorks.steps.results.description}
-                </p>
-              </div>
-            </div>
-            <div className="relative mt-8 rounded-xl overflow-hidden border shadow-lg">
-              <Image
-                src="/lunch-break.webp"
-                width={600}
-                height={300}
-                alt={dict.howItWorks.demoAlt}
-                className="object-cover w-full"
-              />
-            </div>
-          </div>
+          <FAQ dict={dict} />
         </div>
       </section>
 
@@ -440,7 +396,7 @@ export default async function Home({ params }: Props) {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="flex justify-center py-16">
+      <section id="faq" className="flex justify-center py-16 w-full">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">

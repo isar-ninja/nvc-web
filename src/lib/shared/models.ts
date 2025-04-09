@@ -36,8 +36,11 @@ export interface Subscription {
   currentPeriodEnd: Date | number | FieldValue;
   billingCycle: "monthly" | "yearly";
   cancelAtPeriodEnd: boolean;
-  stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
+  lemonSqueezySubscriptionId?: string;
+  lemonSqueezyProductName?: string;
+  lemonSqueezyProductId?: number;
+  lemonSqueezyVariantId?: number;
+  lemonSqueezyVariantName?: string;
   maxTranslationsPerMonth: number;
   maxWorkspaces: number;
 }
