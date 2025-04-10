@@ -1,6 +1,5 @@
 "use server";
-import { adminDb } from "@/lib/server/firebase-admin";
-import { Subscription, User } from "@/lib/shared/models";
+import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 import {
   DocumentData,
   FieldValue,
@@ -8,7 +7,9 @@ import {
   QueryDocumentSnapshot,
 } from "firebase-admin/firestore";
 import { verifyCookie } from "./auth-actions";
-import { convertTimestamps } from "./action-utils";
+import { convertTimestamps, isValidEmail } from "./action-utils";
+import { cancelLemonSubscription } from "./lemon-actions";
+import { Subscription, User } from "@/lib/shared/models";
 
 export async function createUserAction(): Promise<User> {
   try {
@@ -96,6 +97,18 @@ export async function updateUserAction(
     if (updateData.uid && updateData.uid !== authUser.uid) {
       throw new Error("Cannot change user ID");
     }
+    if (
+      typeof updateData.companyName === "string" &&
+      updateData?.companyName?.length < 1
+    ) {
+      throw new Error("Company name is required");
+    }
+    if (
+      typeof updateData.email === "string" &&
+      !isValidEmail(updateData.email)
+    ) {
+      throw new Error("Email is not valid");
+    }
     if (updateData.subscription || updateData.usage || updateData.workspaces) {
       throw new Error("Cannot change user data");
     }
@@ -138,3 +151,71 @@ const userConverter: FirestoreDataConverter<User> = {
     return userData;
   },
 };
+
+export async function deleteAccountAction(): Promise<void> {
+  try {
+    const { data: user } = await verifyCookie();
+    if (!user) throw new Error("User not authenticated");
+
+    // Get current user data
+    const userData = await getUserAction();
+    if (!userData) throw new Error("User data not found");
+
+    // 1. Cancel subscription if user has one
+    if (
+      userData.subscription?.status === "active" ||
+      userData.subscription?.status === "trialing"
+    ) {
+      if (userData.subscription.lemonSqueezySubscriptionId) {
+        await cancelLemonSubscription(userData.subscription as Subscription);
+      }
+    }
+
+    // 2. Start a batch to handle multiple Firestore operations
+    const batch = adminDb.batch();
+
+    // 3. Delete all user's workspaces and related data
+    if (userData.workspaces && userData.workspaces.length > 0) {
+      for (const workspaceId of userData.workspaces) {
+        // Delete workspace document
+        const workspaceRef = adminDb.collection("workspaces").doc(workspaceId);
+        batch.delete(workspaceRef);
+
+        // Delete any associated Slack installations
+        // First, query for installations with this workspace ID
+        const slackInstallationsQuery = await adminDb
+          .collection("slackInstallations")
+          .where("workspaceId", "==", workspaceId)
+          .get();
+
+        // Add delete operations to batch for each installation
+        slackInstallationsQuery.docs.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+      }
+    }
+
+    // 4. Delete any Slack installations directly associated with the user
+    const userSlackInstallationsQuery = await adminDb
+      .collection("slackInstallations")
+      .where("userId", "==", user.uid)
+      .get();
+
+    userSlackInstallationsQuery.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    // 5. Delete user document from Firestore
+    const userRef = adminDb.collection("users").doc(user.uid);
+    batch.delete(userRef);
+
+    // 6. Execute the batch
+    await batch.commit();
+
+    // 7. Finally delete the user from Firebase Auth
+    await adminAuth.deleteUser(user.uid);
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    throw error;
+  }
+}

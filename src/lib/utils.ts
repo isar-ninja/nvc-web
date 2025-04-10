@@ -6,6 +6,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const formatDate = (date: Date | string, lang: string) => {
+  return new Date(date).toLocaleDateString(lang === "de" ? "de-DE" : "en-US");
+};
+
 // Utility functions for translation tracking
 export function getCurrentMonthKey(): string {
   const now = new Date();

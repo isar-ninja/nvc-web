@@ -52,6 +52,7 @@
   "dashboard": {
     "title": "Dashboard",
     "createWorkspace": "Create Workspace",
+    "manageAccount": "Manage Account",
     "welcomeTitle": "Welcome to Goodspeech!",
     "welcomeMessage": "You haven't created any workspaces yet. Create one to get started.",
     "yourWorkspaces": "Your Workspaces",

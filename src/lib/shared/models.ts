@@ -45,6 +45,26 @@ export interface Subscription {
   maxWorkspaces: number;
 }
 
+export interface SlackInstallation {
+  installationData: {
+    appId: string;
+    authVersion: string;
+    bot: {
+      id: string;
+    };
+    scopes: string[];
+    token: string;
+    userId: string;
+    isEnterpriseInstall: boolean;
+    team: {
+      id: string;
+      name: string;
+    };
+  };
+  teamId: string;
+  workspaceId: string;
+}
+
 export interface User {
   uid: string;
   email: string;

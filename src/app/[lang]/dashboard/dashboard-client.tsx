@@ -15,6 +15,7 @@ import {
   Pencil,
   X,
   Check,
+  Settings,
 } from "lucide-react";
 import { Workspace } from "@/lib/shared/models";
 import Image from "next/image";
@@ -236,12 +237,20 @@ export default function Dashboard({ dict }: { dict?: any }) {
           <h1 className="text-3xl font-bold mb-4 md:mb-0">
             {dict?.dashboard?.title || "Dashboard"}
           </h1>
-          <Button asChild>
-            <Link href={`/${lang}/workspace/new`}>
-              <Plus className="h-4 w-4 mr-2" />
-              {dict?.dashboard?.createWorkspace || "Create Workspace"}
-            </Link>
-          </Button>
+          <div className="flex gap-4">
+            <Button asChild>
+              <Link href={`/${lang}/workspace/new`}>
+                <Plus className="h-4 w-4 mr-2" />
+                {dict?.dashboard?.createWorkspace || "Create Workspace"}
+              </Link>
+            </Button>
+            <Button asChild variant={"secondary"}>
+              <Link href={`/account/manage`}>
+                <Settings className="h-4 w-4 mr-2" />
+                {dict?.dashboard?.manageAccount || "Manage Account"}
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Display prominent trial ended banner if applicable */}
