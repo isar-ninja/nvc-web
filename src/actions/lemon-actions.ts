@@ -8,7 +8,7 @@ export async function cancelLemonSubscription(subscription: Subscription) {
   try {
     // Initialize the Lemon Squeezy SDK
     lemonSqueezySetup({
-      apiKey: process.env.LEMONSQUEEZY_API_KEY || "",
+      apiKey: process.env.LSAPK || "",
     });
 
     // Cancel the subscription using the dedicated cancelSubscription function

@@ -6,17 +6,16 @@ import { getAuth } from "firebase-admin/auth";
 import { ServiceAccount } from "firebase-admin/app";
 
 const firebaseAdminConfig = {
-  type: process.env.FIREBASE_ADMIN_TYPE,
-  project_id: process.env.FIREBASE_ADMIN_PROJECT_ID,
-  private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-  client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-  client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
-  auth_uri: process.env.FIREBASE_ADMIN_AUTH_URI,
-  token_uri: process.env.FIREBASE_ADMIN_TOKEN_URI,
-  auth_provider_x509_cert_url:
-    process.env.FIREBASE_ADMIN_AUTH_PROVIDER_CERT_URL,
-  client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_CERT_URL,
+  type: process.env.FAT,
+  project_id: process.env.FAPID,
+  private_key_id: process.env.FAPKID,
+  private_key: process.env.FAPKEY?.replace(/\\n/g, "\n"),
+  client_email: process.env.FACE,
+  client_id: process.env.FACID,
+  auth_uri: process.env.FAAU,
+  token_uri: process.env.FATU,
+  auth_provider_x509_cert_url: process.env.FAAPCU,
+  client_x509_cert_url: process.env.FACCU,
 } as ServiceAccount;
 
 const firebaseAdmin =
