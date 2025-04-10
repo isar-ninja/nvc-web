@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, MessageSquareText, Shield, Zap } from "lucide-react";
+import {
+  CheckCircle,
+  Instagram,
+  MessageSquareText,
+  Shield,
+  Zap,
+} from "lucide-react";
 import Image from "next/image";
 import { verifyCookie } from "@/actions/auth-actions";
 import { getPlans } from "@/actions/plan-actions";
@@ -171,8 +177,8 @@ export default async function Home({ params }: Props) {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 flex justify-center mt-12">
-        <div className="container px-4 md:px-6">
+      <section id="how-it-works" className="py-16 flex justify-center">
+        <div className="container px-4 md:px-6 space-y-16">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -183,7 +189,9 @@ export default async function Home({ params }: Props) {
               </p>
             </div>
           </div>
-          <FAQ dict={dict} />
+          <div className="container mx-auto max-w-3xl">
+            <FAQ dict={dict} />
+          </div>
         </div>
       </section>
 
@@ -333,6 +341,16 @@ export default async function Home({ params }: Props) {
                       <span>{feature}</span>
                     </li>
                   ))}
+                  <li
+                    key={"max-workspaces"}
+                    className="flex items-center gap-2"
+                  >
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>
+                      {plan.limits.maxWorkspaces} Workspace
+                      {plan.limits.maxWorkspaces > 1 ? "s" : ""}
+                    </span>
+                  </li>
                 </ul>
                 <div className="mt-6">
                   <Link
@@ -520,11 +538,14 @@ export default async function Home({ params }: Props) {
               </div>
               <div className="rounded-lg border p-4">
                 <h3 className="text-lg font-semibold">
-                  {dict.contact.officeHours}
+                  {/* {dict.contact.officeHours} */}
+                  Social Media
                 </h3>
-                <p className="mt-2 text-gray-700 dark:text-gray-300">
-                  {dict.contact.officeHoursValue}
-                </p>
+                <span className="mt-2 flex">
+                  <Link href="https://www.instagram.com/goodspeech.chat/">
+                    <Instagram />
+                  </Link>
+                </span>
               </div>
             </div>
             <div className="rounded-lg border p-6">

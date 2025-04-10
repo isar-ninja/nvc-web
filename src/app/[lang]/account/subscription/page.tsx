@@ -17,7 +17,7 @@ import { Plan } from "@/lib/shared/models";
 import Link from "next/link";
 import Script from "next/script";
 import { getPlans } from "@/actions/plan-actions";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 
 const LEMON_SQUEEZY_URLS = {
   starter: (uid: string) =>
@@ -35,6 +35,7 @@ export default function SubscriptionPage() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const { userData, firebaseUser } = useAuth();
   useEffect(() => {
@@ -147,7 +148,8 @@ export default function SubscriptionPage() {
                       {userData.subscription.planId} Plan
                     </span>
                     <span className="text-gray-500 text-sm">
-                      ({userData.subscription.billingCycle})
+                      {userData.subscription.planId !== "free" &&
+                        `(${userData.subscription.billingCycle})`}
                     </span>
 
                     {userData.subscription.status === "active" &&
@@ -206,7 +208,6 @@ export default function SubscriptionPage() {
                 billingCycle === "monthly"
                   ? plan.pricing.monthly
                   : plan.pricing.yearly;
-
               return (
                 <div
                   key={plan.id}
@@ -247,7 +248,7 @@ export default function SubscriptionPage() {
                       </span>
                     </div>
 
-                    {billingCycle === "yearly" && (
+                    {billingCycle === "yearly" && plan.id !== "enterprise" && (
                       <div className="text-green-600 text-sm mt-1">
                         Save 20% with annual billing
                       </div>
@@ -294,10 +295,18 @@ export default function SubscriptionPage() {
                         selectedPlanId === plan.id ? "default" : "outline"
                       }
                       className="w-full"
-                      onClick={() => handlePlanSelect(plan.id)}
+                      onClick={() =>
+                        plan.id === "enterprise"
+                          ? router.push("/enterprise")
+                          : handlePlanSelect(plan.id)
+                      }
                       disabled={false}
                     >
-                      {selectedPlanId === plan.id ? "Selected" : "Select Plan"}
+                      {selectedPlanId === plan.id && plan.id !== "enterprise"
+                        ? "Selected"
+                        : plan.id === "enterprise"
+                          ? "Get in touch"
+                          : "Select Plan"}
                     </Button>
                   </div>
                 </div>
@@ -312,7 +321,7 @@ export default function SubscriptionPage() {
                   ? `${LEMON_SQUEEZY_URLS[selectedPlanId]}`
                   : `${LEMON_SQUEEZY_URLS[selectedPlanId]?.(firebaseUser?.uid) || ""}`
               }
-              className="lemonsqueezy-button"
+              className={`lemonsqueezy-button ${userData?.subscription.planId === selectedPlanId ? "pointer-events-none" : ""}`}
             >
               <Button
                 size="lg"

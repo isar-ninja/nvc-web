@@ -58,13 +58,24 @@ export default async function Documentation({ params }: Props) {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">
-                        Navigate to the Slack App Directory
+                        Go to the Goodspeech Dahsboard
                       </h3>
                       <p className="text-slate-600 mt-1">
-                        Open your Slack workspace and click on "Apps" in the
-                        left sidebar. Then click "Add apps" to access the Slack
-                        App Directory.
+                        Go to the "Slack Integration" section and click the
+                        button "Add to Slack"
                       </p>
+                      <Button
+                        size="sm"
+                        className="w-full min-[400px]:w-auto mt-2"
+                      >
+                        <Image
+                          alt="Add to Slack"
+                          height="16"
+                          width="16"
+                          src="/slack-icon.png"
+                        />
+                        Add to Slack
+                      </Button>
                     </div>
                   </div>
 
@@ -74,11 +85,12 @@ export default async function Documentation({ params }: Props) {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">
-                        Search for GoodSpeech
+                        Install Bot to a Slack Workspace
                       </h3>
                       <p className="text-slate-600 mt-1">
-                        In the search bar, type "GoodSpeech" and select the
-                        GoodSpeech bot from the search results.
+                        A new Browser window will open a where you can select
+                        the Slack Workspace you want to integrate GoodSpeech
+                        with.
                       </p>
                     </div>
                   </div>
@@ -105,12 +117,12 @@ export default async function Documentation({ params }: Props) {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">
-                        Configure Permissions
+                        Review Permissions
                       </h3>
                       <p className="text-slate-600 mt-1">
-                        Review and approve the permissions requested by
-                        GoodSpeech. The bot needs access to read and send
-                        messages in channels where it's used.
+                        Review the permissions requested by GoodSpeech. The bot
+                        needs access to read and send messages in Workspaces
+                        where it's used.
                       </p>
                     </div>
                   </div>
@@ -122,8 +134,9 @@ export default async function Documentation({ params }: Props) {
                     <div>
                       <h3 className="text-lg font-semibold">Confirmation</h3>
                       <p className="text-slate-600 mt-1">
-                        Once installed, you'll see a confirmation message. The
-                        GoodSpeech bot is now ready to use in your workspace!
+                        Once you click allow, slack will open and the bot
+                        installed. The GoodSpeech bot is now ready to use in
+                        your workspace!
                       </p>
                     </div>
                   </div>

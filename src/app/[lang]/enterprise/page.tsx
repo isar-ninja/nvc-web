@@ -84,8 +84,8 @@ export default async function EnterpriseContact({ params }: Props) {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="flex justify-center py-16">
-        <div className="container px-4 md:px-6">
+      <section id="contact" className="flex justify-center items-center py-16">
+        <div className="container px-4 md:px-6 max-w-2xl">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <h2 className="text-3xl font-bold">
               {dict.enterprise.contactTitle}

@@ -121,10 +121,10 @@ export default function Dashboard({ dict }: { dict?: any }) {
     const { planId, status } = userData.subscription;
 
     if (status === "trialing") {
-      return `${planId.charAt(0).toUpperCase() + planId.slice(1)} (Trial)`;
+      return `${planId} (Trial)`;
     }
 
-    return planId.charAt(0).toUpperCase() + planId.slice(1);
+    return planId;
   };
 
   // Format the translations display for global user usage
@@ -319,7 +319,7 @@ export default function Dashboard({ dict }: { dict?: any }) {
                         setNewWorkspaceName(workspace.name);
                         setIsEditingName(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      className={`cursor-pointer w-full text-left px-3 py-2 rounded-md transition-colors ${
                         activeWorkspace?.id === workspace.id
                           ? "bg-primary text-primary-foreground"
                           : "hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -327,9 +327,6 @@ export default function Dashboard({ dict }: { dict?: any }) {
                     >
                       <div className="font-medium">{workspace.name}</div>
                       <div className="flex justify-between items-center text-xs mt-1">
-                        <span className="opacity-80">
-                          {getSubscriptionLabel()}
-                        </span>
                         <span className="text-gray-500">
                           {formatWorkspaceTranslationsDisplay(workspace)}{" "}
                           {dict?.dashboard?.translations || "translations"}
@@ -418,7 +415,7 @@ export default function Dashboard({ dict }: { dict?: any }) {
                           </div>
                         )}
                         <div className="flex items-center mt-2">
-                          <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">
+                          <span className="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">
                             {getSubscriptionLabel()}
                           </span>
                           {userData.subscription.status === "trialing" &&
@@ -711,15 +708,9 @@ export default function Dashboard({ dict }: { dict?: any }) {
                         {userData.subscription.status === "active" &&
                           userData.subscription.currentPeriodEnd && (
                             <p className="text-xs text-gray-500 mt-1">
-                              {(
-                                dict?.dashboard?.renewsOn || "Renews on {date}"
-                              ).replace(
-                                "{date}",
-                                formatDate(
-                                  userData.subscription
-                                    .currentPeriodEnd as Date,
-                                ),
-                              )}
+                              {`${dict?.dashboard?.renewsOn || "Renews on {date}"} ${formatDate(
+                                userData.subscription.currentPeriodEnd as Date,
+                              )}`}
                             </p>
                           )}
                       </div>

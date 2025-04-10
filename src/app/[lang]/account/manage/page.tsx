@@ -164,10 +164,7 @@ export default function ManageAccountPage() {
 
   const handleDeleteClick = () => {
     // Check if user has an active subscription
-    const hasActiveSubscription =
-      userData?.subscription?.status === "active" ||
-      userData?.subscription?.status === "trialing";
-
+    const hasActiveSubscription = userData?.subscription?.status === "active";
     if (hasActiveSubscription) {
       // Set subscription details for the warning dialog
       const planName =

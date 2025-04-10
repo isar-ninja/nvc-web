@@ -170,7 +170,7 @@ async function handleSubscriptionCreated(
     const subscriptionId = eventData.id;
     const attributes = eventData.attributes;
     const variantName = attributes.variant_name.toLowerCase();
-    const planId = variantName.includes("starter") ? "starter" : "pro";
+    const planId = variantName.includes("starter") ? "starter" : "professional";
     const customerId = attributes.customer_id;
     const customerEmail = attributes.user_email;
 
@@ -368,7 +368,7 @@ async function handleSubscriptionUpdate(
     const subscriptionId = eventData.id;
     const attributes = eventData.attributes;
     const variantName = attributes.variant_name.toLowerCase();
-    const planId = variantName.includes("starter") ? "starter" : "pro";
+    const planId = variantName.includes("starter") ? "starter" : "professional";
     const customerId = attributes.customer_id;
     const customerEmail = attributes.user_email;
     const status = attributes.status; // We'll use the status from Lemon Squeezy
