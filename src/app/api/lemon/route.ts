@@ -21,7 +21,7 @@ type LemonSqueezyEvent =
   | "subscription_payment_failed"
   | "subscription_payment_recovered"
   | "subscription_payment_refunded"
-  | "subscription_plan_changed"
+  | "subscription_plan_changed";
 
 // Verify the webhook signature
 function verifyWebhookSignature(

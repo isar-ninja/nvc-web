@@ -542,7 +542,10 @@ export default async function Home({ params }: Props) {
                   Social Media
                 </h3>
                 <span className="mt-2 flex">
-                  <Link href="https://www.instagram.com/goodspeech.chat/" target="_blank">
+                  <Link
+                    href="https://www.instagram.com/goodspeech.chat/"
+                    target="_blank"
+                  >
                     <Instagram />
                   </Link>
                 </span>

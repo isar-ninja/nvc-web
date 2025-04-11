@@ -71,9 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only set up listener if we have a user and their subscription is pending
     if (
       firebaseUser &&
-      userData &&
-      userData.subscription &&
-      userData.subscription.status === "pending"
+      userData?.subscription &&
+      userData?.subscription.status === "pending"
     ) {
       // If we already have a listener, clean it up
       if (subscriptionListener) {
@@ -135,12 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscriptionListener();
       setSubscriptionListener(null);
     }
-  }, [
-    firebaseUser,
-    userData?.subscription?.status,
-    subscriptionListener,
-    userData,
-  ]);
+  }, [firebaseUser, userData?.subscription?.status, subscriptionListener]);
 
   // Helper function to get localized route
   const getLocalizedRoute = useCallback(
