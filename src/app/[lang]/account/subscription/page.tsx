@@ -8,6 +8,7 @@ import {
   ArrowRight,
   Shield,
   Zap,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,7 +85,12 @@ export default function SubscriptionPage() {
     if (userData.subscription.planId === planId) return false;
 
     // Simple logic based on plan hierarchy: free < basic < premium < enterprise
-    const planHierarchy = { free: 0, basic: 1, premium: 2, enterprise: 3 };
+    const planHierarchy = {
+      free: 0,
+      starter: 1,
+      professional: 2,
+      enterprise: 3,
+    };
     return (
       planHierarchy[planId as keyof typeof planHierarchy] >
       planHierarchy[userData.subscription.planId as keyof typeof planHierarchy]
@@ -93,7 +99,7 @@ export default function SubscriptionPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex flex-1 min-h-screen items-center justify-center">
         <div className="text-center">
           <MessageSquareText className="h-10 w-10 text-primary mx-auto animate-pulse" />
           <p className="mt-4">Loading subscription information...</p>
@@ -117,7 +123,7 @@ export default function SubscriptionPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-1 flex-col min-h-screen">
       <Script defer src="https://assets.lemonsqueezy.com/lemon.js" />
 
       <main className="flex-1 p-8">
@@ -136,6 +142,7 @@ export default function SubscriptionPage() {
                   <h2 className="font-semibold mb-1">Current Subscription</h2>
                   <div className="flex items-center justify-center gap-2 flex-wrap">
                     <Badge
+                      className="px-2 py-1 text-sm"
                       variant={
                         userData.subscription.status === "active"
                           ? "success"
@@ -164,7 +171,8 @@ export default function SubscriptionPage() {
                   </div>
                   <Link href={`https://store.goodspeech.chat/billing`}>
                     <Button size="sm" className="mt-4 ">
-                      Manage Subscription
+                      <CreditCard />
+                      Billing Settings
                     </Button>
                   </Link>
                 </div>

@@ -74,7 +74,7 @@ export default async function RootLayout({
                   <div className="backdrop -z-10"></div>
                   <div className="backdrop-edge -z-10 max-h-[61px]"></div>
                 </header>
-                <main className="flex-1">{children}</main>
+                <main className="flex flex-1">{children}</main>
                 <Footer />
               </div>
             </AuthProvider>

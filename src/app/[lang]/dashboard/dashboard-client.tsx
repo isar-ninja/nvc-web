@@ -42,15 +42,18 @@ export default function Dashboard({ dict }: { dict?: any }) {
 
   useEffect(() => {
     // Set the active workspace to the default one
+    if (!userData?.companyName) {
+      return router.push(`/${lang}/onboarding/company`);
+    }
     if (defaultWorkspace) {
       setActiveWorkspace(defaultWorkspace);
       setNewWorkspaceName(defaultWorkspace.name);
     } else if (workspaces.length > 0) {
       setActiveWorkspace(workspaces[0]);
       setNewWorkspaceName(workspaces[0].name);
-    } else if (!userData?.companyName) {
-      router.push(`/${lang}/onboarding/company`);
-    } else router.push(`/${lang}/workspace/new`);
+    } else {
+      router.push(`/${lang}/workspace/new`);
+    }
   }, [defaultWorkspace, workspaces, userData, router, lang]);
 
   // Focus input when editing starts
@@ -231,7 +234,7 @@ export default function Dashboard({ dict }: { dict?: any }) {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 flex flex-1 items-center justify-center">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <h1 className="text-3xl font-bold mb-4 md:mb-0">
@@ -305,7 +308,7 @@ export default function Dashboard({ dict }: { dict?: any }) {
         ) : (
           <div className="grid gap-6 md:grid-cols-12">
             {/* Workspace Sidebar */}
-            <div className="md:col-span-3">
+            <div className="md:col-span-4">
               <div className="bg-white border rounded-lg p-4 shadow-sm dark:bg-gray-800">
                 <h2 className="font-semibold mb-4">
                   {dict?.dashboard?.yourWorkspaces || "Your Workspaces"}
@@ -347,7 +350,7 @@ export default function Dashboard({ dict }: { dict?: any }) {
             </div>
 
             {/* Main Content */}
-            <div className="md:col-span-9">
+            <div className="md:col-span-8">
               {activeWorkspace ? (
                 <div className="space-y-6">
                   {/* Workspace Header */}
@@ -421,15 +424,11 @@ export default function Dashboard({ dict }: { dict?: any }) {
                           {userData.subscription.status === "trialing" &&
                             !trialStatus.trialEnded && (
                               <span className="text-xs text-gray-500 ml-2">
-                                {(
-                                  dict?.dashboard?.trialEndsOn ||
-                                  "Trial ends on {date}"
-                                ).replace(
-                                  "{date}",
-                                  formatDate(
-                                    userData.subscription
-                                      .currentPeriodEnd as Date,
-                                  ),
+                                {dict?.dashboard?.trialEndsOn ||
+                                  "Trial ends on"}{" "}
+                                {formatDate(
+                                  userData.subscription
+                                    .currentPeriodEnd as Date,
                                 )}
                               </span>
                             )}
@@ -673,26 +672,17 @@ export default function Dashboard({ dict }: { dict?: any }) {
                             >
                               {trialStatus.trialEnded &&
                               trialStatus.reason === "time"
-                                ? (
-                                    dict?.dashboard?.trialExpiredOn ||
-                                    "Trial expired on {date}"
-                                  ).replace(
-                                    "{date}",
+                                ? dict?.dashboard?.trialExpiredOn ||
+                                  "Trial expired on " +
                                     formatDate(
                                       userData.subscription
                                         .currentPeriodEnd as Date,
-                                    ),
-                                  )
-                                : (
-                                    dict?.dashboard?.trialEndsOn ||
-                                    "Trial ends on {date}"
-                                  ).replace(
-                                    "{date}",
-                                    formatDate(
-                                      userData.subscription
-                                        .currentPeriodEnd as Date,
-                                    ),
-                                  )}
+                                    )
+                                : dict?.dashboard?.trialEndsOn ||
+                                  "Trial ends on {date}"}{" "}
+                              {formatDate(
+                                userData.subscription.currentPeriodEnd as Date,
+                              )}
                             </p>
                           )}
 

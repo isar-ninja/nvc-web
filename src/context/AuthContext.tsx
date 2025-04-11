@@ -17,13 +17,14 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { auth } from "@/lib/client/firebase";
+import { auth, db } from "@/lib/client/firebase";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { User, Workspace } from "@/lib/shared/models";
 import { createCookie, deleteCookie } from "@/actions/auth-actions";
 import { getWorkspacesAction } from "@/actions/workspace-actions";
 import { createUserAction, getUserAction } from "@/actions/user-actions";
 import { LogoLoading } from "@/components/logo-loader";
+import { doc, onSnapshot } from "firebase/firestore";
 
 type AccessToken = { accessToken: string };
 
@@ -55,6 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [defaultWorkspace, setDefaultWorkspace] = useState<Workspace | null>(
     null,
   );
+  const [subscriptionListener, setSubscriptionListener] = useState<
+    (() => void) | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [initialAuthCheckComplete, setInitialAuthCheckComplete] =
     useState(false);
@@ -62,6 +66,81 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const params = useParams();
   const lang = (params.lang as string) || "en";
+
+  useEffect(() => {
+    // Only set up listener if we have a user and their subscription is pending
+    if (
+      firebaseUser &&
+      userData &&
+      userData.subscription &&
+      userData.subscription.status === "pending"
+    ) {
+      // If we already have a listener, clean it up
+      if (subscriptionListener) {
+        subscriptionListener();
+      }
+
+      console.log("Setting up subscription listener for pending payment");
+
+      // Create new listener for the user document
+      const userDocRef = doc(db, "users", firebaseUser.uid);
+      const unsubscribe = onSnapshot(
+        userDocRef,
+        (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            const updatedUserData = docSnapshot.data() as User;
+
+            // Check if subscription status has changed from pending
+            if (
+              updatedUserData.subscription &&
+              updatedUserData.subscription.status !== "pending"
+            ) {
+              console.log(
+                `Subscription status changed: ${updatedUserData.subscription.status}`,
+              );
+
+              // Update local user data
+              setUserData(updatedUserData);
+
+              // If status is now active, we can clean up the listener
+              if (updatedUserData.subscription.status === "active") {
+                console.log(
+                  "Payment processed successfully, removing listener",
+                );
+                unsubscribe();
+                setSubscriptionListener(null);
+              }
+            }
+          }
+        },
+        (error) => {
+          console.error("Error listening for subscription changes:", error);
+        },
+      );
+
+      // Store the unsubscribe function
+      setSubscriptionListener(() => unsubscribe);
+
+      // Clean up listener when component unmounts
+      return () => {
+        unsubscribe();
+        setSubscriptionListener(null);
+      };
+    } else if (
+      subscriptionListener &&
+      userData?.subscription?.status !== "pending"
+    ) {
+      // If we have a listener but subscription is no longer pending, clean it up
+      console.log("Removing subscription listener - no longer needed");
+      subscriptionListener();
+      setSubscriptionListener(null);
+    }
+  }, [
+    firebaseUser,
+    userData?.subscription?.status,
+    subscriptionListener,
+    userData,
+  ]);
 
   // Helper function to get localized route
   const getLocalizedRoute = useCallback(
@@ -223,7 +302,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Show better loading state
   if (loading) {
     return (
-      <div className="px-6 flex min-h-screen flex-col items-center justify-center">
+      <div className="px-6 flex-1 flex min-h-screen flex-col items-center justify-center">
         <LogoLoading className="mb-8 w-full md:w-[400px]" full repeat />
         <p className="text-lg font-medium">Loading your account...</p>
       </div>

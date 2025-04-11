@@ -58,7 +58,7 @@ export default async function Home({ params }: Props) {
   const dict = await getDictionary(lang as Locale);
 
   return (
-    <>
+    <div className="flex flex-1 flex-col">
       {/* Hero Section */}
       <section className="py-8 md:py-28 flex justify-center">
         <div className="container px-4 md:px-6">
@@ -542,7 +542,7 @@ export default async function Home({ params }: Props) {
                   Social Media
                 </h3>
                 <span className="mt-2 flex">
-                  <Link href="https://www.instagram.com/goodspeech.chat/">
+                  <Link href="https://www.instagram.com/goodspeech.chat/" target="_blank">
                     <Instagram />
                   </Link>
                 </span>
@@ -554,6 +554,6 @@ export default async function Home({ params }: Props) {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

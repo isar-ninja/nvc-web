@@ -69,7 +69,7 @@ export default function CompanyOnboarding() {
   const { onboarding } = dictionary;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+    <div className="flex flex-1 flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{onboarding.company.title}</CardTitle>

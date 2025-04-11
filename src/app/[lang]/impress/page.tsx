@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function ImpressPage() {
   return (
-    <div className="bg-gradient-to-b from-slate-50 to-white min-h-screen flex justify-center">
+    <div className="bg-gradient-to-b from-slate-50 to-white min-h-screen flex flex-1 justify-center">
       <div className="container py-16 px-4 sm:px-6 w-full">
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 sm:p-10">
           <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-slate-800 border-b pb-4">

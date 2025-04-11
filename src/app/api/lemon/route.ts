@@ -17,10 +17,11 @@ type LemonSqueezyEvent =
   | "subscription_expired"
   | "subscription_paused"
   | "subscription_unpaused"
-  | "subscription_payment_success" // Added payment success event
-  | "subscription_payment_failed" // Added payment failed event
-  | "order_created"
-  | "order_refunded";
+  | "subscription_payment_success"
+  | "subscription_payment_failed"
+  | "subscription_payment_recovered"
+  | "subscription_payment_refunded"
+  | "subscription_plan_changed"
 
 // Verify the webhook signature
 function verifyWebhookSignature(
@@ -117,6 +118,14 @@ export async function POST(request: NextRequest) {
         // Handle failed payment
         return await handleSubscriptionPaymentFailed(eventData, userId);
 
+      case "subscription_payment_recovered":
+        // Similar to payment success - reactivate subscription
+        return await handleSubscriptionPaymentRecovered(eventData, userId);
+
+      case "subscription_payment_refunded":
+        // Handle refunds
+        return await handleSubscriptionPaymentRefunded(eventData, userId);
+
       case "subscription_updated":
         // Regular update (not related to payment)
         const updatePlan = await getPlanDetails(
@@ -129,13 +138,30 @@ export async function POST(request: NextRequest) {
           userId,
         );
 
+      case "subscription_plan_changed":
+        // Handle plan changes
+        const newPlan = await getPlanDetails(eventData.attributes.variant_name);
+        return await handleSubscriptionPlanChanged(
+          eventData,
+          newPlan,
+          billingCycle,
+          userId,
+        );
+
       case "subscription_cancelled":
         return await handleSubscriptionCancellation(eventData, userId);
 
-      case "order_created":
-        // For order_created, we'll just log but not take action on subscription
-        console.log(`Order created, waiting for subscription events`);
-        break;
+      case "subscription_resumed":
+        return await handleSubscriptionResumed(eventData, userId);
+
+      case "subscription_expired":
+        return await handleSubscriptionExpired(eventData, userId);
+
+      case "subscription_paused":
+        return await handleSubscriptionPaused(eventData, userId);
+
+      case "subscription_unpaused":
+        return await handleSubscriptionUnpaused(eventData, userId);
 
       default:
         console.log(`Unhandled event type: ${eventName}`);
@@ -496,4 +522,349 @@ async function getPlanDetails(variantName: string): Promise<Plan> {
     variantName.toLowerCase().includes(plan.name.toLowerCase()),
   );
   return plan!;
+}
+
+async function handleSubscriptionPaymentRecovered(
+  eventData: any,
+  userId?: string,
+) {
+  try {
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid payment recovery data structure", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.attributes.subscription_id;
+    console.log(
+      `Processing recovered payment for subscription ${subscriptionId}`,
+    );
+
+    // Find the user if userId not provided
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("subscription.lemonSqueezySubscriptionId", "==", subscriptionId)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with subscription ID: ${subscriptionId}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    // Update subscription to active status
+    await adminDb.collection("users").doc(uid).update({
+      "subscription.status": "active", // Reactivate the subscription
+      "subscription.updatedAt": Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
+    console.log(
+      `Reactivated subscription ${subscriptionId} for user ${uid} after payment recovery`,
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling payment recovery:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle payment refunds
+async function handleSubscriptionPaymentRefunded(
+  eventData: any,
+  userId?: string,
+) {
+  try {
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid payment refund data structure", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.attributes.subscription_id;
+    console.log(
+      `Processing refunded payment for subscription ${subscriptionId}`,
+    );
+
+    // Find the user if userId not provided
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("subscription.lemonSqueezySubscriptionId", "==", subscriptionId)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with subscription ID: ${subscriptionId}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    // Log the refund event - you might handle this differently based on your business logic
+    console.log(
+      `Refund processed for subscription ${subscriptionId}, user ${uid}`,
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling payment refund:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle plan changes
+async function handleSubscriptionPlanChanged(
+  eventData: any,
+  plan: Plan,
+  billingCycle: string,
+  userId?: string,
+) {
+  try {
+    // This is similar to handleSubscriptionUpdate but specifically for plan changes
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid plan change data structure", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.id;
+    const attributes = eventData.attributes;
+    const variantName = attributes.variant_name.toLowerCase();
+    const planId = variantName.includes("starter") ? "starter" : "professional";
+    const customerEmail = attributes.user_email;
+
+    // Find user
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("email", "==", customerEmail)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with email: ${customerEmail}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    // Update subscription with new plan details
+    const maxTranslationsPerMonth = plan.limits.maxTranslationsPerMonth;
+    const maxWorkspaces = plan.limits.maxWorkspaces;
+
+    await adminDb.collection("users").doc(uid).update({
+      "subscription.planId": planId,
+      "subscription.billingCycle": billingCycle,
+      "subscription.lemonSqueezyVariantId": attributes.variant_id,
+      "subscription.lemonSqueezyVariantName": attributes.variant_name,
+      "subscription.lemonSqueezyProductName": attributes.product_name,
+      "subscription.maxTranslationsPerMonth": maxTranslationsPerMonth,
+      "subscription.maxWorkspaces": maxWorkspaces,
+      "subscription.updatedAt": Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
+    console.log(
+      `Updated subscription plan for user ${uid} to ${planId} (${subscriptionId})`,
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling plan change:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle subscription resumption
+async function handleSubscriptionResumed(eventData: any, userId?: string) {
+  try {
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid subscription resume data", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.id;
+
+    // Find user
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("subscription.lemonSqueezySubscriptionId", "==", subscriptionId)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with subscription ID: ${subscriptionId}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    await adminDb.collection("users").doc(uid).update({
+      "subscription.status": "active",
+      "subscription.cancelAtPeriodEnd": false,
+      "subscription.updatedAt": Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
+    console.log(`Resumed subscription ${subscriptionId} for user ${uid}`);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling subscription resumption:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle subscription expiration
+async function handleSubscriptionExpired(eventData: any, userId?: string) {
+  try {
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid subscription expiration data", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.id;
+
+    // Find user
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("subscription.lemonSqueezySubscriptionId", "==", subscriptionId)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with subscription ID: ${subscriptionId}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    await adminDb.collection("users").doc(uid).update({
+      "subscription.status": "expired",
+      "subscription.updatedAt": Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
+    console.log(
+      `Marked subscription ${subscriptionId} as expired for user ${uid}`,
+    );
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling subscription expiration:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle subscription paused
+async function handleSubscriptionPaused(eventData: any, userId?: string) {
+  try {
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid subscription pause data", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.id;
+
+    // Find user
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("subscription.lemonSqueezySubscriptionId", "==", subscriptionId)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with subscription ID: ${subscriptionId}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    await adminDb.collection("users").doc(uid).update({
+      "subscription.status": "paused",
+      "subscription.updatedAt": Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
+    console.log(`Paused subscription ${subscriptionId} for user ${uid}`);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling subscription pause:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}
+
+// Handle subscription unpaused
+async function handleSubscriptionUnpaused(eventData: any, userId?: string) {
+  try {
+    if (!eventData || !eventData.attributes) {
+      console.error("Invalid subscription unpause data", eventData);
+      return NextResponse.json({ success: false });
+    }
+
+    const subscriptionId = eventData.id;
+
+    // Find user
+    let uid = userId;
+    if (!uid) {
+      const usersRef = adminDb.collection("users");
+      const userSnapshot = await usersRef
+        .where("subscription.lemonSqueezySubscriptionId", "==", subscriptionId)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        uid = userSnapshot.docs[0].id;
+      } else {
+        console.error(`No user found with subscription ID: ${subscriptionId}`);
+        return NextResponse.json({ success: false });
+      }
+    }
+
+    await adminDb.collection("users").doc(uid).update({
+      "subscription.status": "active",
+      "subscription.updatedAt": Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+
+    console.log(`Unpaused subscription ${subscriptionId} for user ${uid}`);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error handling subscription unpause:", error);
+    return NextResponse.json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
 }

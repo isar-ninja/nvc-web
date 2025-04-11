@@ -203,7 +203,7 @@ export default function ManageAccountPage() {
     try {
       setIsDeleting(true);
       await deleteAccountAction();
-      toast.error("Account deleted", {
+      toast.success("Account deleted", {
         description: "Your account has been deleted successfully.",
       });
       router.push("/login");

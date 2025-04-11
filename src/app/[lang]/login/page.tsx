@@ -64,7 +64,7 @@ export default function LoginPage() {
   // Show a full-screen loader when Google sign-in is processing
   if (isGoogleLoggingIn) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-background/95 z-50">
+      <div className="fixed inset-0 flex flex-1 flex-col items-center justify-center bg-background/95 z-50">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
           <h3 className="mt-4 text-xl font-semibold">
@@ -81,7 +81,7 @@ export default function LoginPage() {
   const t = dictionary.auth.login;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+    <div className="flex flex-1 min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center">
           <div className="flex items-center gap-2 font-bold text-xl">

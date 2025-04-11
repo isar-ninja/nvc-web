@@ -78,7 +78,7 @@ export default function NewWorkspace() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+    <div className="flex flex-1 flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-2">
         <div className="flex flex-col items-center text-center">
           <div className="flex items-center gap-2 font-bold text-xl">

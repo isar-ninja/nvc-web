@@ -162,13 +162,8 @@ export async function deleteAccountAction(): Promise<void> {
     if (!userData) throw new Error("User data not found");
 
     // 1. Cancel subscription if user has one
-    if (
-      userData.subscription?.status === "active" ||
-      userData.subscription?.status === "trialing"
-    ) {
-      if (userData.subscription.lemonSqueezySubscriptionId) {
-        await cancelLemonSubscription(userData.subscription as Subscription);
-      }
+    if (userData.subscription.lemonSqueezySubscriptionId) {
+      await cancelLemonSubscription(userData.subscription as Subscription);
     }
 
     // 2. Start a batch to handle multiple Firestore operations

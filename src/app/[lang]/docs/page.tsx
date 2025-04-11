@@ -21,7 +21,7 @@ export default async function Documentation({ params }: Props) {
   const { lang } = await params;
   const dict = await getDictionary(lang as Locale);
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-slate-50 flex flex-1">
       <div className="container mx-auto py-12 px-4 md:px-6">
         <div className="flex flex-col items-center text-center mb-12">
           <div className="h-16 w-16 rounded-lg bg-emerald-100 flex items-center justify-center mb-4">

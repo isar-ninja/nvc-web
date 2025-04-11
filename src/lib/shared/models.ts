@@ -7,6 +7,8 @@ export const stati = [
   "unpaid",
   "pending",
   "cancelled",
+  "paused",
+  "expired",
 ] as const;
 
 export type Status = (typeof stati)[number];
