@@ -20,13 +20,27 @@ import Script from "next/script";
 import { getPlans } from "@/actions/plan-actions";
 import { useRouter } from "next/navigation";
 
+const productIds = {
+  production: {
+    starter: "5ee14a7b-6c0a-435e-943f-3f5f0081337e",
+    professional: "c95840c5-cf93-424e-953e-2bcbfeeaa94d",
+  },
+  development: {
+    starter: "0a7a668c-c4fd-45b9-9f5a-c791c71c3b38",
+    professional: "4493c79c-c8ed-4184-bbd2-e5ca89af827a",
+  },
+};
+
+const env = process.env.NODE_ENV;
+
 const LEMON_SQUEEZY_URLS = {
   starter: (uid: string) =>
-    `https://store.goodspeech.chat/buy/0a7a668c-c4fd-45b9-9f5a-c791c71c3b38?checkout[custom][user_id]=${uid}`,
+    `https://store.goodspeech.chat/buy/${productIds[env].starter}?checkout[custom][user_id]=${uid}`,
   professional: (uid: string) =>
-    `https://store.goodspeech.chat/buy/4493c79c-c8ed-4184-bbd2-e5ca89af827a?checkout[custom][user_id]=${uid}`, // Update with actual URL
+    `https://store.goodspeech.chat/buy/${productIds[env].professional}?checkout[custom][user_id]=${uid}`, // Update with actual URL
   enterprise: `/enterprise`,
 };
+
 // 4242 4242 4242 4242
 export default function SubscriptionPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
