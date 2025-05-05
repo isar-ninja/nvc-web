@@ -18,7 +18,10 @@ import { Plan } from "@/lib/shared/models";
 import Link from "next/link";
 import Script from "next/script";
 import { getPlans } from "@/actions/plan-actions";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { getDictionary } from "@/lib/i18n";
+import { Locale } from "@/lib/i18n-config";
+import { formatDate } from "@/lib/utils";
 
 const LEMON_SQUEEZY_URLS = {
   starter: (uid: string) =>
@@ -34,9 +37,20 @@ export default function SubscriptionPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
+  const [dict, setDictionary] = useState<any | null>(null);
+  const { lang } = useParams();
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    async function loadDictionary() {
+      const dict = await getDictionary(lang as Locale);
+      setDictionary(dict);
+    }
+    loadDictionary();
+  }, [lang]);
 
   const { userData, firebaseUser } = useAuth();
   useEffect(() => {
@@ -130,16 +144,20 @@ export default function SubscriptionPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold mb-2">
-              Choose Your Subscription Plan
+              {dict?.subscription?.title || "Choose Your Subscription Plan"}
             </h1>
             <p className="text-gray-500">
-              Select the plan that best fits your needs
+              {dict?.subscription?.subtitle ||
+                "Select the plan that best fits your needs"}
             </p>
 
             {userData?.subscription &&
               userData.subscription.status !== "cancelled" && (
                 <div className="mt-6 p-4 border rounded-lg bg-gray-50 max-w-lg mx-auto">
-                  <h2 className="font-semibold mb-1">Current Subscription</h2>
+                  <h2 className="font-semibold mb-1">
+                    {dict?.subscription?.currentSubscription ||
+                      "Current Subscription"}
+                  </h2>
                   <div className="flex items-center justify-center gap-2 flex-wrap">
                     <Badge
                       className="px-2 py-1 text-sm"
@@ -162,17 +180,24 @@ export default function SubscriptionPage() {
                     {userData.subscription.status === "active" &&
                       userData.subscription.currentPeriodEnd && (
                         <div className="text-sm text-gray-500 mt-1 w-full">
-                          Next billing date:{" "}
-                          {new Date(
-                            userData.subscription.currentPeriodEnd as Date,
-                          ).toLocaleDateString()}
+                          {(
+                            dict?.subscription?.billingDate ||
+                            "Next billing date: {date}"
+                          ).replace(
+                            "{date}",
+                            formatDate(
+                              userData.subscription.currentPeriodEnd as Date,
+                              lang as string,
+                            ),
+                          )}
                         </div>
                       )}
                   </div>
                   <Link href={`https://store.goodspeech.chat/billing`}>
                     <Button size="sm" className="mt-4 ">
-                      <CreditCard />
-                      Billing Settings
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      {dict?.subscription?.billingSettings ||
+                        "Billing Settings"}
                     </Button>
                   </Link>
                 </div>
@@ -190,18 +215,19 @@ export default function SubscriptionPage() {
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="monthly" id="monthly" />
                   <Label htmlFor="monthly" className="cursor-pointer">
-                    Monthly
+                    {dict?.subscription?.billingCycle?.monthly || "Monthly"}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="yearly" id="yearly" />
                   <Label htmlFor="yearly" className="cursor-pointer">
-                    Yearly
+                    {dict?.subscription?.billingCycle?.yearly || "Yearly"}
                     <Badge
                       variant="outline"
                       className="ml-2 bg-green-50 text-green-600 border-green-200"
                     >
-                      Save up to 25%
+                      {dict?.subscription?.billingCycle?.savePercent ||
+                        "Save up to 20%"}
                     </Badge>
                   </Label>
                 </div>
@@ -229,7 +255,8 @@ export default function SubscriptionPage() {
                 >
                   {isCurrentPlan && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
-                      Current Plan
+                      {dict?.subscription?.actions?.currentPlan ||
+                        "Current Plan"}
                     </div>
                   )}
 
@@ -258,29 +285,36 @@ export default function SubscriptionPage() {
 
                     {billingCycle === "yearly" && plan.id !== "enterprise" && (
                       <div className="text-green-600 text-sm mt-1">
-                        Save 20% with annual billing
+                        {dict?.pricing?.savePercent || "Save 20%"}{" "}
                       </div>
                     )}
 
                     {billingCycle === "yearly" && typeof price === "number" && (
                       <div className="text-sm text-gray-500 mt-1">
-                        ${getMonthlyEquivalent(price)}/mo equivalent
+                        €{getMonthlyEquivalent(price)}/mo equivalent
                       </div>
                     )}
                   </div>
 
                   <div className="mt-6 space-y-3">
                     <div className="flex justify-between items-center text-sm">
-                      <span>Max Workspaces</span>
+                      <span>
+                        {dict?.subscription?.planFeatures?.maxWorkspaces ||
+                          "Max Workspaces"}
+                      </span>
                       <span className="font-medium">
                         {plan.limits.maxWorkspaces}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                      <span>Translations / Month</span>
+                      <span>
+                        {dict?.subscription?.planFeatures
+                          ?.translationsPerMonth || "Translations / Month"}
+                      </span>
                       <span className="font-medium">
                         {plan.limits.maxTranslationsPerMonth === null
-                          ? "Unlimited"
+                          ? dict?.subscription?.planFeatures?.unlimited ||
+                            "Unlimited"
                           : plan.limits.maxTranslationsPerMonth.toLocaleString()}
                       </span>
                     </div>
@@ -311,10 +345,12 @@ export default function SubscriptionPage() {
                       disabled={false}
                     >
                       {selectedPlanId === plan.id && plan.id !== "enterprise"
-                        ? "Selected"
+                        ? dict?.subscription?.actions?.selected || "Selected"
                         : plan.id === "enterprise"
-                          ? "Get in touch"
-                          : "Select Plan"}
+                          ? dict?.subscription?.actions?.getInTouch ||
+                            "Get in touch"
+                          : dict?.subscription?.actions?.selectPlan ||
+                            "Select Plan"}
                     </Button>
                   </div>
                 </div>
@@ -343,25 +379,29 @@ export default function SubscriptionPage() {
                 {false ? (
                   <>
                     <MessageSquareText className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
+                    {dict?.subscription?.actions?.processing || "Processing..."}
                   </>
                 ) : userData?.subscription.planId === selectedPlanId &&
                   userData?.subscription.billingCycle === billingCycle ? (
-                  "Current Plan"
+                  dict?.subscription?.actions?.currentPlan || "Current Plan"
                 ) : isPlanUpgrade(selectedPlanId) ? (
                   <>
-                    Upgrade Subscription
+                    {dict?.subscription?.actions?.upgradePlan ||
+                      "Upgrade Subscription"}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 ) : (
+                  dict?.subscription?.actions?.updateSubscription ||
                   "Update Subscription"
                 )}
               </Button>
             </Link>
             <p className="mt-4 text-sm text-gray-500">
               {selectedPlanId === "enterprise"
-                ? "Our sales team will contact you to discuss custom pricing and features."
-                : "You can change or cancel your subscription at any time."}
+                ? dict?.subscription?.enterprise?.contactMessage ||
+                  "Our sales team will contact you to discuss custom pricing and features."
+                : dict?.subscription?.general?.changeCancel ||
+                  "You can change or cancel your subscription at any time."}
             </p>
           </div>
         </div>

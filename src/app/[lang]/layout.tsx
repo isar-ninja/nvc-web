@@ -22,11 +22,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Goodspeech | Transform Workplace Communication",
-  description:
-    "Goodspeech translates aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { lang: string };
+}): Promise<Metadata> {
+  const { lang } = await params;
+
+  // You can use the dictionary to get localized metadata
+  const dict = await getDictionary(lang as Locale);
+
+  // Base URL of your site
+  const baseUrl = "https://goodspeech.chat";
+
+  // Create language alternatives for all supported locales
+  const languages: Record<string, string> = {};
+  i18n.locales.forEach((locale) => {
+    languages[locale] = `${baseUrl}/${locale}`;
+  });
+
+  return {
+    title:
+      dict.metadata?.title || "Goodspeech | Transform Workplace Communication",
+    description:
+      dict.metadata?.description ||
+      "Goodspeech translates aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding.",
+    alternates: {
+      canonical: `${baseUrl}/${lang}`,
+      languages,
+    },
+  };
+}
 
 export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }));
@@ -42,7 +68,7 @@ export default async function RootLayout({
   const { lang } = await params;
   const dict = await getDictionary(lang as Locale);
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         {/* Google Analytics will be loaded after the initial page load */}
         <GoogleAnalytics />
