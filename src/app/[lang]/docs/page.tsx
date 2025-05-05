@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,14 +13,44 @@ import { CheckCircle, MessageSquare, RefreshCw } from "lucide-react";
 import { Locale } from "@/lib/i18n-config";
 import { getDictionary } from "@/lib/i18n";
 import FAQ from "@/components/faq";
+import { i18n } from "@/lib/i18n-config";
 
 type Props = {
-  params: Promise<{ lang: Locale }>;
+  params: { lang: Locale };
 };
+
+// Add metadata generation for canonical URLs
+export async function generateMetadata({
+  params,
+}: {
+  params: { lang: Locale };
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+
+  const baseUrl = "https://goodspeech.chat";
+  const canonicalUrl = `${baseUrl}/${lang}/docs`;
+
+  // Create language alternatives for this page
+  const languages: Record<string, string> = {};
+  i18n.locales.forEach((locale) => {
+    languages[locale] = `${baseUrl}/${locale}/docs`;
+  });
+
+  return {
+    title: dict.docs.metadata.title,
+    description: dict.docs.metadata.description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages,
+    },
+  };
+}
 
 export default async function Documentation({ params }: Props) {
   const { lang } = await params;
-  const dict = await getDictionary(lang as Locale);
+  const dict = await getDictionary(lang);
+
   return (
     <main className="min-h-screen bg-slate-50 flex flex-1">
       <div className="container mx-auto py-12 px-4 md:px-6">
@@ -28,26 +59,27 @@ export default async function Documentation({ params }: Props) {
             <MessageSquare className="h-8 w-8 text-emerald-600" />
           </div>
           <h1 className="text-4xl font-bold tracking-tight mb-4">
-            GoodSpeech Bot for Slack
+            {dict.docs.title}
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl">
-            Transform your team communication with more empathic and considerate
-            messages
+            {dict.docs.subtitle}
           </p>
         </div>
 
         <Tabs defaultValue="install" className="max-w-4xl mx-auto">
           <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="install">Installation Guide</TabsTrigger>
-            <TabsTrigger value="usage">Usage Guide</TabsTrigger>
+            <TabsTrigger value="install">
+              {dict.docs.install.tabTitle}
+            </TabsTrigger>
+            <TabsTrigger value="usage">{dict.docs.usage.tabTitle}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="install">
             <Card>
               <CardHeader>
-                <CardTitle>Installing GoodSpeech Bot</CardTitle>
+                <CardTitle>{dict.docs.install.title}</CardTitle>
                 <CardDescription>
-                  Follow these steps to add GoodSpeech to your Slack workspace
+                  {dict.docs.install.description}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-8">
@@ -58,11 +90,10 @@ export default async function Documentation({ params }: Props) {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">
-                        Go to the Goodspeech Dahsboard
+                        {dict.docs.install.step1.title}
                       </h3>
                       <p className="text-slate-600 mt-1">
-                        Go to the "Slack Integration" section and click the
-                        button "Add to Slack"
+                        {dict.docs.install.step1.description}
                       </p>
                       <Button
                         size="sm"
@@ -74,7 +105,7 @@ export default async function Documentation({ params }: Props) {
                           width="16"
                           src="/slack-icon.png"
                         />
-                        Add to Slack
+                        {dict.docs.install.addToSlack}
                       </Button>
                     </div>
                   </div>
@@ -85,58 +116,56 @@ export default async function Documentation({ params }: Props) {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">
-                        Install Bot to a Slack Workspace
+                        {dict.docs.install.step2.title}
                       </h3>
                       <p className="text-slate-600 mt-1">
-                        A new Browser window will open a where you can select
-                        the Slack Workspace you want to integrate GoodSpeech
-                        with.
+                        {dict.docs.install.step2.description}
                       </p>
                     </div>
                   </div>
 
+                  {/* Continue with steps 3-5 following the same pattern */}
+                  {/* Step 3 */}
                   <div className="flex items-start gap-4">
                     <div className="bg-emerald-100 rounded-full p-2 mt-1">
                       <span className="font-bold text-emerald-700">3</span>
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">
-                        Add to Workspace
+                        {dict.docs.install.step3.title}
                       </h3>
                       <p className="text-slate-600 mt-1">
-                        Click the "Add to Slack" button and authorize the app
-                        for your workspace. You'll need to have the appropriate
-                        permissions to add apps to your workspace.
+                        {dict.docs.install.step3.description}
                       </p>
                     </div>
                   </div>
 
+                  {/* Step 4 */}
                   <div className="flex items-start gap-4">
                     <div className="bg-emerald-100 rounded-full p-2 mt-1">
                       <span className="font-bold text-emerald-700">4</span>
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">
-                        Review Permissions
+                        {dict.docs.install.step4.title}
                       </h3>
                       <p className="text-slate-600 mt-1">
-                        Review the permissions requested by GoodSpeech. The bot
-                        needs access to read and send messages in Workspaces
-                        where it's used.
+                        {dict.docs.install.step4.description}
                       </p>
                     </div>
                   </div>
 
+                  {/* Step 5 */}
                   <div className="flex items-start gap-4">
                     <div className="bg-emerald-100 rounded-full p-2 mt-1">
                       <span className="font-bold text-emerald-700">5</span>
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold">Confirmation</h3>
+                      <h3 className="text-lg font-semibold">
+                        {dict.docs.install.step5.title}
+                      </h3>
                       <p className="text-slate-600 mt-1">
-                        Once you click allow, slack will open and the bot
-                        installed. The GoodSpeech bot is now ready to use in
-                        your workspace!
+                        {dict.docs.install.step5.description}
                       </p>
                     </div>
                   </div>
@@ -146,17 +175,15 @@ export default async function Documentation({ params }: Props) {
                   <div className="flex items-center gap-3 mb-3">
                     <CheckCircle className="h-5 w-5 text-emerald-600" />
                     <h3 className="font-semibold text-emerald-800">
-                      Installation Complete
+                      {dict.docs.install.complete.title}
                     </h3>
                   </div>
                   <p className="text-emerald-700">
-                    GoodSpeech is now available in your Slack workspace. You can
-                    use it in any channel or direct message by typing the "/nvc"
-                    command.
+                    {dict.docs.install.complete.description}
                   </p>
                 </div>
                 <h2 className="text-2xl font-bold text-center">
-                  Frequently Asked Questions
+                  {dict.faq.title}
                 </h2>
                 <section
                   id="how-it-works"
@@ -173,60 +200,64 @@ export default async function Documentation({ params }: Props) {
           <TabsContent value="usage">
             <Card>
               <CardHeader>
-                <CardTitle>Using GoodSpeech Bot</CardTitle>
-                <CardDescription>
-                  Learn how to use GoodSpeech to improve your communication
-                </CardDescription>
+                <CardTitle>{dict.docs.usage.title}</CardTitle>
+                <CardDescription>{dict.docs.usage.description}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-8">
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-xl font-semibold">Key Features</h3>
+                    <h3 className="text-xl font-semibold">
+                      {dict.docs.usage.features.title}
+                    </h3>
                     <ul className="space-y-3">
                       <li className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <span>
-                          Use the bot in any channel or direct message
-                        </span>
+                        <span>{dict.docs.usage.features.feature1}</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <span>Suggestions are only visible to you</span>
+                        <span>{dict.docs.usage.features.feature2}</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <span>
-                          Generate multiple suggestions with the regenerate
-                          button
-                        </span>
+                        <span>{dict.docs.usage.features.feature3}</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <span>
-                          Copy and paste suggestions into your conversation
-                        </span>
+                        <span>{dict.docs.usage.features.feature4}</span>
                       </li>
                     </ul>
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-xl font-semibold">How to Use</h3>
+                    <h3 className="text-xl font-semibold">
+                      {dict.docs.usage.howTo.title}
+                    </h3>
                     <div className="space-y-4">
+                      {/* Step 1 */}
                       <div className="flex items-start gap-4">
                         <div className="bg-emerald-100 rounded-full p-2 mt-1">
                           <span className="font-bold text-emerald-700">1</span>
                         </div>
                         <div>
                           <h4 className="text-lg font-medium">
-                            Invoke the Bot
+                            {dict.docs.usage.howTo.step1.title}
                           </h4>
                           <p className="text-slate-600 mt-1">
-                            Type{" "}
-                            <code className="bg-slate-100 px-2 py-1 rounded">
-                              /nvc
-                            </code>{" "}
-                            followed by your message in any channel or direct
-                            message.
+                            {dict.docs.usage.howTo.step1.description
+                              .split("/nvc")
+                              .map((part, i, arr) =>
+                                i < arr.length - 1 ? (
+                                  <span key={i}>
+                                    {part}
+                                    <code className="bg-slate-100 px-2 py-1 rounded">
+                                      /nvc
+                                    </code>
+                                  </span>
+                                ) : (
+                                  part
+                                ),
+                              )}
                           </p>
                           <div className="mt-2 bg-slate-100 p-3 rounded-md">
                             <code>/nvc why is this ticket still empty</code>
@@ -234,32 +265,33 @@ export default async function Documentation({ params }: Props) {
                         </div>
                       </div>
 
+                      {/* Steps 2-4 */}
+                      {/* Step 2 */}
                       <div className="flex items-start gap-4">
                         <div className="bg-emerald-100 rounded-full p-2 mt-1">
                           <span className="font-bold text-emerald-700">2</span>
                         </div>
                         <div>
                           <h4 className="text-lg font-medium">
-                            Review Suggestions
+                            {dict.docs.usage.howTo.step2.title}
                           </h4>
                           <p className="text-slate-600 mt-1">
-                            The bot will respond with a more empathic version of
-                            your message. Only you can see this suggestion.
+                            {dict.docs.usage.howTo.step2.description}
                           </p>
                         </div>
                       </div>
 
+                      {/* Step 3 */}
                       <div className="flex items-start gap-4">
                         <div className="bg-emerald-100 rounded-full p-2 mt-1">
                           <span className="font-bold text-emerald-700">3</span>
                         </div>
                         <div>
                           <h4 className="text-lg font-medium">
-                            Generate Alternatives
+                            {dict.docs.usage.howTo.step3.title}
                           </h4>
                           <p className="text-slate-600 mt-1">
-                            If you'd like a different suggestion, click the
-                            "Regenerate" button to get a new version.
+                            {dict.docs.usage.howTo.step3.description}
                           </p>
                           <div className="mt-3 flex">
                             <Button
@@ -268,24 +300,23 @@ export default async function Documentation({ params }: Props) {
                               className="flex items-center gap-2"
                             >
                               <RefreshCw className="h-4 w-4" />
-                              Regenerate
+                              {dict.docs.usage.example.regenerate}
                             </Button>
                           </div>
                         </div>
                       </div>
 
+                      {/* Step 4 */}
                       <div className="flex items-start gap-4">
                         <div className="bg-emerald-100 rounded-full p-2 mt-1">
                           <span className="font-bold text-emerald-700">4</span>
                         </div>
                         <div>
                           <h4 className="text-lg font-medium">
-                            Use the Suggestion
+                            {dict.docs.usage.howTo.step4.title}
                           </h4>
                           <p className="text-slate-600 mt-1">
-                            Copy the suggestion and paste it into your
-                            conversation. The bot doesn't automatically send
-                            messages on your behalf.
+                            {dict.docs.usage.howTo.step4.description}
                           </p>
                         </div>
                       </div>
@@ -293,10 +324,12 @@ export default async function Documentation({ params }: Props) {
                   </div>
 
                   <div className="mt-8">
-                    <h3 className="text-xl font-semibold mb-4">Example</h3>
+                    <h3 className="text-xl font-semibold mb-4">
+                      {dict.docs.usage.example.title}
+                    </h3>
                     <div className="border rounded-lg overflow-hidden">
                       <div className="bg-slate-800 text-white p-3 text-sm">
-                        Slack - GoodSpeech Bot Example
+                        {dict.docs.usage.example.slackTitle}
                       </div>
                       <div className="p-4">
                         <Image
@@ -309,9 +342,7 @@ export default async function Documentation({ params }: Props) {
                       </div>
                     </div>
                     <p className="text-sm text-slate-500 mt-2">
-                      In this example, the original message "hey please come to
-                      my office we need to talk!" was transformed into a more
-                      considerate alternative.
+                      {dict.docs.usage.example.description}
                     </p>
                   </div>
                 </div>

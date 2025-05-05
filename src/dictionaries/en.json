@@ -1,4 +1,85 @@
 {
+  "metadata": {
+    "title": "Goodspeech | Transform Workplace Communication",
+    "description": "Goodspeech translates aggressive and passive-aggressive messages into empathic, understandable communication that builds connection and understanding.",
+    "ogImage": "https://goodspeech.chat/og-image-en.jpg",
+    "keywords": "workplace communication, empathic communication, message translator, conflict resolution, Slack integration"
+  },
+  "docs": {
+    "title": "GoodSpeech Bot for Slack",
+    "subtitle": "Transform your team communication with more empathic and considerate messages",
+    "install": {
+      "tabTitle": "Installation Guide",
+      "title": "Installing GoodSpeech Bot",
+      "description": "Follow these steps to add GoodSpeech to your Slack workspace",
+      "step1": {
+        "title": "Go to the Goodspeech Dashboard",
+        "description": "Go to the \"Slack Integration\" section and click the button \"Add to Slack\""
+      },
+      "step2": {
+        "title": "Install Bot to a Slack Workspace",
+        "description": "A new Browser window will open where you can select the Slack Workspace you want to integrate GoodSpeech with."
+      },
+      "step3": {
+        "title": "Add to Workspace",
+        "description": "Click the \"Add to Slack\" button and authorize the app for your workspace. You'll need to have the appropriate permissions to add apps to your workspace."
+      },
+      "step4": {
+        "title": "Review Permissions",
+        "description": "Review the permissions requested by GoodSpeech. The bot needs access to read and send messages in Workspaces where it's used."
+      },
+      "step5": {
+        "title": "Confirmation",
+        "description": "Once you click allow, slack will open and the bot installed. The GoodSpeech bot is now ready to use in your workspace!"
+      },
+      "complete": {
+        "title": "Installation Complete",
+        "description": "GoodSpeech is now available in your Slack workspace. You can use it in any channel or direct message by typing the \"/nvc\" command."
+      },
+      "addToSlack": "Add to Slack"
+    },
+    "usage": {
+      "tabTitle": "Usage Guide",
+      "title": "Using GoodSpeech Bot",
+      "description": "Learn how to use GoodSpeech to improve your communication",
+      "features": {
+        "title": "Key Features",
+        "feature1": "Use the bot in any channel or direct message",
+        "feature2": "Suggestions are only visible to you",
+        "feature3": "Generate multiple suggestions with the regenerate button",
+        "feature4": "Copy and paste suggestions into your conversation"
+      },
+      "howTo": {
+        "title": "How to Use",
+        "step1": {
+          "title": "Invoke the Bot",
+          "description": "Type /nvc followed by your message in any channel or direct message."
+        },
+        "step2": {
+          "title": "Review Suggestions",
+          "description": "The bot will respond with a more empathic version of your message. Only you can see this suggestion."
+        },
+        "step3": {
+          "title": "Generate Alternatives",
+          "description": "If you'd like a different suggestion, click the \"Regenerate\" button to get a new version."
+        },
+        "step4": {
+          "title": "Use the Suggestion",
+          "description": "Copy the suggestion and paste it into your conversation. The bot doesn't automatically send messages on your behalf."
+        }
+      },
+      "example": {
+        "title": "Example",
+        "description": "In this example, the original message \"hey please come to my office we need to talk!\" was transformed into a more considerate alternative.",
+        "slackTitle": "Slack - GoodSpeech Bot Example",
+        "regenerate": "Regenerate"
+      }
+    },
+    "metadata": {
+      "title": "Documentation | GoodSpeech",
+      "description": "Learn how to install and use the GoodSpeech Bot for Slack to improve team communication with more empathic and effective messages."
+    }
+  },
   "auth": {
     "login": {
       "title": "Sign in to your account",
@@ -47,6 +128,40 @@
       "companyPlaceholder": "Enter your company name",
       "continueButton": "Continue",
       "saving": "Saving..."
+    }
+  },
+  "subscription": {
+    "title": "Choose Your Subscription Plan",
+    "subtitle": "Select the plan that best fits your needs",
+    "currentSubscription": "Current Subscription",
+    "billingDate": "Next billing date: {date}",
+    "billingSettings": "Billing Settings",
+    "paymentProcessing": "Payment processing",
+    "billingCycle": {
+      "title": "Billing Cycle",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "savePercent": "Save up to 25%"
+    },
+    "planFeatures": {
+      "maxWorkspaces": "Max Workspaces",
+      "translationsPerMonth": "Translations / Month",
+      "unlimited": "Unlimited"
+    },
+    "actions": {
+      "selected": "Selected",
+      "selectPlan": "Select Plan",
+      "getInTouch": "Get in touch",
+      "upgradePlan": "Upgrade Subscription",
+      "updateSubscription": "Update Subscription",
+      "currentPlan": "Current Plan",
+      "processing": "Processing..."
+    },
+    "enterprise": {
+      "contactMessage": "Our sales team will contact you to discuss custom pricing and features."
+    },
+    "general": {
+      "changeCancel": "You can change or cancel your subscription at any time."
     }
   },
   "dashboard": {

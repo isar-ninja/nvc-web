@@ -1,4 +1,85 @@
 {
+  "metadata": {
+    "title": "Goodspeech | Schluss mit Missverständnissen am Arbeitsplatz",
+    "description": "Goodspeech macht aus unklaren oder konfliktbeladenen Nachrichten verständliche, respektvolle Kommunikation, die Zeit spart und Ergebnisse liefert.",
+    "ogImage": "https://goodspeech.chat/og-image-de.jpg",
+    "keywords": "Arbeitsplatzkommunikation, empathische Kommunikation, Nachrichtenübersetzer, Konfliktlösung, Slack-Integration"
+  },
+  "docs": {
+    "title": "GoodSpeech Bot für Slack",
+    "subtitle": "Verbessern Sie die Kommunikation Ihres Teams mit empathischeren und rücksichtsvolleren Nachrichten",
+    "install": {
+      "tabTitle": "Installationsanleitung",
+      "title": "Installation des GoodSpeech Bots",
+      "description": "Folgen Sie diesen Schritten, um GoodSpeech zu Ihrem Slack-Workspace hinzuzufügen",
+      "step1": {
+        "title": "Gehen Sie zum Goodspeech Dashboard",
+        "description": "Gehen Sie zum Bereich \"Slack-Integration\" und klicken Sie auf die Schaltfläche \"Zu Slack hinzufügen\""
+      },
+      "step2": {
+        "title": "Bot in einem Slack-Workspace installieren",
+        "description": "Ein neues Browserfenster öffnet sich, in dem Sie den Slack-Workspace auswählen können, mit dem Sie GoodSpeech integrieren möchten."
+      },
+      "step3": {
+        "title": "Zum Workspace hinzufügen",
+        "description": "Klicken Sie auf die Schaltfläche \"Zu Slack hinzufügen\" und autorisieren Sie die App für Ihren Workspace. Sie benötigen die entsprechenden Berechtigungen, um Apps zu Ihrem Workspace hinzuzufügen."
+      },
+      "step4": {
+        "title": "Berechtigungen überprüfen",
+        "description": "Überprüfen Sie die von GoodSpeech angeforderten Berechtigungen. Der Bot benötigt Zugriff, um Nachrichten in Workspaces zu lesen und zu senden, in denen er verwendet wird."
+      },
+      "step5": {
+        "title": "Bestätigung",
+        "description": "Sobald Sie auf \"Zulassen\" klicken, öffnet sich Slack und der Bot wird installiert. Der GoodSpeech-Bot ist jetzt in Ihrem Workspace einsatzbereit!"
+      },
+      "complete": {
+        "title": "Installation abgeschlossen",
+        "description": "GoodSpeech ist jetzt in Ihrem Slack-Workspace verfügbar. Sie können ihn in jedem Kanal oder in direkten Nachrichten durch Eingabe des Befehls \"/nvc\" verwenden."
+      },
+      "addToSlack": "Zu Slack hinzufügen"
+    },
+    "usage": {
+      "tabTitle": "Bedienungsanleitung",
+      "title": "Verwendung des GoodSpeech Bots",
+      "description": "Erfahren Sie, wie Sie GoodSpeech zur Verbesserung Ihrer Kommunikation einsetzen können",
+      "features": {
+        "title": "Hauptfunktionen",
+        "feature1": "Verwenden Sie den Bot in jedem Kanal oder in direkten Nachrichten",
+        "feature2": "Vorschläge sind nur für Sie sichtbar",
+        "feature3": "Generieren Sie mehrere Vorschläge mit der Schaltfläche \"Neu generieren\"",
+        "feature4": "Kopieren und fügen Sie Vorschläge in Ihre Konversation ein"
+      },
+      "howTo": {
+        "title": "Bedienungsanleitung",
+        "step1": {
+          "title": "Bot aufrufen",
+          "description": "Geben Sie /nvc gefolgt von Ihrer Nachricht in einem beliebigen Kanal oder einer direkten Nachricht ein."
+        },
+        "step2": {
+          "title": "Vorschläge prüfen",
+          "description": "Der Bot antwortet mit einer empathischeren Version Ihrer Nachricht. Nur Sie können diesen Vorschlag sehen."
+        },
+        "step3": {
+          "title": "Alternativen generieren",
+          "description": "Wenn Sie einen anderen Vorschlag wünschen, klicken Sie auf die Schaltfläche \"Neu generieren\", um eine neue Version zu erhalten."
+        },
+        "step4": {
+          "title": "Vorschlag verwenden",
+          "description": "Kopieren Sie den Vorschlag und fügen Sie ihn in Ihre Konversation ein. Der Bot sendet nicht automatisch Nachrichten in Ihrem Namen."
+        }
+      },
+      "example": {
+        "title": "Beispiel",
+        "description": "In diesem Beispiel wurde die ursprüngliche Nachricht \"Hey, bitte komm in mein Büro, wir müssen reden!\" in eine rücksichtsvollere Alternative umgewandelt.",
+        "slackTitle": "Slack - GoodSpeech Bot Beispiel",
+        "regenerate": "Neu generieren"
+      }
+    },
+    "metadata": {
+      "title": "Dokumentation | GoodSpeech",
+      "description": "Erfahren Sie, wie Sie den GoodSpeech Bot für Slack installieren und verwenden können, um die Teamkommunikation mit empathischeren und effektiveren Nachrichten zu verbessern."
+    }
+  },
   "auth": {
     "login": {
       "title": "Bei Ihrem Konto anmelden",
@@ -116,7 +197,7 @@
     "subtitle": "Wählen Sie den Plan, der für Ihr Team passt",
     "monthly": "/Monat",
     "yearly": "/Jahr",
-    "savePercent": "20% sparen",
+    "savePercent": "20% gespart",
     "getStarted": "Loslegen",
     "contactSales": "Vertrieb kontaktieren"
   },
@@ -298,6 +379,40 @@
     "contactSubtitle": "Füllen Sie das untenstehende Formular aus, und wir werden umgehend antworten.",
     "actions": {
       "enterpriseContact": "Kontaktieren Sie uns für Enterprise"
+    }
+  },
+  "subscription": {
+    "title": "Wählen Sie Ihren Abonnementplan",
+    "subtitle": "Wählen Sie den Plan, der am besten zu Ihren Bedürfnissen passt",
+    "currentSubscription": "Aktuelles Abonnement",
+    "billingDate": "Nächstes Abrechnungsdatum: {date}",
+    "billingSettings": "Abrechnungseinstellungen",
+    "paymentProcessing": "Zahlungsabwicklung",
+    "billingCycle": {
+      "title": "Abrechnungszyklus",
+      "monthly": "Monatlich",
+      "yearly": "Jährlich",
+      "savePercent": "Bis zu 20% sparen"
+    },
+    "planFeatures": {
+      "maxWorkspaces": "Max. Workspaces",
+      "translationsPerMonth": "Übersetzungen / Monat",
+      "unlimited": "Unbegrenzt"
+    },
+    "actions": {
+      "selected": "Ausgewählt",
+      "selectPlan": "Plan wählen",
+      "getInTouch": "Kontakt aufnehmen",
+      "upgradePlan": "Abonnement upgraden",
+      "updateSubscription": "Abonnement aktualisieren",
+      "currentPlan": "Aktueller Plan",
+      "processing": "Wird bearbeitet..."
+    },
+    "enterprise": {
+      "contactMessage": "Unser Vertriebsteam wird Sie kontaktieren, um individuelle Preise und Funktionen zu besprechen."
+    },
+    "general": {
+      "changeCancel": "Sie können Ihr Abonnement jederzeit ändern oder kündigen."
     }
   }
 }

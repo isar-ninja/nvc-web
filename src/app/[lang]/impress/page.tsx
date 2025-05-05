@@ -37,9 +37,12 @@ export default function ImpressPage() {
             </h2>
             <div className="pl-4 border-l-2 border-slate-100 ml-2">
               <p className="mb-1">Falk Michel</p>
-              <p className="mb-1">[Street Address and Number]</p>
-              <p className="mb-1">[Postal Code, City]</p>
+              {/* <p className="mb-1">[Street Address and Number]</p>
+              <p className="mb-1">[Postal Code, City]</p> */}
               <p>Germany</p>
+              <a className="hover:underline" href="mailto:info@goodspeech.chat">
+                info@goodspeech.chat
+              </a>
             </div>
           </section>
 
@@ -64,16 +67,17 @@ export default function ImpressPage() {
             <div className="pl-4 border-l-2 border-slate-100 ml-2">
               <p className="mb-1 flex items-center">
                 <span className="text-slate-500 w-16">Email:</span>
-                <span>info@goospeech.chat</span>
+                <a className="hover:underline" href="mailto:info@goodspeech.chat">
+                  info@goodspeech.chat
+                </a>
               </p>
               <div className="max-w-lg">
                 <Contact />
               </div>
             </div>
-
           </section>
 
-          <section className="mb-10">
+          {/* <section className="mb-10">
             <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center">
               <span className="bg-slate-100 p-1 rounded-md mr-2">
                 <svg
@@ -102,7 +106,7 @@ export default function ImpressPage() {
                 </div>
               </div>
             </div>
-          </section>
+          </section> */}
 
           <section className="mb-10">
             <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center">
@@ -129,9 +133,9 @@ export default function ImpressPage() {
                 VAT Identification Number according to §27a of the German Value
                 Added Tax Act:
               </p>
-              <p className="mb-3 font-medium">DE [Your VAT ID Number]</p>
-              <p className="italic text-slate-500">wip</p>
-              <p>Tax Identification Number: wip</p>
+              {/* <p className="mb-3 font-medium">DE [Your VAT ID Number]</p> */}
+              <p className="italic text-slate-500">183 / 608 / 50648</p>
+              {/* <p>Tax Identification Number: wip</p> */}
             </div>
           </section>
 
@@ -158,7 +162,8 @@ export default function ImpressPage() {
             </h2>
             <div className="pl-4 border-l-2 border-slate-100 ml-2">
               <p className="mb-1">Falk Michel</p>
-              <p>[Same Address as Above]</p>
+              <p className="mb-1">info@goodspeech.chat</p>
+              {/* <p>[Same Address as Above]</p> */}
             </div>
           </section>
 
