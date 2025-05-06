@@ -25,12 +25,12 @@ const geistMono = Geist_Mono({
 export async function generateMetadata({
   params,
 }: {
-  params: { lang: string };
+  params: Promise<{ lang: Locale }>;
 }): Promise<Metadata> {
   const { lang } = await params;
 
   // You can use the dictionary to get localized metadata
-  const dict = await getDictionary(lang as Locale);
+  const dict: any = await getDictionary(lang as Locale);
 
   // Base URL of your site
   const baseUrl = "https://goodspeech.chat";
