@@ -9,6 +9,7 @@ import {
 } from "firebase-admin/firestore";
 import { getUserAction } from "./user-actions";
 import { convertTimestamps } from "./action-utils";
+import getPostHogServer from "@/app/posthog";
 
 export async function createWorkspaceAction(
   workspaceName: string,
@@ -84,7 +85,12 @@ export async function updateWorkspaceNameAction(
   try {
     const { data: user } = await verifyCookie();
     if (!user) throw new Error("User not authenticated");
+    const posthog = getPostHogServer();
 
+    posthog.captureException(
+      "updateWorkspaceNameAction",
+      `Worskpace id: ${workspaceId}, newName: ${newName}`,
+    );
     // Get the workspace document reference
     const workspaceRef = adminDb
       .collection("workspaces")
