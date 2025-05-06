@@ -4,6 +4,8 @@ import { Timestamp } from "firebase-admin/firestore";
 import crypto from "crypto";
 import { getPlans } from "@/actions/plan-actions";
 import { Plan } from "@/lib/shared/models";
+import getPostHogServer from "@/app/posthog";
+const posthog = getPostHogServer();
 
 // Your Lemon Squeezy signing secret from environment variables
 const LEMONSQUEEZY_SIGNING_SECRET = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -42,6 +44,9 @@ function verifyWebhookSignature(
     );
   } catch (error) {
     console.error("Webhook signature verification failed:", error);
+    posthog.captureException(error, undefined, {
+      name: "verifyWebhookSignature",
+    });
     return false;
   }
 }
@@ -170,6 +175,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error processing webhook:", error);
+    const payload = await request.text();
+    const webhookData = JSON.parse(payload);
+    const { meta, data: eventData } = webhookData;
+    const userId = meta.custom_data?.user_id;
+    posthog.captureException(error, userId, {
+      name: "Error processing lemonsqueezy webhook",
+      eventData,
+      meta,
+    });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

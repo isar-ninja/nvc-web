@@ -1,8 +1,10 @@
+import getPostHogServer from "@/app/posthog";
 import { Subscription } from "@/lib/shared/models";
 import {
   cancelSubscription,
   lemonSqueezySetup,
 } from "@lemonsqueezy/lemonsqueezy.js";
+const posthog = getPostHogServer();
 
 export async function cancelLemonSubscription(subscription: Subscription) {
   try {
@@ -29,6 +31,10 @@ export async function cancelLemonSubscription(subscription: Subscription) {
     }
     return { statusCode, data };
   } catch (subscriptionError) {
+    posthog.captureException(subscriptionError, undefined, {
+      name: "cancelLemonSubscription",
+      subscription,
+    });
     console.error(
       "Unexpected error canceling subscription:",
       subscriptionError,

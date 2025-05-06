@@ -10,6 +10,9 @@ import { verifyCookie } from "./auth-actions";
 import { convertTimestamps, isValidEmail } from "./action-utils";
 import { cancelLemonSubscription } from "./lemon-actions";
 import { Subscription, User } from "@/lib/shared/models";
+import getPostHogServer from "@/app/posthog";
+
+const posthog = getPostHogServer();
 
 export async function createUserAction(): Promise<User> {
   try {
@@ -47,6 +50,7 @@ export async function createUserAction(): Promise<User> {
     };
   } catch (error) {
     console.error(`Error creating user:`, error);
+    posthog.captureException(error, "createUserAction error");
     throw error;
   }
 }
@@ -74,6 +78,10 @@ export async function getUserAction(): Promise<User | null> {
     // Convert Firestore Timestamp to Date
     return userData;
   } catch (error) {
+    const { data: user } = await verifyCookie();
+    posthog.captureException(error, user?.uid, {
+      name: "getUserAction error",
+    });
     console.error(`Error getting user:`, error);
     throw error;
   }
@@ -134,6 +142,10 @@ export async function updateUserAction(
 
     return updatedUser;
   } catch (error) {
+    const { data: user } = await verifyCookie();
+    posthog.captureException(error, user?.uid, {
+      name: "updateUserAction error",
+    });
     console.error(`Error updating user:`, error);
     throw error;
   }
@@ -210,6 +222,10 @@ export async function deleteAccountAction(): Promise<void> {
     // 7. Finally delete the user from Firebase Auth
     await adminAuth.deleteUser(user.uid);
   } catch (error) {
+    const { data: user } = await verifyCookie();
+    posthog.captureException(error, user?.uid, {
+      name: "deleteAccountAction error",
+    });
     console.error("Error deleting account:", error);
     throw error;
   }

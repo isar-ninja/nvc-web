@@ -1,6 +1,8 @@
 "use server";
+import getPostHogServer from "@/app/posthog";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { Plan } from "@/lib/shared/models";
+const posthog = getPostHogServer();
 
 export async function getPlans(): Promise<Plan[]> {
   try {
@@ -13,6 +15,10 @@ export async function getPlans(): Promise<Plan[]> {
     return sortPlans(plans);
   } catch (error) {
     console.error(`Error getting plans:`, error);
+
+    posthog.captureException(error, undefined, {
+      name: "getPlans error",
+    });
     throw error;
   }
 }

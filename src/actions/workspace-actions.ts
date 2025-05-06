@@ -11,6 +11,8 @@ import { getUserAction } from "./user-actions";
 import { convertTimestamps } from "./action-utils";
 import getPostHogServer from "@/app/posthog";
 
+const posthog = getPostHogServer();
+
 export async function createWorkspaceAction(
   workspaceName: string,
 ): Promise<Workspace> {
@@ -57,7 +59,11 @@ export async function createWorkspaceAction(
     // Convert the server timestamp to Date for the return value
     return { ...newWorkspace, createdAt: new Date() };
   } catch (error) {
+    const { data: user } = await verifyCookie();
     console.error(`Error getting plans:`, error);
+    posthog.captureException(error, user?.uid, {
+      name: "createWorkspaceAction error",
+    });
     throw error;
   }
 }
@@ -74,6 +80,10 @@ export async function getWorkspacesAction(): Promise<Workspace[]> {
     return workspaces;
   } catch (error) {
     console.error(`Error getting workspace:`, error);
+    const { data: user } = await verifyCookie();
+    posthog.captureException(error, user?.uid, {
+      name: "getWorkspacesAction error",
+    });
     throw error;
   }
 }
@@ -85,12 +95,7 @@ export async function updateWorkspaceNameAction(
   try {
     const { data: user } = await verifyCookie();
     if (!user) throw new Error("User not authenticated");
-    const posthog = getPostHogServer();
 
-    posthog.captureException(
-      "updateWorkspaceNameAction",
-      `Worskpace id: ${workspaceId}, newName: ${newName}`,
-    );
     // Get the workspace document reference
     const workspaceRef = adminDb
       .collection("workspaces")
@@ -128,6 +133,10 @@ export async function updateWorkspaceNameAction(
     };
   } catch (error) {
     console.error(`Error updating workspace name:`, error);
+    const { data: user } = await verifyCookie();
+    posthog.captureException(error, user?.uid, {
+      name: "updateWorkspaceNameAction Error",
+    });
     throw error;
   }
 }
@@ -161,6 +170,10 @@ export async function getWorkspaceByIdAction(
     return workspace;
   } catch (error) {
     console.error(`Error getting workspace by ID:`, error);
+    const { data: user } = await verifyCookie();
+    posthog.captureException(error, user?.uid, {
+      name: "getWorkspaceByIdAction error",
+    });
     throw error;
   }
 }
