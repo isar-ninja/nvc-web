@@ -290,19 +290,19 @@
     "items": [
       {
         "name": "Michael Lütkenhorst",
-        "role": "Engineering Lead, StartupX",
+        "role": "Engineering Lead",
         "quote": "\"As a remote team, clear communication is essential. Goodspeech helps us avoid misunderstandings that used to derail our projects.\"",
         "image": "/testimonials/testi-1.webp"
       },
       {
         "name": "Sarah Jung",
-        "role": "HR Director, TechCorp",
+        "role": "HR Director",
         "quote": "\"Goodspeech has completely transformed how our teams communicate. Conflicts are resolved faster, and people feel more heard and understood.\"",
         "image": "/testimonials/testi-2.webp"
       },
       {
         "name": "Martin Zoller",
-        "role": "Team Lead, Global Solutions",
+        "role": "Team Lead",
         "quote": "\"The ROI on Goodspeech has been incredible. Less time spent on resolving conflicts means more time for productive work.\"",
         "image": "/testimonials/testi-3.webp"
       }
@@ -330,7 +330,7 @@
       },
       {
         "question": "Can Goodspeech translate messages in languages other than English?",
-        "answer": "Currently, Goodspeech supports English, Spanish, French, German, and Japanese. We're adding more languages regularly based on customer demand."
+        "answer": "Communicate effortlessly across borders – Goodspeech supports over 80 languages, including English, Spanish, French, German, Chinese, Japanese, Arabic, and many more."
       }
     ],
     "workModel": [
@@ -353,7 +353,7 @@
     ],
     "promise": {
       "title": "Our promise:",
-      "text": "Goodspeech enhances your natural communication abilities rather than replacing your unique voice. You maintain complete control over every message you send, and it does not make you being right or wrong in any argument."
+      "text": "Goodspeech enhances your natural communication skills without replacing your unique voice. You remain in full control of every message you send – it's not about being right or wrong in a conversation."
     }
   },
   "cta": {

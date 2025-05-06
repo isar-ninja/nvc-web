@@ -202,24 +202,24 @@
     "contactSales": "Vertrieb kontaktieren"
   },
   "testimonials": {
-    "title": "Echte Ergebnisse unserer Kunden",
+    "title": "Das sagen unsere Kunden",
     "subtitle": "So sparen Teams Zeit und verbessern ihre Ergebnisse mit Goodspeech",
     "items": [
       {
         "name": "Michael Lütkenhorst",
-        "role": "Engineering-Leiter, StartupX",
+        "role": "Engineering-Leiter",
         "quote": "\"Mit Goodspeech haben wir eine neue Gesprächskultur entwickelt – direkter, respektvoller und mit deutlich weniger Reibungspunkten im Alltag.\"",
         "image": "/testimonials/testi-1.webp"
       },
       {
         "name": "Sarah Jung",
-        "role": "HR-Direktorin, TechCorp",
+        "role": "HR-Direktorin",
         "quote": "\"Unsere Mitarbeiterzufriedenheit ist deutlich gestiegen, seit wir Goodspeech nutzen. Die Menschen fühlen sich gehört und respektiert, was unsere Fluktuation messbar gesenkt hat.\"",
         "image": "/testimonials/testi-2.webp"
       },
       {
         "name": "Martin Zoller",
-        "role": "Teamleiter, Global Solutions",
+        "role": "Teamleiter",
         "quote": "\"Mit Goodspeech haben wir die Dauer von Konflikten durch unnötige Meetings auf null reduziert. Das bedeutet konkret: Mehr Zeit für Produktentwicklung, weniger Zeit für interne Reibungsverluste.\"",
         "image": "/testimonials/testi-3.webp"
       }
@@ -247,7 +247,7 @@
       },
       {
         "question": "Kann Goodspeech Nachrichten in anderen Sprachen als Englisch übersetzen?",
-        "answer": "Aktuell unterstützt Goodspeech Englisch, Spanisch, Französisch, Deutsch und Japanisch. Basierend auf dem Feedback unserer Kunden erweitern wir regelmäßig unser Sprachangebot. Benötigen Sie eine spezifische Sprache? Teilen Sie uns Ihren Bedarf mit."
+        "answer": "Kommunizieren Sie mühelos über Sprachgrenzen hinweg – Goodspeech unterstützt über 80 Sprachen, darunter Englisch, Spanisch, Französisch, Deutsch, Chinesisch, Japanisch, Arabisch und viele mehr."
       }
     ],
     "workModel": [
@@ -270,12 +270,12 @@
     ],
     "promise": {
       "title": "Unser Versprechen:",
-      "text": "Goodspeech verbessert Ihre natürlichen Kommunikationsfähigkeiten, anstatt Ihre Stimme zu ersetzen. Sie behalten die vollständige Kontrolle über jede Nachricht, die Sie senden, und es macht Sie in keiner Diskussion richtig oder falsch."
+      "text": "Goodspeech stärkt Ihre natürliche Ausdrucksweise, ohne Ihre Stimme zu ersetzen. Sie behalten stets die volle Kontrolle über Ihre Nachrichten – Goodspeech wird nie bewerten, ob Sie in einer Diskussion richtig oder falsch liegen."
     }
   },
   "cta": {
-    "title": "Sparen Sie 4 Stunden pro Woche und reduzieren Sie Konflikte um 60%",
-    "subtitle": "Bereits über 500 Teams nutzen Goodspeech, um ihre Kommunikation zu verbessern und Missverständnisse zu vermeiden",
+    "title": "Sparen Sie wertvolle Zeit und verbessern Sie Ihre Kommunikation nachhaltig.",
+    "subtitle": "Viele Teams nutzen Goodspeech, um ihre Kommunikation zu verbessern und Missverständnisse zu vermeiden",
     "button": "Kostenlose Testversion starten",
     "noCreditCard": "Keine Kreditkarte erforderlich. 14-tägige kostenlose Testversion.",
     "cancelAnytime": "Jederzeit kündbar."

@@ -173,11 +173,32 @@ export default async function Home({ params }: Props) {
               </p>
             </div>
           </div>
+          <div className="flex items-center justify-center mt-12">
+            <Button
+              asChild={true}
+              size="lg"
+              className="w-full min-[400px]:w-auto"
+            >
+              <Link
+                href={
+                  loggedIn.valid ? `/${lang}/dashboard` : `/${lang}/register`
+                }
+              >
+                {dict.actions.tryFree}
+                <Image
+                  alt="Add to Slack"
+                  height="20"
+                  width="20"
+                  src="/slack-icon.png"
+                />
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 flex justify-center">
+      <section id="how-it-works" className="py-16 flex justify-center flex-col items-center">
         <div className="container px-4 md:px-6 space-y-16">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -192,6 +213,25 @@ export default async function Home({ params }: Props) {
           <div className="container mx-auto max-w-3xl">
             <FAQ dict={dict} />
           </div>
+        </div>
+        <div className="flex items-center justify-center mt-12">
+          <Button
+            asChild={true}
+            size="lg"
+            className="w-full min-[400px]:w-auto"
+          >
+            <Link
+              href={loggedIn.valid ? `/${lang}/dashboard` : `/${lang}/register`}
+            >
+              {dict.actions.tryFree}
+              <Image
+                alt="Add to Slack"
+                height="20"
+                width="20"
+                src="/slack-icon.png"
+              />
+            </Link>
+          </Button>
         </div>
       </section>
 
@@ -414,7 +454,7 @@ export default async function Home({ params }: Props) {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="flex justify-center py-16 w-full">
+      <section id="faq" className="flex justify-center items-center py-16 w-full flex-col">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -477,6 +517,25 @@ export default async function Home({ params }: Props) {
               </div>
             ))}
           </div>
+        </div>
+        <div className="flex items-center justify-center mt-12">
+          <Button
+            asChild={true}
+            size="lg"
+            className="w-full min-[400px]:w-auto"
+          >
+            <Link
+              href={loggedIn.valid ? `/${lang}/dashboard` : `/${lang}/register`}
+            >
+              {dict.actions.tryFree}
+              <Image
+                alt="Add to Slack"
+                height="20"
+                width="20"
+                src="/slack-icon.png"
+              />
+            </Link>
+          </Button>
         </div>
       </section>
 
