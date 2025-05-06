@@ -2,10 +2,6 @@ import Contact from "@/components/contact";
 import { i18n, Locale } from "@/lib/i18n-config";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Impressum | Goodspeech Web",
-  description: "Legal information according to § 5 TMG",
-};
 export async function generateMetadata({
   params,
 }: {
