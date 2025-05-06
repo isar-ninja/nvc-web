@@ -16,17 +16,17 @@ import FAQ from "@/components/faq";
 import { i18n } from "@/lib/i18n-config";
 
 type Props = {
-  params: { lang: Locale };
+  params: Promise<{ lang: Locale }>;
 };
 
 // Add metadata generation for canonical URLs
 export async function generateMetadata({
   params,
 }: {
-  params: { lang: Locale };
+  params: Promise<{ lang: Locale }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const dict = await getDictionary(lang);
+  const dict: any = await getDictionary(lang);
 
   const baseUrl = "https://goodspeech.chat";
   const canonicalUrl = `${baseUrl}/${lang}/docs`;
@@ -49,7 +49,7 @@ export async function generateMetadata({
 
 export default async function Documentation({ params }: Props) {
   const { lang } = await params;
-  const dict = await getDictionary(lang);
+  const dict: any = await getDictionary(lang);
 
   return (
     <main className="min-h-screen bg-slate-50 flex flex-1">
