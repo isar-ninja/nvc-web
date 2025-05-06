@@ -1,10 +1,41 @@
 import Contact from "@/components/contact";
+import { i18n, Locale } from "@/lib/i18n-config";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Datenschutzerklärung | Goodspeech Web",
-  description: "Informationen zum Datenschutz gemäß DSGVO",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: Locale }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+
+  // Base URL of your site
+  const baseUrl = "https://goodspeech.chat";
+
+  // Canonical URL for this specific page
+  const canonicalUrl = `${baseUrl}/${lang}/dsgvo`;
+
+  // Create language alternatives for all supported locales
+  const languages: Record<string, string> = {};
+  i18n.locales.forEach((locale) => {
+    languages[locale] = `${baseUrl}/${locale}/dsgvo`;
+  });
+
+  return {
+    title:
+      lang === "de"
+        ? "Datenschutzerklärung | Goodspeech Web"
+        : "Privacy Policy | Goodspeech Web",
+    description:
+      lang === "de"
+        ? "Informationen zum Datenschutz gemäß DSGVO"
+        : "Privacy policy information according to GDPR",
+    alternates: {
+      canonical: canonicalUrl,
+      languages,
+    },
+  };
+}
 
 export default function DatenschutzPage() {
   return (

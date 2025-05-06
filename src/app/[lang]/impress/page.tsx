@@ -1,10 +1,45 @@
 import Contact from "@/components/contact";
+import { i18n, Locale } from "@/lib/i18n-config";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Impressum | Goodspeech Web",
   description: "Legal information according to § 5 TMG",
 };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: Locale }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+
+  // Base URL of your site
+  const baseUrl = "https://goodspeech.chat";
+
+  // Canonical URL for this specific page
+  const canonicalUrl = `${baseUrl}/${lang}/impress`;
+
+  // Create language alternatives for all supported locales
+  const languages: Record<string, string> = {};
+  i18n.locales.forEach((locale) => {
+    languages[locale] = `${baseUrl}/${locale}/impress`;
+  });
+
+  return {
+    title:
+      lang === "de"
+        ? "Impressum | Goodspeech Web"
+        : "Legal Notice | Goodspeech Web",
+    description:
+      lang === "de"
+        ? "Rechtliche Informationen gemäß § 5 TMG"
+        : "Legal information according to § 5 TMG",
+    alternates: {
+      canonical: canonicalUrl,
+      languages,
+    },
+  };
+}
 
 export default function ImpressPage() {
   return (
@@ -67,7 +102,10 @@ export default function ImpressPage() {
             <div className="pl-4 border-l-2 border-slate-100 ml-2">
               <p className="mb-1 flex items-center">
                 <span className="text-slate-500 w-16">Email:</span>
-                <a className="hover:underline" href="mailto:info@goodspeech.chat">
+                <a
+                  className="hover:underline"
+                  href="mailto:info@goodspeech.chat"
+                >
                   info@goodspeech.chat
                 </a>
               </p>
