@@ -198,7 +198,10 @@ export default async function Home({ params }: Props) {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 flex justify-center flex-col items-center">
+      <section
+        id="how-it-works"
+        className="py-16 flex justify-center flex-col items-center"
+      >
         <div className="container px-4 md:px-6 space-y-16">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -454,7 +457,7 @@ export default async function Home({ params }: Props) {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="flex justify-center items-center py-16 w-full flex-col">
+      {/* <section id="faq" className="flex justify-center items-center py-16 w-full flex-col">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -537,7 +540,7 @@ export default async function Home({ params }: Props) {
             </Link>
           </Button>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section
