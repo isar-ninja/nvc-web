@@ -34,7 +34,7 @@
       },
       "complete": {
         "title": "Installation abgeschlossen",
-        "description": "GoodSpeech ist jetzt in Ihrem Slack-Workspace verfügbar. Sie können ihn in jedem Kanal oder in direkten Nachrichten durch Eingabe des Befehls \"/nvc\" verwenden."
+        "description": "GoodSpeech ist jetzt in Ihrem Slack-Workspace verfügbar. Sie können ihn in jedem Kanal oder in direkten Nachrichten durch Eingabe des Befehls \"/go\" verwenden."
       },
       "addToSlack": "Zu Slack hinzufügen"
     },
@@ -53,7 +53,7 @@
         "title": "Bedienungsanleitung",
         "step1": {
           "title": "Bot aufrufen",
-          "description": "Geben Sie /nvc gefolgt von Ihrer Nachricht in einem beliebigen Kanal oder einer direkten Nachricht ein."
+          "description": "Geben Sie /go gefolgt von Ihrer Nachricht in einem beliebigen Kanal oder einer direkten Nachricht ein."
         },
         "step2": {
           "title": "Vorschläge prüfen",
@@ -148,7 +148,7 @@
   },
   "features": {
     "title": "Konkrete Lösungen für bessere Kommunikation",
-    "subtitle": "Während Teams durchschnittlich 4 Stunden pro Woche mit Kommunikationsproblemen verlieren, bietet Goodspeech praktische Werkzeuge:",
+    "subtitle": "Während Teams mehrere Stunden pro Woche mit Kommunikationsproblemen verlieren, bietet Goodspeech praktische Werkzeuge:",
     "realtime": {
       "title": "Sofortige Verbesserung",
       "description": "Wandelt problematische Formulierungen direkt in lösungsorientierte Aussagen um"
@@ -173,7 +173,7 @@
       },
       "call": {
         "title": "Bei Bedarf nutzen",
-        "description": "Tippen Sie \"/nvc Ihre Nachricht\" ein, wenn Sie Unterstützung bei einer schwierigen Kommunikation benötigen"
+        "description": "Tippen Sie \"/go Ihre Nachricht\" ein, wenn Sie Unterstützung bei einer schwierigen Kommunikation benötigen"
       },
       "results": {
         "title": "Zeit sparen",
@@ -414,5 +414,13 @@
     "general": {
       "changeCancel": "Sie können Ihr Abonnement jederzeit ändern oder kündigen."
     }
+  },
+  "betaSignup": {
+    "title": "Beta-Programm beitreten",
+    "subtitle": "Seien Sie unter den Ersten, die von neuen Funktionen und Updates erfahren",
+    "emailPlaceholder": "E-Mail-Adresse eingeben",
+    "buttonText": "Abonnieren",
+    "successMessage": "Vielen Dank für Ihr Abonnement! Wir halten Sie auf dem Laufenden.",
+    "errorMessage": "Abonnement fehlgeschlagen. Bitte versuchen Sie es später erneut."
   }
 }
