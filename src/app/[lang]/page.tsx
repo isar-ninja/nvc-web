@@ -341,8 +341,9 @@ export default async function Home({ params }: Props) {
             {plans.map((plan) => (
               <div
                 key={plan.id}
-                className={`flex flex-col rounded-lg border p-6 shadow-sm ${plan.recommended ? "border-primary shadow-md" : ""
-                  }`}
+                className={`flex flex-col rounded-lg border p-6 shadow-sm ${
+                  plan.recommended ? "border-primary shadow-md" : ""
+                }`}
               >
                 <div className="space-y-2">
                   <h3 className="text-2xl font-bold">{plan.name}</h3>
@@ -357,25 +358,27 @@ export default async function Home({ params }: Props) {
                         ? `$${plan.pricing.monthly}`
                         : plan.pricing.monthly}
                     </span>
-                    {typeof plan.pricing.monthly === "number" && (
-                      <span className="ml-1 text-xl font-normal text-gray-500 dark:text-gray-400">
-                        {dict.pricing.monthly}
-                      </span>
-                    )}
+                    {typeof plan.pricing.monthly === "number" &&
+                      plan.id !== "enterprise" && (
+                        <span className="ml-1 text-xl font-normal text-gray-500 dark:text-gray-400">
+                          {dict.pricing.monthly}
+                        </span>
+                      )}
                   </div>
-                  {typeof plan.pricing.monthly === "number" && (
-                    <div className="flex items-baseline text-gray-900 dark:text-gray-50">
-                      <span className="text-lg font-medium">
-                        ${Math.round(plan.pricing.monthly * 12 * 0.8)}
-                      </span>
-                      <span className="ml-1 text-sm font-normal text-gray-500 dark:text-gray-400">
-                        {dict.pricing.yearly}
-                      </span>
-                      <span className="ml-2 text-sm font-medium text-green-600 dark:text-green-400">
-                        {dict.pricing.savePercent}
-                      </span>
-                    </div>
-                  )}
+                  {typeof plan.pricing.monthly === "number" &&
+                    plan.id !== "enterprise" && (
+                      <div className="flex items-baseline text-gray-900 dark:text-gray-50">
+                        <span className="text-lg font-medium">
+                          ${Math.round(plan.pricing.monthly * 12 * 0.8)}
+                        </span>
+                        <span className="ml-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+                          {dict.pricing.yearly}
+                        </span>
+                        <span className="ml-2 text-sm font-medium text-green-600 dark:text-green-400">
+                          {dict.pricing.savePercent}
+                        </span>
+                      </div>
+                    )}
                 </div>
                 <ul className="mt-6 space-y-3">
                   {plan.features.map((feature, index) => (
@@ -396,16 +399,12 @@ export default async function Home({ params }: Props) {
                   </li>
                 </ul>
                 <div className="mt-6">
-                  <Link
-                    href={plan.id === "enterprise" ? "#contact" : "#signup"}
-                  >
+                  <Link href={"/register"}>
                     <Button
                       variant={plan.recommended ? "default" : "outline"}
                       className="w-full"
                     >
-                      {plan.id === "enterprise"
-                        ? dict.pricing.contactSales
-                        : dict.pricing.getStarted}
+                      {dict.pricing.getStarted}
                     </Button>
                   </Link>
                 </div>
@@ -454,7 +453,18 @@ export default async function Home({ params }: Props) {
             ))}
           </div>
           <div className="flex justify-center mt-12">
-            <a href="https://www.producthunt.com/posts/goodspeech?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-goodspeech" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=968790&theme=dark&t=1747906413946" alt="Goodspeech - Transform&#0032;your&#0032;messages&#0032;into&#0032;empathic&#0032;lovable&#0032;messages | Product Hunt" style={{ width: 250, height: 54 }} width="250" height="54" /></a>
+            <a
+              href="https://www.producthunt.com/posts/goodspeech?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-goodspeech"
+              target="_blank"
+            >
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=968790&theme=dark&t=1747906413946"
+                alt="Goodspeech - Transform&#0032;your&#0032;messages&#0032;into&#0032;empathic&#0032;lovable&#0032;messages | Product Hunt"
+                style={{ width: 250, height: 54 }}
+                width="250"
+                height="54"
+              />
+            </a>
           </div>
         </div>
       </section>

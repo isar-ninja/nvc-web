@@ -27,10 +27,12 @@ const productIds = {
   production: {
     starter: "5ee14a7b-6c0a-435e-943f-3f5f0081337e",
     professional: "c95840c5-cf93-424e-953e-2bcbfeeaa94d",
+    enterprise: "db466df5-08c5-4b74-974a-06a1670430ef",
   },
   development: {
     starter: "0a7a668c-c4fd-45b9-9f5a-c791c71c3b38",
     professional: "4493c79c-c8ed-4184-bbd2-e5ca89af827a",
+    enterprise: "91480816-89bd-4157-ace6-4c8cd9395ed1",
   },
 };
 
@@ -41,7 +43,8 @@ const LEMON_SQUEEZY_URLS = {
     `https://store.goodspeech.chat/buy/${productIds[env].starter}?checkout[custom][user_id]=${uid}`,
   professional: (uid: string) =>
     `https://store.goodspeech.chat/buy/${productIds[env].professional}?checkout[custom][user_id]=${uid}`, // Update with actual URL
-  enterprise: `/enterprise`,
+  enterprise: (uid: string) =>
+    `https://store.goodspeech.chat/buy/${productIds[env].enterprise}?checkout[custom][user_id]=${uid}`,
 };
 
 // 4242 4242 4242 4242
@@ -252,6 +255,7 @@ export default function SubscriptionPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {plans.map((plan) => {
               const isCurrentPlan = userData?.subscription.planId === plan.id;
+              const isLifetimePlan = plan.id === "enterprise";
               const price =
                 billingCycle === "monthly"
                   ? plan.pricing.monthly
@@ -276,7 +280,7 @@ export default function SubscriptionPage() {
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      {plan.id === "premium" && (
+                      {plan.id === "professional" && (
                         <Zap className="h-5 w-5 text-amber-500" />
                       )}
                       {plan.id === "enterprise" && (
@@ -292,22 +296,26 @@ export default function SubscriptionPage() {
                       <span className="text-3xl font-bold">
                         {formatPrice(price)}
                       </span>
-                      <span className="ml-1 text-xl font-normal text-gray-500">
-                        /{billingCycle === "monthly" ? "month" : "year"}
-                      </span>
+                      {!isLifetimePlan && (
+                        <span className="ml-1 text-xl font-normal text-gray-500">
+                          /{billingCycle === "monthly" ? "month" : "year"}
+                        </span>
+                      )}
                     </div>
 
-                    {billingCycle === "yearly" && plan.id !== "enterprise" && (
+                    {billingCycle === "yearly" && !isLifetimePlan && (
                       <div className="text-green-600 text-sm mt-1">
                         {dict?.pricing?.savePercent || "Save 20%"}{" "}
                       </div>
                     )}
 
-                    {billingCycle === "yearly" && typeof price === "number" && (
-                      <div className="text-sm text-gray-500 mt-1">
-                        €{getMonthlyEquivalent(price)}/mo equivalent
-                      </div>
-                    )}
+                    {!isLifetimePlan &&
+                      billingCycle === "yearly" &&
+                      typeof price === "number" && (
+                        <div className="text-sm text-gray-500 mt-1">
+                          €{getMonthlyEquivalent(price)}/mo equivalent
+                        </div>
+                      )}
                   </div>
 
                   <div className="mt-6 space-y-3">
@@ -351,20 +359,13 @@ export default function SubscriptionPage() {
                         selectedPlanId === plan.id ? "default" : "outline"
                       }
                       className="w-full"
-                      onClick={() =>
-                        plan.id === "enterprise"
-                          ? router.push("/enterprise")
-                          : handlePlanSelect(plan.id)
-                      }
+                      onClick={() => handlePlanSelect(plan.id)}
                       disabled={false}
                     >
                       {selectedPlanId === plan.id && plan.id !== "enterprise"
                         ? dict?.subscription?.actions?.selected || "Selected"
-                        : plan.id === "enterprise"
-                          ? dict?.subscription?.actions?.getInTouch ||
-                            "Get in touch"
-                          : dict?.subscription?.actions?.selectPlan ||
-                            "Select Plan"}
+                        : dict?.subscription?.actions?.selectPlan ||
+                          "Select Plan"}
                     </Button>
                   </div>
                 </div>
@@ -374,11 +375,7 @@ export default function SubscriptionPage() {
 
           <div className="mt-12 text-center">
             <Link
-              href={
-                selectedPlanId === "enterprise"
-                  ? `${LEMON_SQUEEZY_URLS[selectedPlanId]}`
-                  : `${LEMON_SQUEEZY_URLS[selectedPlanId]?.(firebaseUser?.uid) || ""}`
-              }
+              href={`${LEMON_SQUEEZY_URLS[selectedPlanId]?.(firebaseUser?.uid) || ""}`}
               className={`lemonsqueezy-button ${userData?.subscription.planId === selectedPlanId ? "pointer-events-none" : ""}`}
             >
               <Button
@@ -411,11 +408,8 @@ export default function SubscriptionPage() {
               </Button>
             </Link>
             <p className="mt-4 text-sm text-gray-500">
-              {selectedPlanId === "enterprise"
-                ? dict?.subscription?.enterprise?.contactMessage ||
-                  "Our sales team will contact you to discuss custom pricing and features."
-                : dict?.subscription?.general?.changeCancel ||
-                  "You can change or cancel your subscription at any time."}
+              {dict?.subscription?.general?.changeCancel ||
+                "You can change or cancel your subscription at any time."}
             </p>
           </div>
         </div>
